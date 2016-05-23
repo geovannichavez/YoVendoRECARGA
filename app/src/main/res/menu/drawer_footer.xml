@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="none" android:id="@+id/footerGroup">
+
+        <item
+            android:id="@+id/Configuracion"
+            android:checked="false"
+            android:icon="@drawable/icono_config"
+            android:title="@string/drawer_configuracion"/>
+
+    </group>
+</menu>

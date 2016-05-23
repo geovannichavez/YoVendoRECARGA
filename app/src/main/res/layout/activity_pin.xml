@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.globalpaysolutions.yovendosaldo.PIN">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbarPin"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/ApplicationGreenTheme"
+        android:elevation="4dp"
+        app:popupTheme="@style/ThemeOverlay.AppCompat"
+        app:theme="@style/ToolbarTheme" >
+        <ImageView
+            android:id="@+id/tbLogo"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/logo_horizontal"/>
+    </android.support.v7.widget.Toolbar>
+    <LinearLayout
+        android:orientation="vertical"
+        android:paddingTop="@dimen/ActivityVerticalCustomMargin"
+        android:paddingLeft="@dimen/ActivityHorizontalExtraCustomMargin"
+        android:paddingRight="@dimen/ActivityHorizontalExtraCustomMargin"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/TextColor"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"
+            android:text="@string/title_insert_pin"
+            />
+        <TextView
+            android:id="@+id/tvContentPin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/content_insert_pin"/>
+
+        <!--<LinearLayout
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:orientation="horizontal"
+            android:weightSum="4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number|textPassword"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:maxLength="1"
+                android:layout_weight="1"
+                android:id="@+id/digit1">
+                <requestFocus/>
+            </EditText>
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:maxLength="1"
+                android:inputType="number|textPassword"
+                android:textSize="20sp"
+                android:id="@+id/digit2"/>
+            <EditText
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:maxLength="1"
+                android:inputType="number|textPassword"
+                android:textSize="20sp"
+                android:id="@+id/digit3"/>
+            <EditText
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:maxLength="1"
+                android:inputType="number|textPassword"
+                android:textSize="20sp"
+                android:id="@+id/digit4"/>
+        </LinearLayout>-->
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="numberPassword"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:textSize="26sp"
+            android:gravity="center"
+            android:maxLength="4"
+            android:hint="@string/pin_insert_hint"
+            android:width="200dp"
+            android:id="@+id/etPincode"
+            android:layout_gravity="center"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="numberPassword"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:textSize="26sp"
+            android:gravity="center"
+            android:maxLength="4"
+            android:hint="@string/pin_confirm_hint"
+            android:width="200dp"
+            android:id="@+id/etConfirmPincode"
+            android:layout_gravity="center_horizontal"/>
+
+        <Button
+            android:id="@+id/btnClose"
+            android:text="Guardar"
+            android:layout_gravity="right"
+            android:layout_marginTop="@dimen/ActivityVerticalCustomMargin"
+            android:background="@drawable/btn_effect_ripple_green"
+            android:textColor="@color/ActivityWhiteBackground"
+            android:onClick="SetPinCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btnBorrarPin"
+            android:text="Borrar PIN (Pruebas)"
+            android:layout_gravity="right"
+            android:layout_marginTop="@dimen/ActivityVerticalCustomMargin"
+            android:onClick="deletePin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+
+    </LinearLayout>
+
+
+</LinearLayout>

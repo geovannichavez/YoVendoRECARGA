@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--<color name="ApplicationGreenTheme">#76bd1d</color>
+    <color name="ApplicationGreenThemeDark">#619b19</color>
+    <color name="ActivityWhiteBackground">#FFFFFF</color>
+    <color name="SubtitleTextColor">#999999</color>
+    <color name="TextColor">#666666</color>
+    <color name="UltraLightGray">#d9d9d9</color>
+    <color name="SuperUltraLightGray">#f2f2f2</color>-->
+
+
+
+
+    <color name="ApplicationGreenTheme">#66cc00</color>
+    <color name="ApplicationGreenThemeDark">#59af03</color>
+    <color name="ActivityWhiteBackground">#FFFFFF</color>
+    <color name="SubtitleTextColor">#999999</color>
+    <color name="TextColor">#666666</color>
+    <color name="UltraLightGray">#e6e6e6</color>
+    <color name="SuperUltraLightGray">#f2f2f2</color>
+    <color name="SemiTransparentBlack">#d2000000</color>
+
+    <color name="AppGreen">#66cc00</color>
+    <color name="SemiTransparentWhite">#CCFFFFFF</color>
+
+    <!--Colors Button Effect -->
+    <color name="PressedGreenTheme">#93d344</color>
+    <color name="PressedWhiteTheme">#e4e4e4</color>
+
+
+    <!--Texto de Titulos y Subtitulos-->
+    <color name="MainTitleTextColor">#1a1a1a</color>
+    <color name="SecondaryTitleTextColor">#323232</color>
+
+
+    <color name="color_tab">@drawable/tab_text_color</color>
+    <color name="indicator">#FBD30A</color>
+    <color name="SemiTransparentGreen">#7b93d344</color>
+    <color name="Transparent">#00ffffff</color>
+
+    <color name="material_gray_900">#212121</color>
+    <color name="material_error">#e53935</color>
+
+    <color name="navigation_drawer_icon_color">#333333</color>
+
+</resources>

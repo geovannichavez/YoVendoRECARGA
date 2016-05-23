@@ -1,0 +1,85 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    tools:context="com.globalpaysolutions.yovendosaldo.FragmentCustomDialog">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/SemiTransparentBlack"/>
+
+        <LinearLayout
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ivResult"
+                android:layout_marginBottom="20dp"
+                android:layout_gravity="center_horizontal"/>
+
+            <TextView
+                android:id="@+id/tvDialogTitle"
+                android:text="¡Has solicitado Saldo Exitosamente!"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textSize="20sp"
+                android:textColor="@color/ActivityWhiteBackground" />
+
+            <TextView
+                android:id="@+id/tvFirstLine"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/ActivityWhiteBackground"
+                android:textSize="16sp"/>
+            <TextView
+                android:id="@+id/tvSecondLine"
+                android:layout_width="wrap_content"
+                android:gravity="center"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/ActivityWhiteBackground"
+
+                android:textSize="16sp"/>
+            <TextView
+                android:id="@+id/tvThirdLine"
+                android:layout_width="wrap_content"
+                android:gravity="center"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/ActivityWhiteBackground"
+                android:textSize="16sp"/>
+
+            <Button
+                android:id="@+id/btnDismiss"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/ActivityWhiteBackground"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="180dp"
+                android:paddingRight="24dp"
+                android:paddingLeft="24dp"
+                android:background="@drawable/btn_effect_ripple_green" />
+        </LinearLayout>
+
+    </FrameLayout>
+
+</FrameLayout>
