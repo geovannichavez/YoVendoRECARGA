@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="8dp">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@color/UltraLightGray"/>
+
+    <LinearLayout
+        android:weightSum="4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/SuperUltraLightGray"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingBottom="6dp"
+            android:paddingTop="6dp">
+
+            <ImageView
+                android:id="@+id/ivStatus"
+                android:layout_width="45dp"
+                android:layout_height="50dp"
+                android:gravity="right"
+                android:src="@drawable/icono_check_verde"/>
+
+            <TextView
+                android:id="@+id/tvStatusRecarga"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Recarga Exitosa"
+                android:textSize="10sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:paddingTop="6dp"
+            android:layout_weight="2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvSalePhoneNumber"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="8dp"
+                android:paddingBottom="4dp"
+                android:text="7089-5329"
+                android:textColor="@color/material_gray_900"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/tvSaleAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvSalePhoneNumber"
+                android:paddingLeft="8dip"
+                android:text="CLARO - $10.00"
+                android:textColor="@color/material_gray_900"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:id="@+id/tvSaleDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="4dp"
+                android:layout_below="@id/tvSaleAmount"
+                android:paddingLeft="8dip"
+                android:text="May. 5 - 2:34 PM"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+           android:layout_weight="1"
+            android:gravity="right|center_vertical"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="8dp"
+                android:text="¿Ya pagó?"
+                android:textSize="13sp"/>
+
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/swPago"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/tvSalePhoneNumber"
+                android:layout_marginRight="6dp"
+                android:padding="4sp"
+                android:checked="true"
+                />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

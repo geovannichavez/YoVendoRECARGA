@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="cat_seguridad"
+        android:title="Seguridad">
+        <Preference
+            android:key="conf_pin"
+            android:summary="@string/preference_pin_summary"
+            android:title="@string/preference_pin_title">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="com.globalpaysolutions.yovendosaldo.ManejoPIN"
+                android:targetPackage="com.globalpaysolutions.yovendosaldo"/>
+            <!--<intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="com.globalpaysolutions.yovendosaldo.Configuracion"
+                android:targetPackage="com.globalpaysolutions.yovendosaldo">
+                <extra
+                    android:name="ConfFragment"
+                    android:value="PIN"/>
+            </intent>-->
+        </Preference>
+        <Preference
+            android:key="con_pass"
+            android:summary="@string/preference_pass_summary"
+            android:title="@string/preference_pass_title">
+
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="com.globalpaysolutions.yovendosaldo.Perfil"
+                android:targetPackage="com.globalpaysolutions.yovendosaldo">
+
+            </intent>
+        </Preference>
+
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="cat_acerca"
+        android:title="Acerca de">
+        <Preference
+            android:key="app_version"
+            android:summary="@string/preference_version_number"
+            android:title="@string/preference_version_text">
+        </Preference>
+        <Preference
+            android:key="yvs_politicas"
+            android:title="@string/preference_politics_title">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="com.globalpaysolutions.yovendosaldo.InfoGeneral"
+                android:targetPackage="com.globalpaysolutions.yovendosaldo"/>
+        </Preference>
+        <Preference
+            android:key="yvs_califica"
+            android:summary="@string/preference_rating_summary"
+            android:title="@string/preference_rating">
+        </Preference>
+
+    </PreferenceCategory>
+</PreferenceScreen>

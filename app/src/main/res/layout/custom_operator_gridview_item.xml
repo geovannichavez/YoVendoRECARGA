@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/OperatorContinaer"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:gravity="center_horizontal"
+              android:background="@drawable/custom_rounded_corner_operator"
+              android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_width="68dp"
+        android:layout_height="68dp"
+        android:scaleType="centerCrop"
+        android:padding="6dp"
+        android:src="@drawable/claro_logo"
+        android:id="@+id/ivOperador"/>
+</LinearLayout>
