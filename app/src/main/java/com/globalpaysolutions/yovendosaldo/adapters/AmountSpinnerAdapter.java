@@ -70,18 +70,9 @@ public class AmountSpinnerAdapter extends ArrayAdapter<Amount>
         row.setTag(position);
         final TextView label = (TextView) row.findViewById(R.id.tvAmount);
 
-        String LabelText = "";
+        String LabelText = Texts + " " + StringAmount;
 
-        if (!currentItem.getDisplay().equals("Seleccione..."))
-        {
-            LabelText = "$ " + StringAmount;
-        }
-        else
-        {
-            LabelText = StringAmount;
-        }
-
-        label.setText(Texts + " " + LabelText);
+        label.setText(LabelText);
         //label.setText(LabelText);
 
 

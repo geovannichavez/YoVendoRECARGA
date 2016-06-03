@@ -129,7 +129,7 @@ public class Login extends AppCompatActivity
         if (CheckConnection())
         {
             JSONObject jObject = new JSONObject();
-            String deviceName = DeviceName.getDeviceName() ;
+            String deviceName = DeviceName.getDeviceName() + " " + System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
 
             try
             {
