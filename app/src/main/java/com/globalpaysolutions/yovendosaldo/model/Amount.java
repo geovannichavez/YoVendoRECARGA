@@ -12,6 +12,7 @@ public class Amount
     private String mDecimal;
     private String mAditionalText;
     private String mMNO;
+    private String mCode;
 
     public int getID()
     {
@@ -43,6 +44,10 @@ public class Amount
         return mMNO;
     }
 
+    public String getCode()
+    {
+        return mCode;
+    }
 
     /*public double getAmount()
     {
@@ -84,7 +89,12 @@ public class Amount
         this.mMNO = pMNO;
     }
 
-    public Amount(int pID, int pAmount, String pDecimal, String pText, String pDisplay, String pMNO)
+    public void setCode(String mCode)
+    {
+        this.mCode = mCode;
+    }
+
+    public Amount(int pID, int pAmount, String pDecimal, String pText, String pDisplay, String pMNO, String pCode)
     {
         this.setID(pID);
         this.setAmount(pAmount);
@@ -92,6 +102,7 @@ public class Amount
         this.setAditionalText(pText);
         this.setDisplay(pDisplay);
         this.setMNO(pMNO);
+        this.setCode(pCode);
     }
 
     /*public Amount(int pID, double pAmount, String pDecimal, String pText, String pDisplay)

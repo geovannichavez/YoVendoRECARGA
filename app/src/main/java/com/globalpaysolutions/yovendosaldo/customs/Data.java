@@ -176,22 +176,33 @@ public class Data
 
             for(int i = 0; i < jProducts.length(); i++)
             {
-
-
                 JSONObject JsonProductItem = jProducts.getJSONObject(i);
                 JSONArray jDenomination = JsonProductItem.getJSONArray("denomination");
 
                 for (int a = 0; a < jDenomination.length(); a++)
                 {
+                    JSONObject jDenominationItem = jDenomination.getJSONObject(a);
                     Amount amount = new Amount();
 
+                    //Obtiene los valores del Item
+                    String amountCode = jDenominationItem.has("Code") ? jDenominationItem.getString("Code") : "";
+                    String amountDisplay = jDenominationItem.has("Description") ? jDenominationItem.getString("Description") : "";
+                    String amountAmount = jDenominationItem.has("Amount") ? jDenominationItem.getString("Amount") : "";
+
+                    if(amountDisplay.isEmpty())
+                    {
+                        amountDisplay = amountAmount;
+                    }
+
+                    //Setea el objeto Amount con las respectivas propiedades
                     amount.setMNO(JsonProductItem.has("mno") ? JsonProductItem.getString("mno") : "");
                     amount.setAditionalText("");
                     amount.setDecimal("");
-                    amount.setDisplay(jDenomination.getString(a));
+                    amount.setCode(amountCode);
+                    amount.setDisplay(amountDisplay);
 
                     //Remueve los decimales y converte el resultado en Int
-                    String strIntAmount = StringUtils.removeEnd(jDenomination.getString(a), ".00");
+                    String strIntAmount = StringUtils.removeEnd(amountAmount, ".00");
                     int intAmount = Integer.valueOf(strIntAmount);
 
                     //Lo añade al objeto amount

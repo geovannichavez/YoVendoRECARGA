@@ -69,7 +69,7 @@ public class AmountSpinnerAdapter extends ArrayAdapter<Amount>
         row.setTag(currentItem);
         row.setTag(position);
         final TextView label = (TextView) row.findViewById(R.id.tvAmount);
-        //label.setText(Texts + " " + StringAmount + "." + Decimals);
+
         String LabelText = "";
 
         if (!currentItem.getDisplay().equals("Seleccione..."))
@@ -81,7 +81,8 @@ public class AmountSpinnerAdapter extends ArrayAdapter<Amount>
             LabelText = StringAmount;
         }
 
-        label.setText(LabelText);
+        label.setText(Texts + " " + LabelText);
+        //label.setText(LabelText);
 
 
         return row;

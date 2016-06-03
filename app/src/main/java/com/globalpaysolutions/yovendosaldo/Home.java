@@ -799,26 +799,32 @@ public class Home extends AppCompatActivity
     public void getServerAmounts(String pOperatorName)
     {
         selectedOperatorAmounts.clear();
-        for(Amount item : Data.Amounts)
+
+        //Escenario: si no hay conexion a internet
+        //y el usuario clickeo un operador, entonces
+        //como la lista 'Data.Amounts' está vacía, no pone nada en el spinner
+        //por eso cuando esté vacía la llenará con el Hint.
+        if(!Data.Amounts.isEmpty())
         {
-            //Valida que MNO no venga Null, para evitar NullPointerException
-            if(item.getMNO() != null && !item.getMNO().isEmpty())
+            for(Amount item : Data.Amounts)
             {
-                if(item.getMNO().equals(pOperatorName))
+                //Valida que MNO no venga Null, para evitar NullPointerException
+                if(item.getMNO() != null && !item.getMNO().isEmpty())
                 {
-                    selectedOperatorAmounts.add(item);
+                    if(item.getMNO().equals(pOperatorName))
+                    {
+                        selectedOperatorAmounts.add(item);
+                    }
                 }
             }
         }
+        else
+        {
+            selectedOperatorAmounts.add(Data.AmountHint(Home.this));
+        }
+
 
         selectedOperatorAmounts.add(Data.AmountHint(Home.this));
-
-
-        /*
-        *   PRODUCTOS QUEMADOS A MODO DE DEMO
-        */
-
-
 
         AmountAdapter = new AmountSpinnerAdapter(this, R.layout.custom_amount_spinner_item, R.id.tvAmount, selectedOperatorAmounts);
         AmountAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -971,9 +977,13 @@ public class Home extends AppCompatActivity
             statusCode = networkResponse.statusCode;
         }
 
-        if(pError instanceof TimeoutError || pError instanceof NoConnectionError)
+        if(pError instanceof TimeoutError)
         {
             Toast.makeText(Home.this, getString(R.string.something_went_wrong_try_again), Toast.LENGTH_LONG).show();
+        }
+        if(pError instanceof NoConnectionError)
+        {
+            Toast.makeText(Home.this, getString(R.string.internet_connecttion_msg), Toast.LENGTH_LONG).show();
         }
         else if(pError instanceof ServerError)
         {
