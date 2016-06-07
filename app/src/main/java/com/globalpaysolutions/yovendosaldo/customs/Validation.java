@@ -30,6 +30,7 @@ public class Validation
     private static String AMOUNT_MSG = "No es un monto valido";
     private static String VOUCHER_MSG = "Comprobante no valido";
 
+
     public Validation(Context context)
     {
         this.ValidationContext = context;
@@ -124,6 +125,27 @@ public class Validation
     public boolean IsValidVoucher(EditText editText, boolean required)
     {
         return IsValid(editText, VOUCHER_REGEX, VOUCHER_MSG, required);
+    }
+
+    public boolean IsValidMinLength(EditText editText, int pMinLength)
+    {
+        boolean valid = false;
+
+        editText.setError(null);
+
+        String LengthText = editText.getText().toString();
+        if(LengthText.length() == pMinLength)
+        {
+            valid = true;
+        }
+        else
+        {
+            String strError = String.format(ValidationContext.getResources().getString(R.string.validation_not_valid_minimum), pMinLength);
+            editText.setError(strError);
+        }
+
+        return valid;
+
     }
 
     // return true if the input field is valid, based on the parameter passed

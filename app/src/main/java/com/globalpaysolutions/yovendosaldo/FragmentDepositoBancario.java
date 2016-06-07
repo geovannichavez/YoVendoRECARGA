@@ -69,6 +69,7 @@ public class FragmentDepositoBancario extends Fragment
     CustomFullScreenDialog FullScreenDialog;
     SessionManager sessionManager;
     static String Token;
+    int VoucherMinLength;
 
     //Controles, vistas y layouts
     public static TextView tvFechaDeposito;
@@ -371,19 +372,24 @@ public class FragmentDepositoBancario extends Fragment
                 }
 
                 edComprobante.setText("");
+                edComprobante.setError(null);
                 switch (SelectedBank)
                 {
                     case 1: //Banco Citi
                         ChangeEdittextMaxLength(8, edComprobante);
+                        VoucherMinLength = 8;
                         break;
                     case 2: //Banco Agricola
                         ChangeEdittextMaxLength(9, edComprobante);
+                        VoucherMinLength = 9;
                         break;
                     case 3: //Banco America Central
                         ChangeEdittextMaxLength(8, edComprobante);
+                        VoucherMinLength = 8;
                         break;
                     default:
                         ChangeEdittextMaxLength(9, edComprobante);
+                        VoucherMinLength = 9;
                         break;
                 }
             }
@@ -476,6 +482,11 @@ public class FragmentDepositoBancario extends Fragment
         }
 
         if(!validator.IsValidVoucher(edComprobante, true))
+        {
+            ret = false;
+        }
+
+        if(!validator.IsValidMinLength(edComprobante, VoucherMinLength))
         {
             ret = false;
         }

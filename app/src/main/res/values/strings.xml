@@ -88,6 +88,7 @@
     <string name="password_not_match">Las contraseñas no coinciden</string>
     <string name="pin_not_match">Los pines de seguridad no coinciden</string>
     <string name="no_internet_connection">No está conectado a internet.</string>
+    <string name="validation_not_valid_minimum">El comprobante debe tener %1$d caracteres como mínimo</string>
 
     <!--Other-->
     <string name="terms_and_conditions"><u>Términos y Condiciones</u>.</string>

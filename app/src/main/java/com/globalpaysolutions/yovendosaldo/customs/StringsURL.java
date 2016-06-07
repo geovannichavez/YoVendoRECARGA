@@ -9,10 +9,10 @@ public final class StringsURL
     //public final static String URL_BASE = "http://csncusgats.cloudapp.net:82/v1/";
 
     //PRE-PRODUCCIÓN (Enviando recargas de prueba)
-    //public final static String URL_BASE = "http://csncusgats.cloudapp.net:8074/v1/";
+    public final static String URL_BASE = "http://csncusgats.cloudapp.net:8074/v1/";
 
     //Servidor para DESARROLLO
-    public final static String URL_BASE = "http://csncusgats.cloudapp.net:8073/v1/";
+    //public final static String URL_BASE = "http://csncusgats.cloudapp.net:8073/v1/";
 
     public final static String SIGNIN = URL_BASE + "signin/";
 
