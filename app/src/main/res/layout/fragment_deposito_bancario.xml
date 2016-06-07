@@ -33,7 +33,6 @@
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
             </LinearLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -42,6 +41,7 @@
 
                 <EditText
                     android:id="@+id/edDepositante"
+                    android:maxLength="65"
                     android:inputType="textPersonName|textCapWords"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -72,6 +72,7 @@
                     android:id="@+id/edMonto"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:maxLength="8"
                     android:hint="Monto:"
                     android:inputType="numberDecimal"
                     android:textColor="@color/SecondaryTitleTextColor"
@@ -88,6 +89,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Nº de Comprobante:"
+                    android:maxLength="9"
                     android:inputType="number"
                     android:textColor="@color/SecondaryTitleTextColor"
                     android:textSize="16sp"></EditText>

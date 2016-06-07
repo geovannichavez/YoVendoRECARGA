@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -129,7 +130,7 @@ public class Login extends AppCompatActivity
         if (CheckConnection())
         {
             JSONObject jObject = new JSONObject();
-            String deviceName = DeviceName.getDeviceName() + " " + System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
+            String deviceName = DeviceName.getDeviceName() + " " + getAndroidVersion();
 
             try
             {
@@ -467,6 +468,12 @@ public class Login extends AppCompatActivity
         HashMap<String, String> MapToken = sessionManager.GetUserEmail();
         UserEmail = MapToken.get(SessionManager.KEY_USER_EMAIL);
         return UserEmail;
+    }
+
+    public String getAndroidVersion()
+    {
+        String release = Build.VERSION.RELEASE;
+        return "(Android " + " " + release + ")";
     }
 
 

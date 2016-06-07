@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -368,6 +369,23 @@ public class FragmentDepositoBancario extends Fragment
                 {
                     BankSelected = true;
                 }
+
+                edComprobante.setText("");
+                switch (SelectedBank)
+                {
+                    case 1: //Banco Citi
+                        ChangeEdittextMaxLength(8, edComprobante);
+                        break;
+                    case 2: //Banco Agricola
+                        ChangeEdittextMaxLength(9, edComprobante);
+                        break;
+                    case 3: //Banco America Central
+                        ChangeEdittextMaxLength(8, edComprobante);
+                        break;
+                    default:
+                        ChangeEdittextMaxLength(9, edComprobante);
+                        break;
+                }
             }
 
             @Override
@@ -522,5 +540,11 @@ public class FragmentDepositoBancario extends Fragment
         return haveConnectedWifi || haveConnectedMobile;
     }
 
+    public void ChangeEdittextMaxLength(int pLength, EditText pEditText)
+    {
+        InputFilter[] FilterArray = new InputFilter[1];
+        FilterArray[0] = new InputFilter.LengthFilter(pLength);
+        pEditText.setFilters(FilterArray);
+    }
 
 }

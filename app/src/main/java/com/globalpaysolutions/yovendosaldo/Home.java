@@ -31,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -89,6 +90,7 @@ public class Home extends AppCompatActivity
     Button btnTopup;
     SwipeRefreshLayout SwipeRefresh;
     ScrollView scrollView;
+    LinearLayout lnrBalance;
 
     //Objetos para el Drawer
     private NavigationView navigationView;
@@ -120,19 +122,19 @@ public class Home extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //toolbar.setLogo(R.drawable.logo_horizontal);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
         sessionManager = new SessionManager(Home.this);
         CustomDialogCreator = new CustomFullScreenDialog(Home.this, Home.this);
 
+
         SwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         tvBalance = (TextView) findViewById(R.id.tvAvailableBalance);
         txtPhoneNumber = (EditText) findViewById(R.id.etPhoneNumber);
         btnTopup = (Button) findViewById(R.id.btnEnvar);
-        //SpinnerAmount = (Spinner) this.findViewById(R.id.spMontoRecarga);
         scrollView = (ScrollView) findViewById(R.id.homeScrollView);
-        //SpinnerAmount = (Spinner) this.findViewById(R.id.spMontoRecarga);
+        lnrBalance = (LinearLayout) findViewById(R.id.rectangle);
+
 
         InitializeValidation();
 
@@ -310,6 +312,21 @@ public class Home extends AppCompatActivity
                 if(scrollY == 0) SwipeRefresh.setEnabled(true);
                 else SwipeRefresh.setEnabled(false);
 
+            }
+        });
+
+
+        /*
+        *
+        *   BALANCE LAYOUT
+        *
+        */
+        lnrBalance.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                SetHistoryOnFragment();
             }
         });
     }
@@ -1372,6 +1389,16 @@ public class Home extends AppCompatActivity
         }
 
         return securityPin;
+    }
+
+    public void SetHistoryOnFragment()
+    {
+        FragmentHistorialVentas fragmentHistorial = new FragmentHistorialVentas();
+        android.support.v4.app.FragmentTransaction fragmentTransactionAApp = getSupportFragmentManager().beginTransaction();
+        rlMainHomeContent.setVisibility(View.GONE);
+        toolbar.setTitle("");
+        fragmentTransactionAApp.replace(R.id.frame, fragmentHistorial);
+        fragmentTransactionAApp.commit();
     }
 
     /*private void getDeviceSuperInfo() {

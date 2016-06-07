@@ -57,7 +57,7 @@
 
     <!--Deposito Bancario-->
     <string name="deposit_error_line1">Tu depósio no pudo ser procesado. Inténtalo más tarde.</string>
-    <string name="deposit_success_line1">Tu depósio ha sido validado correctamente. Ahora puedes vender recargas.</string>
+    <string name="deposit_success_line1">La información ha sido enviada con éxito, muy pronto recibirás un correo con el status de tu depósito.</string>
 
     <!--Coneccion a Internet-->
     <string name="internet_connecttion_title">ERROR DE CONEXIÓN</string>
@@ -68,7 +68,7 @@
     <string name="succeed_title">¡ÉXITO!</string>
     <string name="password_changed_success">La contraseña ha sido cambiada exitosamente.</string>
     <string name="request_balance_success">¡HAS SOLICITADO SALDO EXITOSAMENTE!</string>
-    <string name="deposit_success">¡HAS VALIDADO TU DEPOSITO!</string>
+    <string name="deposit_success">¡INFORMACIÓN ENVIADA!</string>
     <string name="expired_session">SESIÓN EXPIRADA</string>
     <string name="dialog_succeed_topoup_title">¡RECARGA EXITOSA!</string>
     <string name="dialog_succeed_topup_content">Recarga se ha enviado al número: </string>
