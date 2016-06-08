@@ -57,7 +57,7 @@
 
     <!--Deposito Bancario-->
     <string name="deposit_error_line1">Tu depósio no pudo ser procesado. Inténtalo más tarde.</string>
-    <string name="deposit_success_line1">La información ha sido enviada con éxito, muy pronto recibirás un correo con el status de tu depósito.</string>
+    <string name="deposit_success_line1">Información enviada con éxito, muy pronto recibirás un correo con el estado de tu depósito.</string>
 
     <!--Coneccion a Internet-->
     <string name="internet_connecttion_title">ERROR DE CONEXIÓN</string>
@@ -87,8 +87,9 @@
     <string name="diff_password_required">Nueva contraseña debe ser diferente</string>
     <string name="password_not_match">Las contraseñas no coinciden</string>
     <string name="pin_not_match">Los pines de seguridad no coinciden</string>
+    <string name="deposit_date_invalid">La fecha de depósito no debe ser mayor a la fecha actual</string>
     <string name="no_internet_connection">No está conectado a internet.</string>
-    <string name="validation_not_valid_minimum">El comprobante debe tener %1$d caracteres como mínimo</string>
+    <string name="validation_not_valid_minimum">El comprobante debe tener %1$d dígitos como mínimo</string>
 
     <!--Other-->
     <string name="terms_and_conditions"><u>Términos y Condiciones</u>.</string>

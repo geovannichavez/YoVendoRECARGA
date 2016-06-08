@@ -491,6 +491,11 @@ public class FragmentDepositoBancario extends Fragment
             ret = false;
         }
 
+        if(!validator.IsValidDepositDate(DepositDate))
+        {
+            ret = false;
+        }
+
         return ret;
     }
 

@@ -2,8 +2,10 @@ package com.globalpaysolutions.yovendosaldo.customs;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -266,9 +268,9 @@ public class Data
         {
             if(statusCode == 502)
             {
-                /*AlertDialog.Builder alertDialog = new AlertDialog.Builder(Home.this);
-                alertDialog.setTitle(getString(R.string.expired_session));
-                alertDialog.setMessage(getString(R.string.dialog_error_topup_content));
+               /* AlertDialog.Builder alertDialog = new AlertDialog.Builder(pContex);
+                alertDialog.setTitle(pContex.getString(R.string.expired_session));
+                alertDialog.setMessage(pContex.getString(R.string.dialog_error_topup_content));
                 alertDialog.setNeutralButton("Ok", new DialogInterface.OnClickListener()
                 {
                     public void onClick(DialogInterface dialog, int which)

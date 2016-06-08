@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.android.yovendosaldo.R;
 
+import java.util.Date;
 import java.util.regex.Pattern;
 
 /**
@@ -146,6 +147,23 @@ public class Validation
 
         return valid;
 
+    }
+
+    public boolean IsValidDepositDate(Date pDepositDate)
+    {
+        boolean valid;
+
+        if(pDepositDate.getTime() > new Date().getTime())
+        {
+            valid = false;
+            Toast.makeText(ValidationContext, ValidationContext.getString(R.string.deposit_date_invalid), Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            valid = true;
+        }
+
+        return valid;
     }
 
     // return true if the input field is valid, based on the parameter passed

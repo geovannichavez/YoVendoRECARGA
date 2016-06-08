@@ -111,7 +111,7 @@ public class FragmentCustomDialog extends DialogFragment
                         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         getContext().startActivity(i);
-                        (getActivity()).finish();
+                        //(getActivity()).finish();
                     default:
                         DismissFragment();
                         break;

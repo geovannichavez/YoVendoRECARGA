@@ -130,7 +130,7 @@ public class Login extends AppCompatActivity
         if (CheckConnection())
         {
             JSONObject jObject = new JSONObject();
-            String deviceName = DeviceName.getDeviceName() + " " + getAndroidVersion();
+            String deviceName = DeviceName();
 
             try
             {
@@ -474,6 +474,17 @@ public class Login extends AppCompatActivity
     {
         String release = Build.VERSION.RELEASE;
         return "(Android " + " " + release + ")";
+    }
+
+    public String DeviceName()
+    {
+        String Manufacturer = Build.MANUFACTURER;
+        String Model = DeviceName.getDeviceName();
+        String versionRelease = Build.VERSION.RELEASE;
+
+        Manufacturer = Manufacturer.substring(0,1).toUpperCase() + Manufacturer.substring(1).toLowerCase();
+
+        return Manufacturer + " " + Model + " (Android " + versionRelease + ")";
     }
 
 

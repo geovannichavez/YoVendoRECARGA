@@ -64,9 +64,10 @@ public final class YVScomSingleton
     {
         //int socketTimeout = 5000;//5 segundos
         //int socketTimeout = DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 48;
+        int socketTimeout = 10000;//45 segundos
 
         //Setea el Timeout para la Request
-        int socketTimeout = 45000;//45 segundos
+        //int socketTimeout = 45000;//45 segundos
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, pMaxRetries, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         req.setRetryPolicy(policy);
         getRequestQueue().add(req);
