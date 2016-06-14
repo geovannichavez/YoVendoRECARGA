@@ -4,6 +4,9 @@ android {
     compileSdkVersion 23
     buildToolsVersion '23.0.3'
 
+    //Clases para Http de apache
+    useLibrary  'org.apache.http.legacy'
+
     defaultConfig {
         applicationId "com.globalpaysolutions.yovendosaldo"
         minSdkVersion 15
@@ -44,5 +47,21 @@ dependencies {
     
     compile 'com.github.amlcurran.showcaseview:library:5.4.3'
 
+    //Google Cloud Messaging
 
+    compile 'com.google.android.gms:play-services-gcm:8.4.0'
+
+    //Azure Notifications Hub
+
+    compile 'com.microsoft.azure:notification-hubs-android-sdk:0.4@aar'
+    
+    compile 'com.microsoft.azure:azure-notifications-handler:1.0.1@aar'
+
+
+}
+
+repositories {
+    maven {
+        url "http://dl.bintray.com/microsoftazuremobile/SDK"
+    }
 }

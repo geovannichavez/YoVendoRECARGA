@@ -1,16 +1,22 @@
 package com.globalpaysolutions.yovendosaldo;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -71,8 +77,23 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+//For Push Notifications
+import com.globalpaysolutions.yovendosaldo.notifications.NotificationSettings;
+import com.globalpaysolutions.yovendosaldo.notifications.RegisterClient;
+import com.globalpaysolutions.yovendosaldo.notifications.RegistrationIntentService;
+import com.globalpaysolutions.yovendosaldo.notifications.YvsNotificationsHandler;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.gcm.*;
+import com.microsoft.windowsazure.notifications.NotificationsManager;
+
+import android.util.Log;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class Home extends AppCompatActivity
@@ -115,6 +136,16 @@ public class Home extends AppCompatActivity
     PinDialogBuilder PinDialogBuilder;
     public PinDialogBuilder.CustomOnClickListener ClickListener;
     String mNMO;
+
+    //Push Notifications
+    public static Home homeActivity;
+    public static Boolean isVisible = false;
+    private GoogleCloudMessaging gcm;
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private RegisterClient registerClient;
+
+    public static final int NOTIFICATION_ID = 1;
+    private NotificationManager mNotificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -278,10 +309,7 @@ public class Home extends AppCompatActivity
         *   SWIPEREFRESH
         *
         */
-        SwipeRefresh.setColorSchemeResources(
-                R.color.refresh_progress_1,
-                R.color.refresh_progress_2,
-                R.color.refresh_progress_3);
+        SwipeRefresh.setColorSchemeResources(R.color.refresh_progress_1, R.color.refresh_progress_2, R.color.refresh_progress_3);
         SwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
         {
             @Override
@@ -291,7 +319,7 @@ public class Home extends AppCompatActivity
             }
         });
 
-        if(sessionManager.IsUserLoggedIn())
+        if (sessionManager.IsUserLoggedIn())
         {
             GetUserBag(false);
         }
@@ -304,13 +332,17 @@ public class Home extends AppCompatActivity
         *   Detecta si el scroll view está a 0 en Y
         */
 
-        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener()
+        {
 
             @Override
-            public void onScrollChanged() {
+            public void onScrollChanged()
+            {
                 int scrollY = scrollView.getScrollY();
-                if(scrollY == 0) SwipeRefresh.setEnabled(true);
-                else SwipeRefresh.setEnabled(false);
+                if (scrollY == 0)
+                    SwipeRefresh.setEnabled(true);
+                else
+                    SwipeRefresh.setEnabled(false);
 
             }
         });
@@ -329,8 +361,24 @@ public class Home extends AppCompatActivity
                 SetHistoryOnFragment();
             }
         });
-    }
 
+
+        /*
+        *
+        *   PUSH NOTIFICATIONS
+        *
+        */
+        /*homeActivity = this;
+        NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, YvsNotificationsHandler.class);
+        gcm = GoogleCloudMessaging.getInstance(this);
+        registerClient = new RegisterClient(this);
+
+        if (sessionManager.IsUserLoggedIn())
+        {
+            BeginDeviceRegistration();
+        }*/
+
+    }
 
 
     public void RequestTopUp(View view)
@@ -419,8 +467,7 @@ public class Home extends AppCompatActivity
             ex.printStackTrace();
         }
 
-        YVScomSingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(Request.Method.POST,
-                StringsURL.TOPUP + pPhoneNumber + "/" + pAmount,
+        YVScomSingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(Request.Method.POST, StringsURL.TOPUP + pPhoneNumber + "/" + pAmount,
                 //StringsURL.TEST_TOPUP_GATS_ERROR,
                 jTopUp, new Response.Listener<JSONObject>()
         {
@@ -531,7 +578,7 @@ public class Home extends AppCompatActivity
                 CustomDialogCreator.CreateFullScreenDialog(Titulo, Linea1, null, null, Button, "LOGOUT", true, true);
             }
             //Insuficiente Saldo
-            else if(statusCode == 503)
+            else if (statusCode == 503)
             {
                 String Titulo = getString(R.string.insufficent_balance_title);
                 String Linea1 = getString(R.string.insufficent_balance_ln1);
@@ -657,7 +704,7 @@ public class Home extends AppCompatActivity
                         mNMO = "Digicel El Salvador";
                         break;
                     default:
-                        mNMO="";
+                        mNMO = "";
                         break;
                 }
 
@@ -821,14 +868,14 @@ public class Home extends AppCompatActivity
         //y el usuario clickeo un operador, entonces
         //como la lista 'Data.Amounts' está vacía, no pone nada en el spinner
         //por eso cuando esté vacía la llenará con el Hint.
-        if(!Data.Amounts.isEmpty())
+        if (!Data.Amounts.isEmpty())
         {
-            for(Amount item : Data.Amounts)
+            for (Amount item : Data.Amounts)
             {
                 //Valida que MNO no venga Null, para evitar NullPointerException
-                if(item.getMNO() != null && !item.getMNO().isEmpty())
+                if (item.getMNO() != null && !item.getMNO().isEmpty())
                 {
-                    if(item.getMNO().equals(pOperatorName))
+                    if (item.getMNO().equals(pOperatorName))
                     {
                         selectedOperatorAmounts.add(item);
                     }
@@ -866,7 +913,7 @@ public class Home extends AppCompatActivity
 
     public void RetrieveAmounts()
     {
-        if(Data.Amounts.isEmpty())
+        if (Data.Amounts.isEmpty())
         {
             Log.i("Amounts", "Request para traer montos");
             Data.GetAmounts(Home.this);
@@ -908,10 +955,11 @@ public class Home extends AppCompatActivity
     public void onPause()
     {
         super.onPause();
-        if(ProgressDialog != null && ProgressDialog.isShowing())
+        if (ProgressDialog != null && ProgressDialog.isShowing())
         {
             ProgressDialog.dismiss();
         }
+        isVisible = false;
     }
 
     /*
@@ -922,49 +970,41 @@ public class Home extends AppCompatActivity
 
     public void GetUserBag(boolean isSwipe)
     {
-        if(isSwipe)
+        if (isSwipe)
         {
             SwipeRefresh.setRefreshing(true);
         }
 
-        YVScomSingleton.getInstance(Home.this).addToRequestQueue(
-                new JsonObjectRequest(
-                        Request.Method.GET,
-                        StringsURL.USERBAG,
-                        null,
-                        new Response.Listener<JSONObject>()
-                        {
-                            @Override
-                            public void onResponse(JSONObject response)
-                            {
-                                //SwipeRefresh.setRefreshing(false);
-                                HideSwipe();
-                                Log.d("Mensaje JSON ", response.toString());
-                                ProcessBagResponse(response);
-                            }
-                        },
-                        new Response.ErrorListener()
-                        {
-                            @Override
-                            public void onErrorResponse(VolleyError error)
-                            {
-                                HideSwipe();
-                                ProcessBagErrorResponse(error);
-                            }
-                        }
-                )
-                {
-                    //Se añade el header para enviar el Token
-                    @Override
-                    public Map<String, String> getHeaders()
-                    {
-                        Map<String, String> headers = new HashMap<String, String>();
-                        headers.put("Token-Autorization", Token);
-                        headers.put("Content-Type", "application/json; charset=utf-8");
-                        return headers;
-                    }
-                }
-                , 1); //Parametro de número de re-intentos
+        YVScomSingleton.getInstance(Home.this).addToRequestQueue(new JsonObjectRequest(Request.Method.GET, StringsURL.USERBAG, null, new Response.Listener<JSONObject>()
+        {
+            @Override
+            public void onResponse(JSONObject response)
+            {
+                //SwipeRefresh.setRefreshing(false);
+                HideSwipe();
+                Log.d("Mensaje JSON ", response.toString());
+                ProcessBagResponse(response);
+            }
+        }, new Response.ErrorListener()
+        {
+            @Override
+            public void onErrorResponse(VolleyError error)
+            {
+                HideSwipe();
+                ProcessBagErrorResponse(error);
+            }
+        })
+        {
+            //Se añade el header para enviar el Token
+            @Override
+            public Map<String, String> getHeaders()
+            {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("Token-Autorization", Token);
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                return headers;
+            }
+        }, 1); //Parametro de número de re-intentos
     }
 
     public void ProcessBagResponse(JSONObject pResponse)
@@ -974,8 +1014,7 @@ public class Home extends AppCompatActivity
         {
             JSONObject Bag = pResponse.getJSONObject("userBag");
             NewBalance = Bag.has("AvailableAmount") ? Bag.getString("AvailableAmount") : "";
-        }
-        catch (JSONException ex)
+        } catch (JSONException ex)
         {
             ex.printStackTrace();
         }
@@ -989,22 +1028,22 @@ public class Home extends AppCompatActivity
         int statusCode = 0;
         NetworkResponse networkResponse = pError.networkResponse;
 
-        if(networkResponse != null)
+        if (networkResponse != null)
         {
             statusCode = networkResponse.statusCode;
         }
 
-        if(pError instanceof TimeoutError)
+        if (pError instanceof TimeoutError)
         {
             Toast.makeText(Home.this, getString(R.string.something_went_wrong_try_again), Toast.LENGTH_LONG).show();
         }
-        if(pError instanceof NoConnectionError)
+        if (pError instanceof NoConnectionError)
         {
             Toast.makeText(Home.this, getString(R.string.internet_connecttion_msg), Toast.LENGTH_LONG).show();
         }
-        else if(pError instanceof ServerError)
+        else if (pError instanceof ServerError)
         {
-            if(statusCode == 502)
+            if (statusCode == 502)
             {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(Home.this);
                 alertDialog.setTitle(getString(R.string.expired_session));
@@ -1027,7 +1066,7 @@ public class Home extends AppCompatActivity
         {
             Toast.makeText(Home.this, getString(R.string.internet_connecttion_msg), Toast.LENGTH_LONG).show();
         }
-        else if(pError instanceof AuthFailureError)
+        else if (pError instanceof AuthFailureError)
         {
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(Home.this);
             alertDialog.setTitle("ERROR");
@@ -1045,7 +1084,7 @@ public class Home extends AppCompatActivity
 
     public void HideSwipe()
     {
-        if(SwipeRefresh.isShown() && SwipeRefresh != null)
+        if (SwipeRefresh.isShown() && SwipeRefresh != null)
         {
             SwipeRefresh.setRefreshing(false);
         }
@@ -1442,6 +1481,57 @@ public class Home extends AppCompatActivity
         }
 
     }//end getDeviceSuperInfo*/
+
+    /*
+    * ****************************************************************************
+    *       PUSH NOTIFICATIONS LOGIC
+    * ****************************************************************************
+    */
+
+    public void BeginDeviceRegistration()
+    {
+        new AsyncTask<Object, Object, Object>()
+        {
+            @Override
+            protected Object doInBackground(Object... params)
+            {
+                try
+                {
+                    String regid = gcm.register(NotificationSettings.SenderId);
+                    registerClient.RegisterDevice(regid, new HashSet<String>());
+                }
+                catch (Exception e)
+                {
+                    Toast.makeText(Home.this, "MainActivity - Failed to register", Toast.LENGTH_LONG).show();
+                    return e;
+                }
+                return null;
+            }
+            protected void onPostExecute(Object result)
+            {
+
+            }
+        }.execute(null, null, null);
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        isVisible = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isVisible = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        isVisible = false;
+    }
 
 
 }

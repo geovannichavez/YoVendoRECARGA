@@ -27,6 +27,10 @@ public class SessionManager
     SharedPreferences pinPreferences;
     Editor pinEditor;
 
+    /*  PREFERENCIAS DE NOTIFICACIONES  */
+    SharedPreferences NotificationsSettings;
+    Editor NotificationsEditor;
+
 
     public static final String PREF_NAME = "yvsPref";
     private static final String IS_LOGIN = "IsLoggedIn";
@@ -51,6 +55,9 @@ public class SessionManager
         //Obtiene las preferencias guardadas en las Preferences
         pinPreferences = PreferenceManager.getDefaultSharedPreferences(_context);
         pinEditor = pinPreferences.edit();
+
+        NotificationsSettings = _context.getSharedPreferences("NotificationsHubSettings", PRIVATE_MODE);
+        NotificationsEditor = NotificationsSettings.edit();
     }
 
     /*
@@ -201,6 +208,9 @@ public class SessionManager
         editor.remove("RanBefore");
         pinEditor.remove("KEY_ACTIVATE_PIN");
         editor.apply();
+
+        NotificationsEditor.remove("registrationID");
+        NotificationsEditor.apply();
 
 
         editor = pref.edit();
