@@ -107,6 +107,8 @@ public class Data
                             @Override
                             public void onErrorResponse(VolleyError error)
                             {
+                                Log.d("Error Logout ", "Sucedió un error al completar el cierre de sesión.");
+                                NavigateLogin(pContext);
                                 //HandleVolleyError(error);
                             }
                         }

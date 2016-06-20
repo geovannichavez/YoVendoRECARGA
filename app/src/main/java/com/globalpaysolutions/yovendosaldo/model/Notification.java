@@ -1,5 +1,7 @@
 package com.globalpaysolutions.yovendosaldo.model;
 
+import java.util.Date;
+
 /**
  * Created by Josué Chávez on 14/04/2016.
  */
@@ -8,6 +10,7 @@ public class Notification
     public int mID;
     public String mTitle;
     public String mContent;
+    public Date mDate;
 
     //GET
     public int getID()
@@ -23,6 +26,11 @@ public class Notification
     public String getTitle()
     {
         return mTitle;
+    }
+
+    public Date getDate()
+    {
+        return this.mDate;
     }
 
     //SET
@@ -41,11 +49,17 @@ public class Notification
         this.mContent = mContent;
     }
 
-    public Notification(int pID, String pTitle, String pContent)
+    public void setDate(Date pDate)
+    {
+        this.mDate = pDate;
+    }
+
+    public Notification(int pID, String pTitle, String pContent, Date pDate)
     {
         this.setID(pID);
         this.setTitle(pTitle);
         this.setContent(pContent);
+        this.setDate(pDate);
     }
 
     public Notification(){}

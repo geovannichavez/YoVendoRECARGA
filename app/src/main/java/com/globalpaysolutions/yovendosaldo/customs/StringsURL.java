@@ -12,10 +12,10 @@ public final class StringsURL
     //public final static String URL_BASE = "http://csncusgats.cloudapp.net:8074/v1/";
 
     //Servidor para DESARROLLO
-    //public final static String URL_BASE = "http://csncusgats.cloudapp.net:8073/v1/";
+    public final static String URL_BASE = "http://csncusgats.cloudapp.net:8073/v1/";
 
     //  :::::   LOCALHOST API   :::::
-    public final static String URL_BASE = "http://10.0.2.2:49435/";
+    //public final static String URL_BASE = "http://10.0.2.2:49435/";
 
     public final static String SIGNIN = URL_BASE + "signin/";
 
@@ -38,6 +38,8 @@ public final class StringsURL
     public final static String PRODUCTS = URL_BASE + "products/";
 
     public final static String DEVICEREGISTRATION = URL_BASE + "deviceregistration/";
+
+    public final static String NOTIFICATIONSHISTORY = URL_BASE + "getnotifications/";
 
 
     /**

@@ -6,6 +6,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_logout">Cerrar sesión</string>
     <string name="title_activity_menu_pin">PIN de seguridad</string>
+    <string name="title_activity_notificaciones">Notificaciones</string>
 
     <!--Items de menú para el Drawer de Navegación-->
     <string-array name="drawer_options">
@@ -152,7 +153,7 @@
     <string name="demo_tigo_1">PaqueTigo Llamadas $1</string>
     <string name="demo_tigo_2">PaqueTigo Navegación $0.50</string>
     <string name="demo_tigo_3">PaqueTigo Redes Socioales $0.25</string>
-<!--    <string name="demo_movi_1"></string>
+    <!--    <string name="demo_movi_1"></string>
     <string name="demo_movi_2"></string>
     <string name="demo_digicel_1"></string>
     <string name="demo_digicel_2"></string>-->
@@ -165,8 +166,6 @@
     <string name="payment_paid">PAGADA</string>
     <string name="status_recarga_display_success">Recarga Exitosa</string>
     <string name="status_recarga_display_fail">Recarga Fallida</string>
-
-
 
 
     <!--CONFIGURACION-->

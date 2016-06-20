@@ -225,12 +225,14 @@ public class Home extends AppCompatActivity
                         fragmentTransactionAApp.commit();
                         return true;
                     case R.id.Alertas:
-                        FragmentAlertas fragmentNotif = new FragmentAlertas();
+                        /*FragmentAlertas fragmentNotif = new FragmentAlertas();
                         android.support.v4.app.FragmentTransaction fragmentTransactionNotif = getSupportFragmentManager().beginTransaction();
                         rlMainHomeContent.setVisibility(View.GONE);
                         toolbar.setTitle("");
                         fragmentTransactionNotif.replace(R.id.frame, fragmentNotif);
-                        fragmentTransactionNotif.commit();
+                        fragmentTransactionNotif.commit();*/
+                        Intent notif = new Intent(getApplication().getApplicationContext(), Notificaciones.class);
+                        startActivity(notif);
                         return true;
                     default:
                         Toast.makeText(getApplicationContext(), "Somethings Wrong", Toast.LENGTH_SHORT).show();
@@ -368,7 +370,7 @@ public class Home extends AppCompatActivity
         *   PUSH NOTIFICATIONS
         *
         */
-        /*homeActivity = this;
+        homeActivity = this;
         NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, YvsNotificationsHandler.class);
         gcm = GoogleCloudMessaging.getInstance(this);
         registerClient = new RegisterClient(this);
@@ -376,7 +378,7 @@ public class Home extends AppCompatActivity
         if (sessionManager.IsUserLoggedIn())
         {
             BeginDeviceRegistration();
-        }*/
+        }
 
     }
 
@@ -443,6 +445,10 @@ public class Home extends AppCompatActivity
                 //***   ALERTA!! CON ESTE METODO SE ENVIA               ***
                 //***   LA RECARGA, TENER CUIDADO CON IMPLEMENTACION    ***
                 TopUp(PhoneNumber, Amount);
+            }
+            else
+            {
+                EnableTopupButton(true);
             }
         }
     }
@@ -1502,7 +1508,14 @@ public class Home extends AppCompatActivity
                 }
                 catch (Exception e)
                 {
-                    Toast.makeText(Home.this, "MainActivity - Failed to register", Toast.LENGTH_LONG).show();
+                    /*runOnUiThread(new Runnable() {
+                        public void run() {
+                            // runs on UI thread
+                            Toast.makeText(Home.this, "MainActivity - Failed to register", Toast.LENGTH_LONG).show();
+                        }
+                    });*/
+                    Log.i("NotifHub:", "Falló registro de dispositivo");
+
                     return e;
                 }
                 return null;
