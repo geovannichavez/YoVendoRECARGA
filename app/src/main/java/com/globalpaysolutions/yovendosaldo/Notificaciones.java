@@ -30,6 +30,7 @@ import com.globalpaysolutions.yovendosaldo.customs.SessionManager;
 import com.globalpaysolutions.yovendosaldo.customs.StringsURL;
 import com.globalpaysolutions.yovendosaldo.customs.YVScomSingleton;
 import com.globalpaysolutions.yovendosaldo.model.Notification;
+import com.globalpaysolutions.yovendosaldo.notifications.YvsNotificationsHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,6 +67,10 @@ public class Notificaciones extends AppCompatActivity
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //Borra el listado de notificaciones que se han almacenado
+        YvsNotificationsHandler.notifications.clear();
+        YvsNotificationsHandler.Counter = 0;
+
         progressBar = (ProgressBar) findViewById(R.id.pbLoadingNotif);
         SwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout_notifications);
 
@@ -76,7 +81,7 @@ public class Notificaciones extends AppCompatActivity
         /*
         *
         *   LISTVIEW
-        *   Detecta si la primer fila del List está en la posición primer mas alta,
+        *   Detecta si la primer fila del List estï¿½ en la posiciï¿½n primer mas alta,
         *   entonces habilita el SwipeRefreshLayout, de lo contrario lo deshabilita.
         */
         NotifListView.setOnScrollListener(new AbsListView.OnScrollListener()
@@ -157,7 +162,7 @@ public class Notificaciones extends AppCompatActivity
             }
         })
         {
-            //Se añade el header para enviar el Token
+            //Se aï¿½ade el header para enviar el Token
             @Override
             public Map<String, String> getHeaders()
             {
@@ -166,7 +171,7 @@ public class Notificaciones extends AppCompatActivity
                 headers.put("Content-Type", "application/json; charset=utf-8");
                 return headers;
             }
-        }, 1); //Parametro de número de re-intentos
+        }, 1); //Parametro de nï¿½mero de re-intentos
     }
 
 
@@ -187,7 +192,7 @@ public class Notificaciones extends AppCompatActivity
                 {
                     JSONObject JsonNotification = Notifications.getJSONObject(i);
 
-                    //Obtención de fecha
+                    //Obtenciï¿½n de fecha
                     String StrNotificationDate = JsonNotification.has("Date") ? JsonNotification.getString("Date") : "";
                     SimpleDateFormat Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                     Date DateNotification = Format.parse(StrNotificationDate);
@@ -310,7 +315,7 @@ public class Notificaciones extends AppCompatActivity
 
     /*
     *
-    *   OTROS MÉTODOS
+    *   OTROS Mï¿½TODOS
     *
     */
 

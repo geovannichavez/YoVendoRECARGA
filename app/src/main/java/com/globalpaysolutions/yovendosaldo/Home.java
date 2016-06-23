@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -32,6 +33,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -377,7 +379,10 @@ public class Home extends AppCompatActivity
 
         if (sessionManager.IsUserLoggedIn())
         {
-            BeginDeviceRegistration();
+            if(CheckGooglePlayServices())
+            {
+                BeginDeviceRegistration();
+            }
         }
 
     }
@@ -387,6 +392,10 @@ public class Home extends AppCompatActivity
     {
         EnableTopupButton(false);
         Log.i("Print click", "Para saber cuantas veces se ha hecho click en el botón.");
+
+        //Esconderá el teclado al presionar el botón
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 
         final String PhoneNumber = txtPhoneNumber.getText().toString();
 
@@ -413,7 +422,11 @@ public class Home extends AppCompatActivity
                     }
                 };
                 PinDialogBuilder = new PinDialogBuilder(Home.this, ClickListener, PhoneNumber);
+                //Muestra el teclado al aparecer el dialogo
+                PinDialogBuilder.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
                 PinDialogBuilder.show();
+
+
                 EnableTopupButton(true);
             }
             else
@@ -527,19 +540,27 @@ public class Home extends AppCompatActivity
             sessionManager.SaveAvailableBalance(Balance);
             SetBalanceTextView();
             Log.d("Resultado: ", Message);
-        } catch (JSONException e)
+        }
+        catch (JSONException e)
         {
             e.printStackTrace();
         }
 
-        CustomDialogCreator.CreateFullScreenDialog(getString(R.string.dialog_succeed_topoup_title), getString(R.string.dialog_succeed_topup_content), PhoneUsed, Operator, "Enviar Otra Recarga", "NEWACTION", false, true);
-
-        /*CreateFullScreenDialog(getString(R.string.dialog_succeed_topoup_title),
+        CustomDialogCreator.CreateFullScreenDialog(getString(R.string.dialog_succeed_topoup_title),
                 getString(R.string.dialog_succeed_topup_content),
-                PhoneUsed, Operator, "Enviar Otra Recarga", "NEWACTION", false, true);*/
+                PhoneUsed, Operator, "Enviar Otra Recarga", "NEWACTION", false, true);
+
+        //Resetea todos los controles
         IsExecuting = false;
         EnableTopupButton(true);
         txtPhoneNumber.setText("");
+        //Resetea el adapter del spinner
+        //AmountAdapter.clear();
+        //AmountAdapter.notifyDataSetChanged();
+        //Reseta el adapter del gridview y lo vuelve a llenar
+        //getOperators();
+
+
 
     }
 
@@ -718,6 +739,8 @@ public class Home extends AppCompatActivity
 
             }
         });
+
+
 
         Operator op1 = new Operator();
         op1.setOperatorName("Tigo");
@@ -1419,7 +1442,6 @@ public class Home extends AppCompatActivity
 
         IsExecuting = false;
         EnableTopupButton(true);
-        //CreateFullScreenDialog(Titulo, Linea1, null, null, Button, "NEWACTION", true, true);
     }
 
     public String RetrieveUserPin()
@@ -1493,6 +1515,32 @@ public class Home extends AppCompatActivity
     *       PUSH NOTIFICATIONS LOGIC
     * ****************************************************************************
     */
+
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean CheckGooglePlayServices()
+    {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS)
+        {
+            if (apiAvailability.isUserResolvableError(resultCode))
+            {
+                //apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+                Log.i(TAG, "Dispositivo si tiene soporte para Google Play Services.");
+            }
+            else
+            {
+                Log.i(TAG, "Este dispositivo no tiene soporte para Google Play Services.");
+                Toast.makeText(this, getString(R.string.google_play_not_supported), Toast.LENGTH_LONG).show();
+            }
+            return false;
+        }
+        return true;
+    }
 
     public void BeginDeviceRegistration()
     {

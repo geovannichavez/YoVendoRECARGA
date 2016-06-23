@@ -22,7 +22,7 @@ import com.android.yovendosaldo.R;
 import com.globalpaysolutions.yovendosaldo.Home;
 
 /**
- * Created by Josué Chávez on 20/05/2016.
+ * Created by Josuï¿½ Chï¿½vez on 20/05/2016.
  */
 public class PinDialogBuilder extends AlertDialog
 {
@@ -61,10 +61,10 @@ public class PinDialogBuilder extends AlertDialog
         TextView tvPinPhonenumber = (TextView) findViewById(R.id.tvPinPhonenumber);
         TextView tvContentPinTopup = (TextView) findViewById(R.id.tvContentPinTopup);
 
-        //Anuncio de que se hará una recargar
+        //Anuncio de que se harï¿½ una recargar
         tvContentPinTopup.setVisibility(View.VISIBLE);
 
-        //Número al que se hará la recarga
+        //Nï¿½mero al que se harï¿½ la recarga
         tvPinPhonenumber.setVisibility(View.VISIBLE);
         tvPinPhonenumber.setText(Phone);
 
@@ -73,6 +73,7 @@ public class PinDialogBuilder extends AlertDialog
         etPin = (EditText) findViewById(R.id.etEnterPin);
         etPin.setTransformationMethod(new PasswordTransformationMethod());
         etPin.setTypeface(Typeface.DEFAULT);
+        etPin.requestFocus();
         PinTextCounter();
 
 
@@ -116,10 +117,10 @@ public class PinDialogBuilder extends AlertDialog
         TextView tvPinPhonenumber = (TextView) v.findViewById(R.id.tvPinPhonenumber);
         TextView tvContentPinTopup = (TextView) v.findViewById(R.id.tvContentPinTopup);
 
-        //Anuncio de que se hará una recargar
+        //Anuncio de que se harï¿½ una recargar
         tvContentPinTopup.setVisibility(View.VISIBLE);
 
-        //Número al que se hará la recarga
+        //Nï¿½mero al que se harï¿½ la recarga
         tvPinPhonenumber.setVisibility(View.VISIBLE);
         tvPinPhonenumber.setText(pPhone);
 
@@ -198,7 +199,7 @@ public class PinDialogBuilder extends AlertDialog
             {
                 String PinText = etPin.getText().toString();
 
-                //Esconde el teclado después que el EditText alcanzó los 4 dígitos
+                //Esconde el teclado despuï¿½s que el EditText alcanzï¿½ los 4 dï¿½gitos
                 if (PinText.length() == 4 && TextLength < PinText.length())
                 {
                     InputMethodManager imm = (InputMethodManager) _context.getSystemService(Activity.INPUT_METHOD_SERVICE);

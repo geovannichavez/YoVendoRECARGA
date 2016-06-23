@@ -2,7 +2,12 @@ package com.globalpaysolutions.yovendosaldo;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.android.yovendosaldo.BuildConfig;
 import com.android.yovendosaldo.R;
 
 public class Configuracion extends AppCompatActivity
@@ -31,6 +37,7 @@ public class Configuracion extends AppCompatActivity
         toolbar.setTitle(getString(R.string.title_activity_config));
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         SetConfigurationFragment();
 
@@ -60,6 +67,28 @@ public class Configuracion extends AppCompatActivity
         {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.activity_configuracion);
+
+            Preference preference = findPreference("yvs_califica");
+            preference.setOnPreferenceClickListener (new Preference.OnPreferenceClickListener(){
+                public boolean onPreferenceClick(Preference preference)
+                {
+                    final String appPackageName = getActivity().getPackageName(); // getPackageName() from Context or Activity  object
+                    try
+                    {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                    }
+                    catch (android.content.ActivityNotFoundException anfe)
+                    {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + appPackageName)));
+                    }
+
+                    return false;
+                }
+            });
+
+            String versName = BuildConfig.VERSION_NAME;
+            Preference versionName = findPreference("app_version");
+            versionName.setSummary(getResources().getString(R.string.version) + " " + versName);
         }
     }
 

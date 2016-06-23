@@ -77,7 +77,11 @@
             android:hint="@string/pin_insert_hint"
             android:width="200dp"
             android:id="@+id/etEnterPin"
-            android:layout_gravity="center"/>
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:layout_gravity="center">
+            <!--<requestFocus />-->
+        </EditText>
 
         <EditText
             android:visibility="gone"

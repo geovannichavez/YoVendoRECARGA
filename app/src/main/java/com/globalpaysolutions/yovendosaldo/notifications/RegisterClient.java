@@ -62,13 +62,15 @@ public class RegisterClient
 
     public void RegisterDevice(String handle, Set<String> tags) throws ClientProtocolException, IOException, JSONException
     {
+        //Obtiene o solicta el RegistrationID en el Hub
         String registrationId = RetrieveRegistrationIdOrRequestNewOne(handle);
 
         JSONObject deviceInfo = new JSONObject();
         deviceInfo.put("Platform", "gcm");
-        deviceInfo.put("Handle", handle);
+        deviceInfo.put("Handle", handle); //SenderID
         deviceInfo.put("Tags", new JSONArray(tags));
 
+        //Registra el dispositvo en el Hub
         int statusCode = UpsertDeviceRegistration(registrationId, deviceInfo);
 
         if (statusCode == HttpStatus.SC_OK)
@@ -77,6 +79,7 @@ public class RegisterClient
         }
         else if (statusCode == HttpStatus.SC_GONE)
         {
+
             NotificationsSettings.edit().remove(REGID_SETTING_NAME).apply();
             registrationId = RetrieveRegistrationIdOrRequestNewOne(handle);
             statusCode = UpsertDeviceRegistration(registrationId, deviceInfo);
@@ -93,7 +96,10 @@ public class RegisterClient
         }
     }
 
-
+    /*
+    Hace el registro del dispositivo en el Hub usando el RegistrationID, devuelve el
+    codigo de estatus del resultado del registro
+    */
     private int UpsertDeviceRegistration(String registrationId, JSONObject deviceInfo) throws UnsupportedEncodingException, IOException, ClientProtocolException
     {
         HttpPut request = new HttpPut(StringsURL.DEVICEREGISTRATION + registrationId);
@@ -105,6 +111,11 @@ public class RegisterClient
         return statusCode;
     }
 
+
+    /*
+    Devuelve el registrationID, si no hay uno guardado localmente
+    solicita uno desde el Hub
+    */
     private String RetrieveRegistrationIdOrRequestNewOne(String handle) throws ClientProtocolException, IOException
     {
         if (NotificationsSettings.contains(REGID_SETTING_NAME))

@@ -14,6 +14,7 @@ import android.preference.SwitchPreference;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.preference.SwitchPreferenceCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -64,6 +65,7 @@ public class ManejoPIN extends AppCompatActivity
             addPreferencesFromResource(R.xml.pref_manejo_pin);
 
 
+            //codeActive = (SwitchPreferenceCompat) findPreference ("KEY_ACTIVATE_PIN");
             codeActive = (SwitchPreference) findPreference("KEY_ACTIVATE_PIN");
 
             if (codeActive != null)

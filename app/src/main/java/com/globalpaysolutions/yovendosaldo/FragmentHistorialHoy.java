@@ -377,7 +377,7 @@ public class FragmentHistorialHoy extends Fragment
         if(HaveNetworkConnection() != true)
         {
             connected = false;
-            String connectionMessage = "No esta conectado a internet.";
+            String connectionMessage = getString(R.string.no_internet_connection);
             Toast.makeText(getActivity(), connectionMessage, Toast.LENGTH_LONG).show();
         }
         else

@@ -100,7 +100,7 @@
     <string name="terms_and_conditions_second_subtitle">Inscripción</string>
     <string name="terms_and_conditions_generalities">Este contrato tiene la finalidad de establecer los Acuerdos y Condiciones del sitio web y de los servicios ofrecidos por Paga-Todo.com, propiedad de la sociedad Global Pay Solutions S.A., una sociedad constituida de conformidad a las leyes de la República de Panamá, o sus afiliadas, o de los diversos sitios web redireccionados a este desde los diversos ccTLD (Country Code Top Level Domain), al que en adelante será referido como “Paga-Todo”.</string>
     <string name="terms_and_conitions_subscription">No pueden registrarse ni usar los servicios proporcionados por Paga-Todo los menores de 18 años de edad, los sordos que no pueden darse a entender de manera indudable, los Usuarios suspendidos o cancelados de Paga-Todo. Y en general solo pueden registrarse todas las personas naturales que tengan capacidad para adquirir derechos y contraer obligaciones por sí mismas, sin necesidad de autorización de otras.</string>
-    <string name="forgot_password"><u>¿Has olvidado tu contrseña?</u>.</string>
+    <string name="forgot_password"><u>¿Has olvidado tu contraseña?</u>.</string>
     <string name="politics"><u>Políticas de Privacidad</u></string>
     <string name="not_setted">Sin establecer...</string>
     <string name="dialog_logging_in">Iniciando sesión...</string>
@@ -201,4 +201,10 @@
     <string name="pin_confirm_hint"><font size="14">Confirme PIN</font></string>
 
     <string name="dialog_signing_out">Cerrando sesión, espere...</string>
+    <string name="version">Versión</string>
+
+    <string name="google_play_not_supported">Este dispositivo no tiene soporte para Google Play Services.</string>
+    <string name="n_new_notifications">notificaciones nuevas</string>
+    <string name="yvs">YoVendoSALDO</string>
+
 </resources>

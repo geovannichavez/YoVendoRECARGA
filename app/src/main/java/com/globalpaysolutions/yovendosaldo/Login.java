@@ -95,6 +95,16 @@ public class Login extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        if(ProgressDialog.isShowing())
+        {
+            ProgressDialog.dismiss();
+        }
+    }
+
     public void Login(View view)
     {
         if(CheckValidation())

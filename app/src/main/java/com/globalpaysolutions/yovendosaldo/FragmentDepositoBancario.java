@@ -63,7 +63,7 @@ public class FragmentDepositoBancario extends Fragment
     List<Bank> ListaBancos = new ArrayList<>();
     BankSpinnerAdapter BankAdapter;
     int SelectedBank;
-    static boolean DateSeted = false;
+    static boolean DateSeted;
     Validation validator;
     boolean BankSelected = false;
     CustomFullScreenDialog FullScreenDialog;
@@ -96,7 +96,7 @@ public class FragmentDepositoBancario extends Fragment
     {
         View view = inflater.inflate(R.layout.fragment_deposito_bancario, container, false);
 
-
+        DateSeted = false;
 
         FullScreenDialog = new CustomFullScreenDialog(getContext(), getActivity());
         sessionManager = new SessionManager(getContext());
@@ -161,9 +161,7 @@ public class FragmentDepositoBancario extends Fragment
             Calendar C = new GregorianCalendar(year,month,day);
             DepositDate = C.getTime();
 
-            tvFechaDeposito.setText(new SimpleDateFormat("dd 'de' MMMM 'de' yyyy", new Locale("es_ES")).format(DepositDate));
-
-            //System.out.println(new SimpleDateFormat("dd/MMMM/yyyy").format(new Date()));
+            tvFechaDeposito.setText(new SimpleDateFormat("dd 'de' MMMM 'de' yyyy", new Locale("es", "ES")).format(DepositDate));
 
         }
     }
@@ -179,6 +177,7 @@ public class FragmentDepositoBancario extends Fragment
             double Monto = Double.parseDouble(edMonto.getText().toString());
             String Comprobante = edComprobante.getText().toString();
             int BancoID = SelectedBank;
+            //Se formatea para pasarlo al objeto json
             String Fecha = new SimpleDateFormat("dd-MMM-yyyy", new Locale("es_ES")).format(DepositDate);
 
             JSONObject jVoucher = new JSONObject();

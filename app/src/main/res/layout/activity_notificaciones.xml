@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -10,43 +10,45 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/notifToolbar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat"
-        app:theme="@style/ToolbarTheme"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/ApplicationGreenTheme"
-        android:elevation="4dp">
+        android:elevation="4dp"
+        app:popupTheme="@style/ThemeOverlay.AppCompat"
+        app:theme="@style/ToolbarTheme">
 
     </android.support.v7.widget.Toolbar>
 
-    <ProgressBar
-        android:id="@+id/pbLoadingNotif"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/ActivityVerticalExtraCustomMargin"
-        android:visibility="gone"
-        android:layout_gravity="center"/>
 
     <android.support.v4.widget.SwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/swipe_refresh_layout_notifications"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingLeft="@dimen/ActivityVerticalCustomMargin"
-        android:paddingRight="@dimen/ActivityVerticalCustomMargin"
-        android:paddingTop="@dimen/ActivityVerticalCustomMargin">
 
-        <ListView
-            android:id="@+id/lvNotificaciones"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"></ListView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/ActivityVerticalCustomMargin"
+            android:paddingRight="@dimen/ActivityVerticalCustomMargin"
+            android:paddingTop="@dimen/ActivityVerticalCustomMargin">
 
-    </LinearLayout>
+            <ProgressBar
+                android:id="@+id/pbLoadingNotif"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:visibility="gone"/>
+
+               <ListView
+                   android:id="@+id/lvNotificaciones"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"></ListView>
+
+        </LinearLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>

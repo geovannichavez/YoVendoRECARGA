@@ -151,16 +151,19 @@ public class Validation
 
     public boolean IsValidDepositDate(Date pDepositDate)
     {
-        boolean valid;
+        boolean valid = false;
 
-        if(pDepositDate.getTime() > new Date().getTime())
+        if(pDepositDate != null)
         {
-            valid = false;
-            Toast.makeText(ValidationContext, ValidationContext.getString(R.string.deposit_date_invalid), Toast.LENGTH_LONG).show();
-        }
-        else
-        {
-            valid = true;
+            if(pDepositDate.getTime() > new Date().getTime())
+            {
+                valid = false;
+                Toast.makeText(ValidationContext, ValidationContext.getString(R.string.deposit_date_invalid), Toast.LENGTH_LONG).show();
+            }
+            else
+            {
+                valid = true;
+            }
         }
 
         return valid;
