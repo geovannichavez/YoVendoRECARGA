@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v4.content.IntentCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -366,6 +367,8 @@ public class Data
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        //Borra el stack completo de navegación:
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | IntentCompat.FLAG_ACTIVITY_CLEAR_TASK);
         pContext.startActivity(i);
         ((Activity)pContext).finish();
     }
