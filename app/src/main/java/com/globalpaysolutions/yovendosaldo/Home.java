@@ -77,10 +77,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 //For Push Notifications
@@ -143,11 +146,10 @@ public class Home extends AppCompatActivity
     public static Home homeActivity;
     public static Boolean isVisible = false;
     private GoogleCloudMessaging gcm;
-    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private RegisterClient registerClient;
-
+    /*private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     public static final int NOTIFICATION_ID = 1;
-    private NotificationManager mNotificationManager;
+    private NotificationManager mNotificationManager;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -373,12 +375,12 @@ public class Home extends AppCompatActivity
         *
         */
         homeActivity = this;
-        NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, YvsNotificationsHandler.class);
-        gcm = GoogleCloudMessaging.getInstance(this);
-        registerClient = new RegisterClient(this);
-
         if (sessionManager.IsUserLoggedIn())
         {
+            NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, YvsNotificationsHandler.class);
+            gcm = GoogleCloudMessaging.getInstance(this);
+            registerClient = new RegisterClient(this);
+
             if(CheckGooglePlayServices())
             {
                 BeginDeviceRegistration();
@@ -394,16 +396,19 @@ public class Home extends AppCompatActivity
         Log.i("Print click", "Para saber cuantas veces se ha hecho click en el botón.");
 
         //Esconderá el teclado al presionar el botón
-        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+        /*InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);*/
 
         final String PhoneNumber = txtPhoneNumber.getText().toString();
+
 
         if (!RetrieveUserPin().isEmpty())
         {
             if (sessionManager.IsSecurityPinActive())
             {
-                //final String strPIN = PinDialogBuilder.strPIN;
+
+                //Construye el dialogo, sobreescribe el método del click
+                //y lo muestra
                 ClickListener = new PinDialogBuilder.CustomOnClickListener()
                 {
                     @Override
@@ -414,20 +419,32 @@ public class Home extends AppCompatActivity
                         {
                             PinDialogBuilder.dismiss();
                             BeginTopup(PhoneNumber);
+                            Data.IntentCounter = 0;
                         }
                         else
                         {
-                            PinDialogBuilder.GenerateIncorrectPINText();
+                            //Valida que los intentos no hayan sido más de 4
+                            if(Data.IntentCounter < 3)
+                            {
+                                PinDialogBuilder.GenerateIncorrectPINText();
+                                Data.IntentCounter = Data.IntentCounter +1;
+                            }
+                            else
+                            {
+                                Data.IntentCounter = 0;
+                                sessionManager.LogoutUser();
+                            }
+
                         }
                     }
                 };
                 PinDialogBuilder = new PinDialogBuilder(Home.this, ClickListener, PhoneNumber);
+
                 //Muestra el teclado al aparecer el dialogo
                 PinDialogBuilder.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
                 PinDialogBuilder.show();
-
-
                 EnableTopupButton(true);
+
             }
             else
             {
@@ -1175,7 +1192,12 @@ public class Home extends AppCompatActivity
     public void SetBalanceTextView()
     {
         HashMap<String, String> Balance = sessionManager.GetAvailableBalance();
-        tvBalance.setText(Balance.get(SessionManager.KEY_BALANCE));
+        String strBalance = Balance.get(SessionManager.KEY_BALANCE);
+
+        double amount = Double.parseDouble(strBalance);
+        DecimalFormat formatter = new DecimalFormat("#,###.##");
+
+        tvBalance.setText(formatter.format(amount));
     }
 
     public void RetrieveSavedToken()

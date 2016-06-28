@@ -90,7 +90,7 @@ public class FragmentHistorialAyer extends Fragment
         YVScomSingleton.getInstance(getActivity()).addToRequestQueue(
                 new JsonObjectRequest(
                         Request.Method.GET,
-                        StringsURL.HISTORY + "/yesterday",
+                        StringsURL.HISTORY_GMT0 + "/yesterday",
                         null,
                         new Response.Listener<JSONObject>()
                         {
@@ -143,6 +143,7 @@ public class FragmentHistorialAyer extends Fragment
                     String DateSaleString = JsonSale.getString("date");
                     SimpleDateFormat Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                     //SimpleDateFormat Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                    //Format.setTimeZone(TimeZone.getDefault());
                     Format.setTimeZone(TimeZone.getTimeZone("UTC"));
                     Date DateSale = Format.parse(DateSaleString);
 

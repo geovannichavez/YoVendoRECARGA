@@ -46,6 +46,7 @@
                 <category android:name="com.globalpaysolutions.yovendosaldo"/>
             </intent-filter>
         </receiver>
+
         <receiver android:name="com.globalpaysolutions.yovendosaldo.notifications.NotificationBroadcastReceiver">
             <intent-filter>
                 <action android:name="notification_cancelled"/>

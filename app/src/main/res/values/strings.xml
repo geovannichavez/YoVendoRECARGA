@@ -206,5 +206,6 @@
     <string name="google_play_not_supported">Este dispositivo no tiene soporte para Google Play Services.</string>
     <string name="n_new_notifications">notificaciones nuevas</string>
     <string name="yvs">YoVendoSALDO</string>
+    <string name="new_notifications">Nuevas notificaciones</string>
 
 </resources>

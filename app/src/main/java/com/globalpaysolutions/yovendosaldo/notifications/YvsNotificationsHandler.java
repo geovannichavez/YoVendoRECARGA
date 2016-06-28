@@ -1,7 +1,6 @@
 package com.globalpaysolutions.yovendosaldo.notifications;
 
 import com.android.yovendosaldo.R;
-import com.globalpaysolutions.yovendosaldo.Home;
 import com.globalpaysolutions.yovendosaldo.Notificaciones;
 import com.microsoft.windowsazure.notifications.NotificationsHandler;
 
@@ -10,13 +9,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.IntentFilter;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -31,7 +27,6 @@ public class YvsNotificationsHandler extends NotificationsHandler
 {
     public int NOTIFICATION_ID;
     private NotificationManager mNotificationManager;
-    private NotificationManagerCompat mNotificationManagerCompat;
     public static int Counter = 0;
     Context ctx;
     public static List<String> notifications = new ArrayList<>();
@@ -46,7 +41,7 @@ public class YvsNotificationsHandler extends NotificationsHandler
         NOTIFICATION_ID = 237;
         ctx = context;
 
-        Counter ++;
+        Counter = Counter + 1;
 
         String nhMessage = bundle.getString("message");
         String nhTitle= bundle.getString("title");
@@ -57,6 +52,14 @@ public class YvsNotificationsHandler extends NotificationsHandler
 
     public void BuildNotification(final String notificationTitle, final String notificationMessage )
     {
+
+        /*//Registrando el BroadcastReceiver dinamicamente
+        IntentFilter filter = new IntentFilter("notification_cancelled");
+        NotificationBroadcastReceiver notifReceiver = new NotificationBroadcastReceiver();
+        ctx.getApplicationContext().registerReceiver(notifReceiver, filter);
+        ctx.getApplicationContext().unregisterReceiver(notifReceiver);*/
+
+
         Intent intent = new Intent(ctx, Notificaciones.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
@@ -84,10 +87,10 @@ public class YvsNotificationsHandler extends NotificationsHandler
                 inboxStyle.addLine(notifications.get(i));
             }
 
-            mBuilder.setContentTitle("Nuevos mensajes")
+            mBuilder.setContentTitle(ctx.getResources().getString(R.string.new_notifications))
                     .setStyle(inboxStyle)
                     .setNumber(Counter)
-                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setSmallIcon(getNotificationIcon())
                     .setSound(defaultSoundUri)
                     .setAutoCancel(true)
                     .setColor(ctx.getResources().getColor(R.color.AppGreen))
@@ -99,7 +102,7 @@ public class YvsNotificationsHandler extends NotificationsHandler
         {
             notifications.add(notificationMessage);
 
-            mBuilder.setSmallIcon(R.drawable.ic_launcher)
+            mBuilder.setSmallIcon(getNotificationIcon())
                     .setContentTitle(notificationTitle)
                     .setStyle(new NotificationCompat.BigTextStyle().bigText(notificationMessage))
                     .setColor(ctx.getResources().getColor(R.color.AppGreen))
@@ -123,6 +126,11 @@ public class YvsNotificationsHandler extends NotificationsHandler
         Intent intent = new Intent(ctx, NotificationBroadcastReceiver.class);
         intent.setAction("notification_cancelled");
         return PendingIntent.getBroadcast(ctx, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    private int getNotificationIcon() {
+        boolean useWhiteIcon = (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP);
+        return useWhiteIcon ? R.drawable.ic_notification : R.drawable.ic_launcher;
     }
 
 }

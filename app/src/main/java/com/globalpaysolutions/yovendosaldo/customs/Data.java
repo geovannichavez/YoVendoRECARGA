@@ -49,6 +49,9 @@ public class Data
     public static List<Amount> Amounts = new ArrayList<>();
     public static List<Amount> resultAmountList = new ArrayList<>();
 
+    //PIN intent counter
+    public static int IntentCounter = 0;
+
     static SessionManager sessionManager;
 
     public static void ManagePaymentItems(PaymentItem pItem)
@@ -359,6 +362,7 @@ public class Data
 
         Intent i = new Intent(pContext, Login.class);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

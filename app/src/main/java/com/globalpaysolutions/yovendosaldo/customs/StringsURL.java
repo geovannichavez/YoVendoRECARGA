@@ -23,6 +23,8 @@ public final class StringsURL
 
     public final static String PASSWORD = URL_BASE + "password";
 
+    public final static String HISTORY_GMT0 = URL_BASE + "history/gmt0";
+
     public final static String HISTORY = URL_BASE + "history";
 
     public final static String PROFILE = URL_BASE + "profile";

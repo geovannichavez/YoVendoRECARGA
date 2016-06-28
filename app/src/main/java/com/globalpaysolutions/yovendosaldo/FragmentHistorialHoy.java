@@ -37,6 +37,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -92,7 +93,7 @@ public class FragmentHistorialHoy extends Fragment
         YVScomSingleton.getInstance(getActivity()).addToRequestQueue(
                 new JsonObjectRequest(
                         Request.Method.GET,
-                        StringsURL.HISTORY + "/today",
+                        StringsURL.HISTORY_GMT0 + "/today",
                         null,
                         new Response.Listener<JSONObject>()
                         {
@@ -145,6 +146,7 @@ public class FragmentHistorialHoy extends Fragment
                     String DateSaleString = JsonSale.getString("date");
                     SimpleDateFormat Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                     //SimpleDateFormat Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                    //Format.setTimeZone(TimeZone.getDefault()); //Obtiene la zona horaria del sistema
                     Format.setTimeZone(TimeZone.getTimeZone("UTC"));
                     Date DateSale = Format.parse(DateSaleString);
 

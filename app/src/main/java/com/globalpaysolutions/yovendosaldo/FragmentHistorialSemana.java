@@ -37,6 +37,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -92,7 +93,7 @@ public class FragmentHistorialSemana extends Fragment
         YVScomSingleton.getInstance(getActivity()).addToRequestQueue(
                 new JsonObjectRequest(
                         Request.Method.GET,
-                        StringsURL.HISTORY + "/week",
+                        StringsURL.HISTORY_GMT0 + "/week",
                         null,
                         new Response.Listener<JSONObject>()
                         {
@@ -145,6 +146,7 @@ public class FragmentHistorialSemana extends Fragment
                     String DateSaleString = JsonSale.getString("date");
                     SimpleDateFormat Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                     //SimpleDateFormat Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                    //Format.setTimeZone(TimeZone.getDefault());
                     Format.setTimeZone(TimeZone.getTimeZone("UTC"));
                     Date DateSale = Format.parse(DateSaleString);
 

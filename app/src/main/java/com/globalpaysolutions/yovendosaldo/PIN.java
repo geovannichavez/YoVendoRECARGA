@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.yovendosaldo.R;
+import com.globalpaysolutions.yovendosaldo.customs.Data;
 import com.globalpaysolutions.yovendosaldo.customs.SessionManager;
 import com.globalpaysolutions.yovendosaldo.customs.Validation;
 
@@ -186,11 +187,23 @@ public class PIN extends AppCompatActivity
                 String strPwwd = etEnterPww.getText().toString().trim();
                 if (sessionManager.ValidPww(strPwwd))
                 {
+                    Data.IntentCounter = 0;
                     PinDialog.dismiss();
-                } else
+                }
+                else
                 {
-                    etEnterPww.setText("");
-                    GenerateIncorrectPasswText(tvContentPin);
+                    if(Data.IntentCounter < 3)
+                    {
+                        etEnterPww.setText("");
+                        GenerateIncorrectPasswText(tvContentPin);
+                        Data.IntentCounter = Data.IntentCounter +1;
+                    }
+                    else
+                    {
+                        Data.IntentCounter = 0;
+                        sessionManager.LogoutUser();
+                    }
+
                 }
             }
         });

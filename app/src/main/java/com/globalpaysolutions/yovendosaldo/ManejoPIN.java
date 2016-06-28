@@ -27,6 +27,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.android.yovendosaldo.R;
+import com.globalpaysolutions.yovendosaldo.customs.Data;
 import com.globalpaysolutions.yovendosaldo.customs.SessionManager;
 
 import org.apache.commons.lang3.StringUtils;
@@ -239,11 +240,23 @@ public class ManejoPIN extends AppCompatActivity
                     PinDialog.dismiss();
                     sessionManager.setPinActive(newValue);
                     pCodePreference.setChecked(false);
-                } else
+                    Data.IntentCounter = 0;
+                }
+                else
                 {
-                    etEnterPww.setText("");
-                    GenerateIncorrectPasswText(tvContentPin, _context);
-                    sessionManager.setPinActive(true);
+                    if(Data.IntentCounter < 3)
+                    {
+                        etEnterPww.setText("");
+                        GenerateIncorrectPasswText(tvContentPin, _context);
+                        sessionManager.setPinActive(true);
+                        Data.IntentCounter = Data.IntentCounter +1;
+                    }
+                    else
+                    {
+                        Data.IntentCounter = 0;
+                        sessionManager.LogoutUser();
+                    }
+
                 }
             }
         });

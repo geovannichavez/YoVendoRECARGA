@@ -99,7 +99,7 @@ public class Login extends AppCompatActivity
     protected void onStop()
     {
         super.onStop();
-        if(ProgressDialog.isShowing())
+        if(ProgressDialog != null && ProgressDialog.isShowing())
         {
             ProgressDialog.dismiss();
         }

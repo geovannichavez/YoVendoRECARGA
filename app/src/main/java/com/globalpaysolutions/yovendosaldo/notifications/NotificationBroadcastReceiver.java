@@ -4,8 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.globalpaysolutions.yovendosaldo.customs.SessionManager;
+
 /**
- * Created by JosuÈ Ch·vez on 23/06/2016.
+ * Created by Josu√© Ch√°vez on 23/06/2016.
  */
 public class NotificationBroadcastReceiver extends BroadcastReceiver
 {
@@ -18,6 +20,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver
             // your code
             YvsNotificationsHandler.Counter = 0;
             YvsNotificationsHandler.notifications.clear();
+
         }
     }
 }
