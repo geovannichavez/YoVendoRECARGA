@@ -207,5 +207,6 @@
     <string name="n_new_notifications">notificaciones nuevas</string>
     <string name="yvs">YoVendoSALDO</string>
     <string name="new_notifications">Nuevas notificaciones</string>
+    <string name="general_text_wait">Espere...</string>
 
 </resources>

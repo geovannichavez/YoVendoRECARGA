@@ -147,9 +147,6 @@ public class Home extends AppCompatActivity
     public static Boolean isVisible = false;
     private GoogleCloudMessaging gcm;
     private RegisterClient registerClient;
-    /*private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    public static final int NOTIFICATION_ID = 1;
-    private NotificationManager mNotificationManager;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -229,12 +226,6 @@ public class Home extends AppCompatActivity
                         fragmentTransactionAApp.commit();
                         return true;
                     case R.id.Alertas:
-                        /*FragmentAlertas fragmentNotif = new FragmentAlertas();
-                        android.support.v4.app.FragmentTransaction fragmentTransactionNotif = getSupportFragmentManager().beginTransaction();
-                        rlMainHomeContent.setVisibility(View.GONE);
-                        toolbar.setTitle("");
-                        fragmentTransactionNotif.replace(R.id.frame, fragmentNotif);
-                        fragmentTransactionNotif.commit();*/
                         Intent notif = new Intent(getApplication().getApplicationContext(), Notificaciones.class);
                         startActivity(notif);
                         return true;
@@ -261,7 +252,6 @@ public class Home extends AppCompatActivity
                 {
                     case R.id.Configuracion:
                         Intent i = new Intent(getApplication().getApplicationContext(), Configuracion.class);
-                        //i.putExtra("ConfFragment", "CONF");
                         startActivity(i);
                         return true;
                     default:
@@ -570,13 +560,7 @@ public class Home extends AppCompatActivity
         //Resetea todos los controles
         IsExecuting = false;
         EnableTopupButton(true);
-        txtPhoneNumber.setText("");
-        //Resetea el adapter del spinner
-        //AmountAdapter.clear();
-        //AmountAdapter.notifyDataSetChanged();
-        //Reseta el adapter del gridview y lo vuelve a llenar
-        //getOperators();
-
+        ResetControls();
 
 
     }
@@ -600,8 +584,9 @@ public class Home extends AppCompatActivity
             String Linea2 = getString(R.string.check_history_advice_ln2);
             String Button = "OK";
             txtPhoneNumber.setText("");
-
             IsExecuting = false;
+            ResetControls();
+
             EnableTopupButton(true);
             CustomDialogCreator.CreateFullScreenDialog(Titulo, Linea1 + " " + Linea2, null, null, Button, "NEWACTION", true, true);
         }
@@ -628,7 +613,7 @@ public class Home extends AppCompatActivity
                 String Linea1 = getString(R.string.insufficent_balance_ln1);
                 String Linea2 = getString(R.string.insufficent_balance_ln2);
                 String Button = "OK";
-                txtPhoneNumber.setText("");
+                ResetControls();
 
                 IsExecuting = false;
                 EnableTopupButton(true);
@@ -641,7 +626,7 @@ public class Home extends AppCompatActivity
                 String Linea1 = getString(R.string.something_went_wrong_try_again);
                 String Button = "OK";
                 ProgressDialog.dismiss();
-                txtPhoneNumber.setText("");
+                ResetControls();
 
                 IsExecuting = false;
                 EnableTopupButton(true);
@@ -669,7 +654,7 @@ public class Home extends AppCompatActivity
             String Linea1 = getString(R.string.something_went_wrong_try_again);
             String Button = "OK";
             ProgressDialog.dismiss();
-            txtPhoneNumber.setText("");
+            ResetControls();
 
             IsExecuting = false;
             EnableTopupButton(true);
@@ -1488,6 +1473,35 @@ public class Home extends AppCompatActivity
         toolbar.setTitle("");
         fragmentTransactionAApp.replace(R.id.frame, fragmentHistorial);
         fragmentTransactionAApp.commit();
+    }
+
+    public void ResetControls()
+    {
+        txtPhoneNumber.setText("");
+        OperatorSelected = false;
+
+        //Remueve el operador seleccionado
+        for (int i = 0; i < GridViewOperators.getAdapter().getCount(); i++)
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+            {
+                GridViewOperators.getChildAt(i)
+                        .setBackground(getResources().getDrawable(R.drawable.custom_rounded_corner_operator));
+            }
+            else
+            {
+                GridViewOperators.getChildAt(i)
+                        .setBackgroundDrawable(getResources().getDrawable(R.drawable.custom_rounded_corner_operator));
+            }
+        }
+
+        //Resetea los montos
+        selectedOperatorAmounts.clear();
+        for (int i = 0; i < 2; i++)
+        {
+            selectedOperatorAmounts.add(Data.AmountHint(Home.this));
+        }
+        SpinnerAmount.setSelection(AmountAdapter.getCount());
     }
 
     /*private void getDeviceSuperInfo() {

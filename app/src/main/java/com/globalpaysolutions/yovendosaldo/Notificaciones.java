@@ -1,6 +1,9 @@
 package com.globalpaysolutions.yovendosaldo;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +16,7 @@ import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -116,12 +120,20 @@ public class Notificaciones extends AppCompatActivity
             @Override
             public void onRefresh()
             {
-                RequestNotificationsHistory(true);
+                if(CheckConnection())
+                {
+                    RequestNotificationsHistory(true);
+                }
+
             }
         });
 
+        if(CheckConnection())
+        {
+            RequestNotificationsHistory(false);
+        }
 
-        RequestNotificationsHistory(false);
+
 
 
     }
@@ -347,5 +359,50 @@ public class Notificaciones extends AppCompatActivity
         {
             SwipeRefresh.setRefreshing(false);
         }
+    }
+
+    private boolean CheckConnection()
+    {
+        boolean connected;
+
+        if(HaveNetworkConnection() != true)
+        {
+            connected = false;
+            String connectionMessage = getString(R.string.no_internet_connection);
+            Toast.makeText(this, connectionMessage, Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            connected = true;
+        }
+
+        return connected;
+    }
+
+    private boolean HaveNetworkConnection()
+    {
+        boolean haveConnectedWifi = false;
+        boolean haveConnectedMobile = false;
+
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo[] netInfo = cm.getAllNetworkInfo();
+        for (NetworkInfo ni : netInfo)
+        {
+            if (ni.getTypeName().equalsIgnoreCase("WIFI"))
+            {
+                if (ni.isConnected())
+                {
+                    haveConnectedWifi = true;
+                }
+            }
+            if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
+            {
+                if (ni.isConnected())
+                {
+                    haveConnectedMobile = true;
+                }
+            }
+        }
+        return haveConnectedWifi || haveConnectedMobile;
     }
 }

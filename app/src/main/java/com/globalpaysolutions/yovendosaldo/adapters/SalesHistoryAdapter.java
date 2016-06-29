@@ -153,7 +153,7 @@ public class SalesHistoryAdapter extends ArrayAdapter<Sale>
         }
 
         //Fecha
-        viewHolder.tvSaleDate.setText(new SimpleDateFormat("MMM d' - 'h:mm a", new Locale("es_ES")).format(currentItem.getDate()).toUpperCase());
+        viewHolder.tvSaleDate.setText(new SimpleDateFormat("d'-'MMM'-'yy';' h:mm a", new Locale("es_ES")).format(currentItem.getDate()).toUpperCase());
 
         viewHolder.tvSalePhoneNumber.setText(PhoneNumber);
         String Operator = currentItem.getOperator().equals("null") ? "" : currentItem.getOperator().toUpperCase() + " - ";
