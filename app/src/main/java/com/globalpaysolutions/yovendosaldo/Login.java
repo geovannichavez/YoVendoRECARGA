@@ -65,6 +65,7 @@ public class Login extends AppCompatActivity
     public static int SessionID;
     public static String UserEmail;
     public static String Pww;
+    public static boolean VendorM;
     SessionManager sessionManager;
     Validation validator;
 
@@ -194,9 +195,10 @@ public class Login extends AppCompatActivity
             Token = SigninResponseObject.has("token") ? SigninResponseObject.getString("token") : "";
             Balance = SigninResponseObject.has("AvailableAmount") ? SigninResponseObject.getString("AvailableAmount") : "";
             SessionID = SigninResponseObject.has("SesionID") ? SigninResponseObject.getInt("SesionID"): 0;
+            VendorM = SigninResponseObject.has("VendorM") ? SigninResponseObject.getBoolean("VendorM"): false;
 
             sessionManager = new SessionManager(Login.this);
-            sessionManager.CreateLoginSession(UserEmail, Token, Balance, Pww, SessionID);
+            sessionManager.CreateLoginSession(UserEmail, Token, Balance, Pww, SessionID, VendorM);
 
 
             //Hace el request para traer el perfil del usuario

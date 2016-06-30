@@ -1181,6 +1181,8 @@ public class Home extends AppCompatActivity
 
         double amount = Double.parseDouble(strBalance);
         DecimalFormat formatter = new DecimalFormat("#,###.##");
+        formatter.setDecimalSeparatorAlwaysShown(true);
+        formatter.setMinimumFractionDigits(2);
 
         tvBalance.setText(formatter.format(amount));
     }
@@ -1609,6 +1611,15 @@ public class Home extends AppCompatActivity
 
             }
         }.execute(null, null, null);
+    }
+
+    public boolean isVendorM()
+    {
+        boolean vendorM;
+        HashMap<String, Boolean> MapVendor = sessionManager.GetVendorInfo();
+        vendorM = MapVendor.get(SessionManager.KEY_VENDOR_M);
+
+        return vendorM;
     }
 
 

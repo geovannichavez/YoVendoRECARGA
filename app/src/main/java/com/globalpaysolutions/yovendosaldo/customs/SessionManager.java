@@ -42,6 +42,7 @@ public class SessionManager
     public static final String KEY_REMEMBER_EMAIL = "rememberEmail";
     public static final String KEY_PPW = "userOtherWayConffirmation";
     public static final String KEY_SESSION_ID = "sessionID";
+    public static final String KEY_VENDOR_M = "vendorM";
 
     public static final String KEY_ACTIVATE_PIN = "securityPin";
     public static final String KEY_PIN_CODE = "pinCode";
@@ -97,7 +98,7 @@ public class SessionManager
     }
 
     //Guarda los datos de la sesión
-    public void CreateLoginSession(String pEmail, String pToken, String pBalance, String pPww, int pSessionID)
+    public void CreateLoginSession(String pEmail, String pToken, String pBalance, String pPww, int pSessionID, boolean pVendorM)
     {
         editor.putBoolean(IS_LOGIN, true);
         editor.putString(KEY_USER_EMAIL, pEmail);
@@ -105,6 +106,8 @@ public class SessionManager
         editor.putString(KEY_BALANCE, pBalance);
         editor.putString(KEY_PPW, pPww);
         editor.putInt(KEY_SESSION_ID, pSessionID);
+        editor.putBoolean(KEY_VENDOR_M, pVendorM);
+
         editor.commit();
     }
 
@@ -162,6 +165,13 @@ public class SessionManager
         return SessionID;
     }
 
+    public HashMap<String, Boolean> GetVendorInfo()
+    {
+        HashMap<String, Boolean> VendorInfo = new HashMap<String, Boolean>();
+        VendorInfo.put(KEY_VENDOR_M, pref.getBoolean(KEY_VENDOR_M, false));
+        return VendorInfo;
+    }
+
     public void ClearUserSession()
     {
         editor.clear();
@@ -205,6 +215,7 @@ public class SessionManager
         editor.remove(KEY_LAST_NAME);
         editor.remove(IS_LOGIN);
         editor.remove(KEY_SESSION_ID);
+        editor.remove(KEY_VENDOR_M);
         editor.remove("RanBefore");
         pinEditor.remove("KEY_ACTIVATE_PIN");
         editor.apply();
