@@ -132,6 +132,67 @@ public class Data
     }
 
 
+
+    public static void BalanceRequest(final Context pContext, final VolleyCallback callback)
+    {
+
+        JSONObject jsBalanceReq = new JSONObject();
+        try
+        {
+            jsBalanceReq.put("VendorEmail", RetrieveUserEmail(pContext));
+        }
+        catch (JSONException ex)
+        {
+            ex.printStackTrace();
+        }
+
+        YVScomSingleton.getInstance(pContext).addToRequestQueue(
+                new JsonObjectRequest(
+                        Request.Method.POST,
+                        StringsURL.BALANCREQUEST,
+                        jsBalanceReq,
+                        new Response.Listener<JSONObject>()
+                        {
+                            @Override
+                            public void onResponse(JSONObject response)
+                            {
+                                Log.d("Mensaje JSON ", response.toString());
+                                callback.onResult(true, response);
+                            }
+                        },
+                        new Response.ErrorListener()
+                        {
+                            @Override
+                            public void onErrorResponse(VolleyError error)
+                            {
+                                Log.d("Error Logout ", "Sucedió un error al solicitar saldo.");
+                                callback.onResult(false, null);
+                            }
+                        }
+                )
+                {
+                    //Se añade el header para enviar el Token
+                    @Override
+                    public Map<String, String> getHeaders()
+                    {
+                        String pToken = RetrieveSavedToken(pContext);
+                        Map<String, String> headers = new HashMap<String, String>();
+                        headers.put("Token-autorization", pToken );
+                        headers.put("Content-Type", "application/json; charset=utf-8");
+                        return headers;
+                    }
+                }, 1); //Parametro, de maximo de re-intentos
+
+    }
+
+    public interface VolleyCallback
+    {
+        void onResult(boolean result, JSONObject response);
+    }
+
+
+
+
     /*
     *
     *   RETRIEVE AMOUNTS
@@ -344,6 +405,16 @@ public class Data
         sessionId = SessionID.get(SessionManager.KEY_SESSION_ID);
 
         return sessionId;
+    }
+
+    public static String RetrieveUserEmail(Context pContext)
+    {
+        sessionManager = new SessionManager(pContext);
+        String  userEmail;
+        HashMap<String, String> UserEmail = sessionManager.GetUserEmail();
+        userEmail = UserEmail.get(SessionManager.KEY_USER_EMAIL);
+
+        return userEmail;
     }
 
     public static String RetrieveSavedToken(Context pContext)

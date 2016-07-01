@@ -69,6 +69,8 @@
     <string name="succeed_title">¡ÉXITO!</string>
     <string name="password_changed_success">La contraseña ha sido cambiada exitosamente.</string>
     <string name="request_balance_success">¡HAS SOLICITADO SALDO EXITOSAMENTE!</string>
+    <string name="request_balance_success_message">Haz solicitado saldo al Master exitosamente.</string>
+    <string name="request_balance_success_message_master_name">Haz solicitado saldo exitosamente a</string>
     <string name="deposit_success">¡INFORMACIÓN ENVIADA!</string>
     <string name="expired_session">SESIÓN EXPIRADA</string>
     <string name="dialog_succeed_topoup_title">¡RECARGA EXITOSA!</string>

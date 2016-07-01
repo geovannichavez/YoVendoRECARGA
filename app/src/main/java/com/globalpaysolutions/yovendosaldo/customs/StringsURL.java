@@ -43,6 +43,8 @@ public final class StringsURL
 
     public final static String NOTIFICATIONSHISTORY = URL_BASE + "getnotifications/";
 
+    public final static String BALANCREQUEST = URL_BASE + "balancerequest";
+
 
     /**
      *

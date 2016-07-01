@@ -184,6 +184,17 @@ public class Home extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationFooter = (NavigationView) findViewById(R.id.navigation_drawer_bottom);
         rlMainHomeContent = (RelativeLayout) findViewById(R.id.rlMainHomeContent);
+
+        //Setea el menu dependiendo del tipo de vendedor
+        if(isVendorM())
+        {
+            navigationView.inflateMenu(R.menu.m_vendor_drawer);
+        }
+        else
+        {
+            navigationView.inflateMenu(R.menu.drawer);
+        }
+
         //Setting Navigation View Item Selected Listener to handle the item click of the navigation menu
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener()
         {
@@ -225,6 +236,12 @@ public class Home extends AppCompatActivity
                         fragmentTransactionAApp.replace(R.id.frame, fragmentHistorial);
                         fragmentTransactionAApp.commit();
                         return true;
+
+                    case R.id.SolicitarSaldo:
+                        RequestBalance();
+                        //Toast.makeText(getApplicationContext(), "Menu solicitar saldo.", Toast.LENGTH_LONG).show();
+                        return true;
+
                     case R.id.Alertas:
                         Intent notif = new Intent(getApplication().getApplicationContext(), Notificaciones.class);
                         startActivity(notif);
@@ -1506,6 +1523,51 @@ public class Home extends AppCompatActivity
         SpinnerAmount.setSelection(AmountAdapter.getCount());
     }
 
+    public void RequestBalance()
+    {
+        ProgressDialog = new ProgressDialog(Home.this);
+        ProgressDialog.setMessage("Espere...");
+        ProgressDialog.show();
+        ProgressDialog.setCancelable(false);
+        ProgressDialog.setCanceledOnTouchOutside(false);
+
+        Data.BalanceRequest(this, new Data.VolleyCallback()
+        {
+            @Override
+            public void onResult(boolean result, JSONObject response)
+            {
+                String masterName = "";
+                ProgressDialog.dismiss();
+
+                if(result)
+                {
+                    try
+                    {
+                        masterName = response.has("MasterName") ? response.getString("MasterName"): "";
+                    }
+                    catch (JSONException ex)
+                    {
+                        ex.printStackTrace();
+                    }
+
+                    String contentMessage = getResources().getString(R.string.request_balance_success_message_master_name) + " " + masterName;
+                    CustomDialogCreator.CreateFullScreenDialog(
+                            getResources().getString(R.string.request_balance_success),
+                            contentMessage,
+                            null, null, "Aceptar", "NAVIGATEHOME", false, false );
+                }
+                else
+                {
+                    CustomDialogCreator.CreateFullScreenDialog(
+                            getResources().getString(R.string.we_are_sorry_msg_title),
+                            getResources().getString(R.string.something_went_wrong_try_again),
+                            null, null, "Aceptar", "NAVIGATEHOME", true, false );
+                }
+            }
+
+        });
+    }
+
     /*private void getDeviceSuperInfo() {
         Log.i(TAG, "getDeviceSuperInfo");
 
@@ -1533,7 +1595,8 @@ public class Home extends AppCompatActivity
             s += "\n CPU_ABI2: "        + android.os.Build.CPU_ABI2;
             s += "\n UNKNOWN: "         + android.os.Build.UNKNOWN;
             s += "\n HARDWARE: "        + android.os.Build.HARDWARE;
-            s += "\n Build ID: "        + android.os.Build.ID;
+            s +=
+            "\n Build ID: "        + android.os.Build.ID;
             s += "\n MANUFACTURER: "    + android.os.Build.MANUFACTURER;
             s += "\n SERIAL: "          + android.os.Build.SERIAL;
             s += "\n USER: "            + android.os.Build.USER;
