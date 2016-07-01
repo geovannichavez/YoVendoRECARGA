@@ -1,29 +1,22 @@
 package com.globalpaysolutions.yovendosaldo;
 
 import android.app.Activity;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -75,30 +68,22 @@ import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 //For Push Notifications
 import com.globalpaysolutions.yovendosaldo.notifications.NotificationSettings;
 import com.globalpaysolutions.yovendosaldo.notifications.RegisterClient;
-import com.globalpaysolutions.yovendosaldo.notifications.RegistrationIntentService;
 import com.globalpaysolutions.yovendosaldo.notifications.YvsNotificationsHandler;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.gcm.*;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
-
-import android.util.Log;
-import android.widget.TextView;
-import android.widget.Toast;
 
 
 public class Home extends AppCompatActivity
@@ -229,17 +214,12 @@ public class Home extends AppCompatActivity
                         return true;
 
                     case R.id.Historial:
-                        FragmentHistorialVentas fragmentHistorial = new FragmentHistorialVentas();
-                        android.support.v4.app.FragmentTransaction fragmentTransactionAApp = getSupportFragmentManager().beginTransaction();
-                        rlMainHomeContent.setVisibility(View.GONE);
-                        toolbar.setTitle("");
-                        fragmentTransactionAApp.replace(R.id.frame, fragmentHistorial);
-                        fragmentTransactionAApp.commit();
+                        Intent history = new Intent(getApplication().getApplicationContext(), HistorialVentas.class);
+                        startActivity(history);
                         return true;
 
                     case R.id.SolicitarSaldo:
-                        RequestBalance();
-                        //Toast.makeText(getApplicationContext(), "Menu solicitar saldo.", Toast.LENGTH_LONG).show();
+                        RequestAirtime();
                         return true;
 
                     case R.id.Alertas:
@@ -371,7 +351,7 @@ public class Home extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                SetHistoryOnFragment();
+                NavigateHistoryActivity();
             }
         });
 
@@ -1484,14 +1464,10 @@ public class Home extends AppCompatActivity
         return securityPin;
     }
 
-    public void SetHistoryOnFragment()
+    public void NavigateHistoryActivity()
     {
-        FragmentHistorialVentas fragmentHistorial = new FragmentHistorialVentas();
-        android.support.v4.app.FragmentTransaction fragmentTransactionAApp = getSupportFragmentManager().beginTransaction();
-        rlMainHomeContent.setVisibility(View.GONE);
-        toolbar.setTitle("");
-        fragmentTransactionAApp.replace(R.id.frame, fragmentHistorial);
-        fragmentTransactionAApp.commit();
+        Intent history = new Intent(getApplication().getApplicationContext(), HistorialVentas.class);
+        startActivity(history);
     }
 
     public void ResetControls()
@@ -1523,7 +1499,7 @@ public class Home extends AppCompatActivity
         SpinnerAmount.setSelection(AmountAdapter.getCount());
     }
 
-    public void RequestBalance()
+    public void RequestAirtime()
     {
         ProgressDialog = new ProgressDialog(Home.this);
         ProgressDialog.setMessage("Espere...");
@@ -1531,7 +1507,7 @@ public class Home extends AppCompatActivity
         ProgressDialog.setCancelable(false);
         ProgressDialog.setCanceledOnTouchOutside(false);
 
-        Data.BalanceRequest(this, new Data.VolleyCallback()
+        Data.AirtimeRequest(this, new Data.VolleyCallback()
         {
             @Override
             public void onResult(boolean result, JSONObject response)

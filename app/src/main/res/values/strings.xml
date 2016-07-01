@@ -7,6 +7,7 @@
     <string name="action_logout">Cerrar sesión</string>
     <string name="title_activity_menu_pin">PIN de seguridad</string>
     <string name="title_activity_notificaciones">Notificaciones</string>
+    <string name="title_activity_sales_history">Historial</string>
 
     <!--Items de menú para el Drawer de Navegación-->
     <string-array name="drawer_options">

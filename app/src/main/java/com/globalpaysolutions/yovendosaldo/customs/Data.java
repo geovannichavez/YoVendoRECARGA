@@ -133,7 +133,7 @@ public class Data
 
 
 
-    public static void BalanceRequest(final Context pContext, final VolleyCallback callback)
+    public static void AirtimeRequest(final Context pContext, final VolleyCallback callback)
     {
 
         JSONObject jsBalanceReq = new JSONObject();

@@ -46,7 +46,6 @@
                 <category android:name="com.globalpaysolutions.yovendosaldo"/>
             </intent-filter>
         </receiver>
-
         <receiver android:name="com.globalpaysolutions.yovendosaldo.notifications.NotificationBroadcastReceiver">
             <intent-filter>
                 <action android:name="notification_cancelled"/>
@@ -108,7 +107,6 @@
             android:parentActivityName="com.globalpaysolutions.yovendosaldo.ManejoPIN"
             android:theme="@style/AppTheme">
         </activity>
-
         <activity
             android:name="com.globalpaysolutions.yovendosaldo.Notificaciones"
             android:label="@string/title_activity_notificaciones"
@@ -116,7 +114,13 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
-
+        <activity
+            android:name="com.globalpaysolutions.yovendosaldo.HistorialVentas"
+            android:label="@string/title_activity_sales_history"
+            android:parentActivityName="com.globalpaysolutions.yovendosaldo.Home"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
+        </activity>
     </application>
 
 </manifest>
