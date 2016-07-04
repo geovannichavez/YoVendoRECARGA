@@ -199,7 +199,7 @@ public class Data
     *
     */
 
-    public static void GetAmounts(final Context pContext)
+    public static void GetAmounts(final Context pContext, final VolleyCallback callback)
     {
         YVScomSingleton.getInstance(pContext).addToRequestQueue(
                 new JsonObjectRequest(
@@ -213,6 +213,7 @@ public class Data
                             {
                                 Log.d("Mensaje JSON ", response.toString());
                                 ProcessAmountResponse(response, pContext);
+                                callback.onResult(true, response);
                             }
                         },
                         new Response.ErrorListener()
@@ -221,6 +222,7 @@ public class Data
                             public void onErrorResponse(VolleyError error)
                             {
                                 ProcessAmountErrorResponse(error, pContext);
+                                callback.onResult(true, null);
                             }
                         }
                 )

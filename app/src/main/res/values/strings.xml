@@ -212,6 +212,7 @@
     <string name="n_new_notifications">notificaciones nuevas</string>
     <string name="yvs">YoVendoSALDO</string>
     <string name="new_notifications">Nuevas notificaciones</string>
+    <string name="click_to_open_notifications">Toca para ver las notificaciones</string>
     <string name="general_text_wait">Espere...</string>
 
     <!-- Deposito bancario -->

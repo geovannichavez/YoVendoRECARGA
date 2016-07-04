@@ -2,6 +2,7 @@ package com.globalpaysolutions.yovendosaldo.notifications;
 
 import com.android.yovendosaldo.R;
 import com.globalpaysolutions.yovendosaldo.Notificaciones;
+import com.globalpaysolutions.yovendosaldo.customs.SessionManager;
 import com.microsoft.windowsazure.notifications.NotificationsHandler;
 
 import android.app.Notification;
@@ -18,6 +19,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -30,6 +32,7 @@ public class YvsNotificationsHandler extends NotificationsHandler
     public static int Counter = 0;
     Context ctx;
     public static List<String> notifications = new ArrayList<>();
+    SessionManager sessionManager;
 
     final static String GROUP_KEY_NOTIF = "group_key_notif";
 
@@ -43,6 +46,7 @@ public class YvsNotificationsHandler extends NotificationsHandler
 
         Counter = Counter + 1;
 
+        sessionManager = new SessionManager(context);
         String nhMessage = bundle.getString("message");
         String nhTitle= bundle.getString("title");
         BuildNotification(nhTitle, nhMessage);
@@ -80,7 +84,8 @@ public class YvsNotificationsHandler extends NotificationsHandler
 
             NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
             inboxStyle.setBigContentTitle(String.valueOf(Counter) + " " + ctx.getResources().getString(R.string.n_new_notifications));
-            inboxStyle.setSummaryText(ctx.getResources().getString(R.string.yvs));
+            inboxStyle.setSummaryText(getUserEmail());
+
 
             for (int i=0; i < notifications.size(); i++)
             {
@@ -93,6 +98,7 @@ public class YvsNotificationsHandler extends NotificationsHandler
                     .setSmallIcon(getNotificationIcon())
                     .setSound(defaultSoundUri)
                     .setAutoCancel(true)
+                    .setContentText(ctx.getResources().getString(R.string.click_to_open_notifications))
                     .setColor(ctx.getResources().getColor(R.color.AppGreen))
                     .setDeleteIntent(getDeleteIntent())
                     .setGroupSummary(true)
@@ -131,6 +137,15 @@ public class YvsNotificationsHandler extends NotificationsHandler
     private int getNotificationIcon() {
         boolean useWhiteIcon = (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP);
         return useWhiteIcon ? R.drawable.ic_notification : R.drawable.ic_launcher;
+    }
+
+    public String getUserEmail()
+    {
+        String Email;
+        HashMap<String, String> MapEmail = sessionManager.GetUserEmail();
+        Email = MapEmail.get(SessionManager.KEY_USER_EMAIL);
+
+        return Email;
     }
 
 }

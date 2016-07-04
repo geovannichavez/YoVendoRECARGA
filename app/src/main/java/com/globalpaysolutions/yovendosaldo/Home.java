@@ -22,6 +22,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -115,6 +116,7 @@ public class Home extends AppCompatActivity
     private static final String TAG = Home.class.getSimpleName();
     public static String Token;
     boolean OperatorSelected = false;
+    boolean RetrievingAmounts = false;
     String SelectedOperatorName;
     int AmountTopup;
     SessionManager sessionManager;
@@ -122,6 +124,7 @@ public class Home extends AppCompatActivity
     private ShowcaseView showcaseView;
     private int ShowCaseCounter = 0;
     private boolean IsExecuting = false;
+    private boolean isFirstTime;
     CustomFullScreenDialog CustomDialogCreator;
     PinDialogBuilder PinDialogBuilder;
     public PinDialogBuilder.CustomOnClickListener ClickListener;
@@ -152,12 +155,14 @@ public class Home extends AppCompatActivity
         scrollView = (ScrollView) findViewById(R.id.homeScrollView);
         lnrBalance = (LinearLayout) findViewById(R.id.rectangle);
 
+        isFirstTime = sessionManager.IsFirstTime();
 
         InitializeValidation();
-
         CheckLogin();
         RetrieveSavedToken();
         RetrieveAmounts();
+
+
 
         /*
         * *****************************
@@ -293,7 +298,7 @@ public class Home extends AppCompatActivity
         getOperators();
         //getLocalAmounts();
 
-        if (sessionManager.IsFirstTime())
+        if (isFirstTime)
         {
             ExecuteShowcase();
         }
@@ -312,6 +317,10 @@ public class Home extends AppCompatActivity
                 GetUserBag(true);
             }
         });
+
+
+
+
 
         if (sessionManager.IsUserLoggedIn())
         {
@@ -942,10 +951,43 @@ public class Home extends AppCompatActivity
 
     public void RetrieveAmounts()
     {
+        final GridView gridOperators = (GridView) findViewById(R.id.gvOperadores);
         if (Data.Amounts.isEmpty())
         {
+            RetrievingAmounts = true;
+            gridOperators.setEnabled(false);
             Log.i("Amounts", "Request para traer montos");
-            Data.GetAmounts(Home.this);
+
+
+            if(!isFirstTime)
+            {
+                SwipeRefresh.setProgressViewOffset(false, 0,
+                        (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
+                SwipeRefresh.setRefreshing(true);
+            }
+
+
+            Data.GetAmounts(Home.this, new Data.VolleyCallback()
+            {
+                @Override
+                public void onResult(boolean result, JSONObject response)
+                {
+                    if (result)
+                    {
+                        RetrievingAmounts = false;
+                        SwipeRefresh.setRefreshing(false);
+                        gridOperators.setEnabled(true);
+                    }
+                    else
+                    {
+                        RetrievingAmounts = false;
+                        SwipeRefresh.setRefreshing(false);
+                        gridOperators.setEnabled(true);
+                    }
+                }
+            });
+
+
         }
     }
 
@@ -1113,7 +1155,7 @@ public class Home extends AppCompatActivity
 
     public void HideSwipe()
     {
-        if (SwipeRefresh.isShown() && SwipeRefresh != null)
+        if (SwipeRefresh.isShown() && SwipeRefresh != null && !RetrievingAmounts )
         {
             SwipeRefresh.setRefreshing(false);
         }
@@ -1359,6 +1401,9 @@ public class Home extends AppCompatActivity
                 switch (ShowCaseCounter)
                 {
                     case 0:
+
+                        scrollView.fullScroll(View.FOCUS_DOWN);
+
                         Handler handler = new Handler();
                         showcaseView.hideButton();
                         showcaseView.setShowcase(new ViewTarget(GridViewOperators.getChildAt(0).findViewById(R.id.ivOperador)), true);
@@ -1423,6 +1468,7 @@ public class Home extends AppCompatActivity
                         showcaseView.setButtonText(getString(R.string.sv_close_boton));
                         break;
                     case 4:
+                        scrollView.fullScroll(View.FOCUS_UP);
                         showcaseView.hide();
                 }
                 ShowCaseCounter++;
