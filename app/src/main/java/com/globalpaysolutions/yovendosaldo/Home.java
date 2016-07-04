@@ -219,7 +219,8 @@ public class Home extends AppCompatActivity
                         return true;
 
                     case R.id.SolicitarSaldo:
-                        RequestAirtime();
+                        Intent solicitarSaldo = new Intent(getApplication().getApplicationContext(), SolicitarSaldo.class);
+                        startActivity(solicitarSaldo);
                         return true;
 
                     case R.id.Alertas:
@@ -1499,50 +1500,6 @@ public class Home extends AppCompatActivity
         SpinnerAmount.setSelection(AmountAdapter.getCount());
     }
 
-    public void RequestAirtime()
-    {
-        ProgressDialog = new ProgressDialog(Home.this);
-        ProgressDialog.setMessage("Espere...");
-        ProgressDialog.show();
-        ProgressDialog.setCancelable(false);
-        ProgressDialog.setCanceledOnTouchOutside(false);
-
-        Data.AirtimeRequest(this, new Data.VolleyCallback()
-        {
-            @Override
-            public void onResult(boolean result, JSONObject response)
-            {
-                String masterName = "";
-                ProgressDialog.dismiss();
-
-                if(result)
-                {
-                    try
-                    {
-                        masterName = response.has("MasterName") ? response.getString("MasterName"): "";
-                    }
-                    catch (JSONException ex)
-                    {
-                        ex.printStackTrace();
-                    }
-
-                    String contentMessage = getResources().getString(R.string.request_balance_success_message_master_name) + " " + masterName;
-                    CustomDialogCreator.CreateFullScreenDialog(
-                            getResources().getString(R.string.request_balance_success),
-                            contentMessage,
-                            null, null, "Aceptar", "NAVIGATEHOME", false, false );
-                }
-                else
-                {
-                    CustomDialogCreator.CreateFullScreenDialog(
-                            getResources().getString(R.string.we_are_sorry_msg_title),
-                            getResources().getString(R.string.something_went_wrong_try_again),
-                            null, null, "Aceptar", "NAVIGATEHOME", true, false );
-                }
-            }
-
-        });
-    }
 
     /*private void getDeviceSuperInfo() {
         Log.i(TAG, "getDeviceSuperInfo");

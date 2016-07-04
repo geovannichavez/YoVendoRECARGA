@@ -127,6 +127,8 @@
     <string name="title_activity_profile">Perfil</string>
     <string name="title_activity_infor">Polítcas de Privacidad</string>
 
+    <string name="title_activity_request_airtime">Solicitar Saldo</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
@@ -211,5 +213,11 @@
     <string name="yvs">YoVendoSALDO</string>
     <string name="new_notifications">Nuevas notificaciones</string>
     <string name="general_text_wait">Espere...</string>
+
+    <!-- Deposito bancario -->
+    <string name="title_request_airtime">Solicitar Saldo</string>
+    <string name="content_request_airtime">Para solicitar saldo, haz click en el botón SOLICITAR SALDO para pedir a tu Master que transfiera más saldo a tu cuenta.</string>
+    <string name="request_airtime">Solictar Saldo</string>
+    <string name="request_airtime_confirmation">¿Desea solictar saldo al Master?</string>
 
 </resources>
