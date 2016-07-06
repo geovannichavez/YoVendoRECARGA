@@ -1,22 +1,18 @@
 package com.globalpaysolutions.yovendosaldo;
 
-
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -57,7 +53,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class FragmentDepositoBancario extends Fragment
+public class DepositoBancario extends AppCompatActivity
 {
     //Variables globales
     List<Bank> ListaBancos = new ArrayList<>();
@@ -79,6 +75,7 @@ public class FragmentDepositoBancario extends Fragment
     EditText edComprobante;
     Button btnEnviar;
     ProgressDialog progressDialog;
+    Toolbar toolbar;
 
     //Variables para la fecha del deposito:
     static Date DepositDate;
@@ -86,26 +83,28 @@ public class FragmentDepositoBancario extends Fragment
     public static int DepositMonth = 0;
     public static int DepositDay = 0;
 
-    public FragmentDepositoBancario()
-    {
-        // Required empty public constructor
-    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    protected void onCreate(Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.fragment_deposito_bancario, container, false);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_deposito_bancario);
+
+        toolbar = (Toolbar) findViewById(R.id.depoToolbar);
+        toolbar.setTitle(getString(R.string.title_activity_deposito_bancario));
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         DateSeted = false;
 
-        FullScreenDialog = new CustomFullScreenDialog(getContext(), getActivity());
-        sessionManager = new SessionManager(getContext());
+        FullScreenDialog = new CustomFullScreenDialog(DepositoBancario.this, this);
+        sessionManager = new SessionManager(this);
 
-        spBanks = (Spinner) view.findViewById(R.id.spBanks);
-        edNombreDepositante = (EditText) view.findViewById(R.id.edDepositante);
-        edMonto = (EditText) view.findViewById(R.id.edMonto);
-        edComprobante = (EditText) view.findViewById(R.id.edComprobante);
-        btnEnviar = (Button) view.findViewById(R.id.btnEnviarDeposito);
+        spBanks = (Spinner) findViewById(R.id.spBanks);
+        edNombreDepositante = (EditText) findViewById(R.id.edDepositante);
+        edMonto = (EditText) findViewById(R.id.edMonto);
+        edComprobante = (EditText) findViewById(R.id.edComprobante);
+        btnEnviar = (Button) findViewById(R.id.btnEnviarDeposito);
         btnEnviar.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -115,14 +114,14 @@ public class FragmentDepositoBancario extends Fragment
             }
         });
 
-        tvFechaDeposito = (TextView) view.findViewById(R.id.tvFechaDeposito);
+        tvFechaDeposito = (TextView) findViewById(R.id.tvFechaDeposito);
         tvFechaDeposito.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
                 DialogFragment newFragment = new DatePickerFragment();
-                newFragment.show(getFragmentManager(), "datePicker");
+                newFragment.show(getSupportFragmentManager(), "datePicker");
                 newFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.DialogTheme);
             }
         });
@@ -131,8 +130,8 @@ public class FragmentDepositoBancario extends Fragment
         PopulateBankSpinner();
         InitializeValidation();
 
-        return view;
     }
+
 
     public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener
     {
@@ -172,7 +171,7 @@ public class FragmentDepositoBancario extends Fragment
     {
         if(CheckValidation())
         {
-            progressDialog = new ProgressDialog(getContext());
+            progressDialog = new ProgressDialog(this);
             progressDialog.setMessage(getResources().getString(R.string.deposit_dending_deposit));
             progressDialog.show();
             String NombreDepositante = edNombreDepositante.getText().toString();
@@ -206,7 +205,7 @@ public class FragmentDepositoBancario extends Fragment
     {
         if (CheckConnection())
         {
-            YVScomSingleton.getInstance(getContext()).addToRequestQueue(
+            YVScomSingleton.getInstance(this).addToRequestQueue(
                     new JsonObjectRequest(
                             Request.Method.POST,
                             StringsURL.DEPOSIT,
@@ -352,7 +351,7 @@ public class FragmentDepositoBancario extends Fragment
         hint.setName(getString(R.string.spinner_hint));
         ListaBancos.add(hint);
 
-        BankAdapter = new BankSpinnerAdapter(getActivity(), R.layout.custom_bank_spinner_item, R.id.tvBankName, ListaBancos);
+        BankAdapter = new BankSpinnerAdapter(this, R.layout.custom_bank_spinner_item, R.id.tvBankName, ListaBancos);
         BankAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spBanks.setAdapter(BankAdapter);
         spBanks.setSelection(BankAdapter.getCount());
@@ -418,7 +417,7 @@ public class FragmentDepositoBancario extends Fragment
             {
                 if (!hasFocus)
                 {
-                    validator = new Validation(getContext().getApplicationContext());
+                    validator = new Validation(DepositoBancario.this);
                     validator.IsValidName(edNombreDepositante, true);
                     validator.HasText(edNombreDepositante);
                 }
@@ -432,7 +431,7 @@ public class FragmentDepositoBancario extends Fragment
             {
                 if(!hasFocus)
                 {
-                    validator = new Validation(getContext().getApplicationContext());
+                    validator = new Validation(DepositoBancario.this);
                     validator.IsValidAmount(edMonto, true);
                     validator.HasText(edMonto);
                 }
@@ -445,7 +444,7 @@ public class FragmentDepositoBancario extends Fragment
             {
                 if(!hasFocus)
                 {
-                    validator = new Validation(getContext().getApplicationContext());
+                    validator = new Validation(DepositoBancario.this);
                     validator.IsValidVoucher(edComprobante, true);
                     validator.HasText(edComprobante);
                 }
@@ -458,7 +457,7 @@ public class FragmentDepositoBancario extends Fragment
     {
         boolean ret = true;
 
-        validator = new Validation(getActivity().getApplicationContext());
+        validator = new Validation(DepositoBancario.this);
 
         if (!validator.IsValidName(edNombreDepositante, true))
         {
@@ -467,13 +466,13 @@ public class FragmentDepositoBancario extends Fragment
 
         if(!BankSelected)
         {
-            Toast.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.spinner_bank_validation), Toast.LENGTH_LONG).show();
+            Toast.makeText(DepositoBancario.this, getResources().getString(R.string.spinner_bank_validation), Toast.LENGTH_LONG).show();
             ret = false;
         }
 
         if(!DateSeted)
         {
-            Toast.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.validation_required_date), Toast.LENGTH_LONG).show();
+            Toast.makeText(DepositoBancario.this, getResources().getString(R.string.validation_required_date), Toast.LENGTH_LONG).show();
             ret = false;
         }
 
@@ -519,7 +518,7 @@ public class FragmentDepositoBancario extends Fragment
         {
             connected = false;
             String connectionMessage = "No esta conectado a internet.";
-            Toast.makeText(getContext(), connectionMessage, Toast.LENGTH_LONG).show();
+            Toast.makeText(DepositoBancario.this, connectionMessage, Toast.LENGTH_LONG).show();
             progressDialog.dismiss();
         }
         else
@@ -535,7 +534,7 @@ public class FragmentDepositoBancario extends Fragment
         boolean haveConnectedWifi = false;
         boolean haveConnectedMobile = false;
 
-        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo[] netInfo = cm.getAllNetworkInfo();
         for (NetworkInfo ni : netInfo)
         {
@@ -563,5 +562,4 @@ public class FragmentDepositoBancario extends Fragment
         FilterArray[0] = new InputFilter.LengthFilter(pLength);
         pEditText.setFilters(FilterArray);
     }
-
 }

@@ -210,12 +210,14 @@ public class Home extends AppCompatActivity
                         return true;
 
                     case R.id.ValidarDeposito:
-                        FragmentDepositoBancario fragmentDepositoBancario = new FragmentDepositoBancario();
+                        /*FragmentDepositoBancario fragmentDepositoBancario = new FragmentDepositoBancario();
                         android.support.v4.app.FragmentTransaction fragmentTransactionDepo = getSupportFragmentManager().beginTransaction();
                         rlMainHomeContent.setVisibility(View.GONE);
                         toolbar.setTitle("");
                         fragmentTransactionDepo.replace(R.id.frame, fragmentDepositoBancario);
-                        fragmentTransactionDepo.commit();
+                        fragmentTransactionDepo.commit();*/
+                        Intent deposito = new Intent(getApplication().getApplicationContext(), DepositoBancario.class);
+                        startActivity(deposito);
                         return true;
 
                     case R.id.Historial:

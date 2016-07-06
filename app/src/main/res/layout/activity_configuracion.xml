@@ -22,8 +22,7 @@
     <FrameLayout
         android:id="@+id/frameConfig"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context="com.globalpaysolutions.yovendosaldo.FragmentHistorialVentas">
+        android:layout_height="match_parent">
 
     </FrameLayout>
 

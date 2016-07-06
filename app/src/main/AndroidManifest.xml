@@ -121,8 +121,15 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
-        <activity android:name="com.globalpaysolutions.yovendosaldo.SolicitarSaldo"
-                  android:label="@string/title_activity_request_airtime"
+        <activity
+            android:name="com.globalpaysolutions.yovendosaldo.SolicitarSaldo"
+            android:label="@string/title_activity_request_airtime"
+            android:parentActivityName="com.globalpaysolutions.yovendosaldo.Home"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
+        </activity>
+        <activity android:name="com.globalpaysolutions.yovendosaldo.DepositoBancario"
+                  android:label="@string/title_activity_deposito_bancario"
                   android:parentActivityName="com.globalpaysolutions.yovendosaldo.Home"
                   android:screenOrientation="portrait"
                   android:theme="@style/AppTheme">
