@@ -6,15 +6,13 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.preference.SwitchPreference;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.preference.SwitchPreferenceCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -32,13 +30,15 @@ import com.globalpaysolutions.yovendosaldo.customs.SessionManager;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
 public class ManejoPIN extends AppCompatActivity
 {
     Toolbar toolbar;
     public static SessionManager sessionManager;
-    static SwitchPreference codeActive;
+    static CheckBoxPreference codeActive;
+    //static SwitchPreferenceCompat codeActive;
     static EditText etPin;
     static EditText etEnterPww;
 
@@ -67,7 +67,18 @@ public class ManejoPIN extends AppCompatActivity
 
 
             //codeActive = (SwitchPreferenceCompat) findPreference ("KEY_ACTIVATE_PIN");
-            codeActive = (SwitchPreference) findPreference("KEY_ACTIVATE_PIN");
+            codeActive = (CheckBoxPreference) findPreference("KEY_ACTIVATE_PIN");
+            try
+            {
+                Field field = Preference.class.getDeclaredField("mWidgetLayoutResId");
+                field.setAccessible(true);
+                field.setInt(codeActive, R.layout.custom_switchpref_layout);
+            }
+            catch (Exception e)
+            {
+                codeActive.setWidgetLayoutResource(R.layout.custom_switchpref_layout);
+            }
+            //codeActive.setWidgetLayoutResource(R.layout.custom_switchpref_layout);
 
             if (codeActive != null)
             {
@@ -147,7 +158,8 @@ public class ManejoPIN extends AppCompatActivity
         }
     }
 
-    public static AlertDialog AskPINDialog(final Context _context, final boolean newValue, final SwitchPreference pCodePreference)
+    public static AlertDialog AskPINDialog(final Context _context, final boolean newValue, final CheckBoxPreference pCodePreference)
+    //public static AlertDialog AskPINDialog(final Context _context, final boolean newValue, final SwitchPreference pCodePreference)
     {
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(_context);
@@ -201,7 +213,8 @@ public class ManejoPIN extends AppCompatActivity
         return builder.create();
     }
 
-    public static AlertDialog AskPwdDialog(final Context _context, final boolean newValue, final SwitchPreference pCodePreference)
+    public static AlertDialog AskPwdDialog(final Context _context, final boolean newValue, final CheckBoxPreference pCodePreference)
+    //public static AlertDialog AskPwdDialog(final Context _context, final boolean newValue, final SwitchPreference pCodePreference)
     {
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(_context);

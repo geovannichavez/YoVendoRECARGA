@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <SwitchPreference
+    <!--<com.globalpaysolutions.yovendosaldo.customs.SwitchPreferenceCompat
+        android:key="KEY_ACTIVATE_PIN"
+        android:summary="@string/preference_request_pin_summary"
+        android:title="@string/preference_request_pin"/>-->
+    <CheckBoxPreference
         android:key="KEY_ACTIVATE_PIN"
         android:summary="@string/preference_request_pin_summary"
         android:title="@string/preference_request_pin"/>

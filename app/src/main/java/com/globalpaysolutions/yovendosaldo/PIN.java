@@ -68,7 +68,8 @@ public class PIN extends AppCompatActivity
         {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             tvContentPin.setText(getString(R.string.content_change_pin));
-        } else
+        }
+        else
         {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             tvContentPin.setText(getString(R.string.content_insert_pin));

@@ -502,7 +502,11 @@ public class Home extends AppCompatActivity
             ex.printStackTrace();
         }
 
-        YVScomSingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(Request.Method.POST, StringsURL.TOPUP + pPhoneNumber + "/" + pAmount,
+        YVScomSingleton.getInstance(this)
+                .addToRequestQueue(
+                        new JsonObjectRequest(
+                                Request.Method.POST,
+                                StringsURL.TOPUP + pPhoneNumber + "/" + pAmount,
                 //StringsURL.TEST_TOPUP_GATS_ERROR,
                 jTopUp, new Response.Listener<JSONObject>()
         {
