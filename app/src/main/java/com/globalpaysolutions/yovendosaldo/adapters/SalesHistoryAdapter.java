@@ -117,7 +117,7 @@ public class SalesHistoryAdapter extends ArrayAdapter<Sale>
                 SwitchClick(paymentCurrentItem, finalViewHolder, currentItem);
             }
         });
-        viewHolder.swPago.setChecked(currentItem.getPaymentStatus());
+
 
         //Número de Teléfono
         String PhoneNumber = currentItem.getMSISDN().replace("503", "");
@@ -141,13 +141,19 @@ public class SalesHistoryAdapter extends ArrayAdapter<Sale>
             {
                 if(Status.equals("Fallida") )
                 {
+                    viewHolder.swPago.setEnabled(false);
+                    viewHolder.swPago.setChecked(false);
                     viewHolder.ivStatus.setImageResource(R.drawable.icono_failure);
                     viewHolder.tvStatusRecarga.setText(AdapterContext.getResources().getString(R.string.status_recarga_display_fail));
+
                 }
                 else
                 {
+                    viewHolder.swPago.setEnabled(true);
+                    viewHolder.swPago.setChecked(currentItem.getPaymentStatus());
                     viewHolder.ivStatus.setImageResource(R.drawable.icono_check_verde);
                     viewHolder.tvStatusRecarga.setText(AdapterContext.getResources().getString(R.string.status_recarga_display_success));
+
                 }
             }
         }

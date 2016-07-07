@@ -548,6 +548,8 @@ public class Home extends AppCompatActivity
     //Procesa Respuesta de TopUp
     public void ProcessTopupResponse(JSONObject pResponse)
     {
+        //Restablece el scroll al tope despues de enviar recarga.
+        scrollView.fullScroll(View.FOCUS_UP);
         final JSONObject topupResponse = pResponse;
         String PhoneUsed = txtPhoneNumber.getText().toString();
         String Operator = "";
@@ -581,6 +583,7 @@ public class Home extends AppCompatActivity
     //Procesa Respuesta de TopUp con Error
     public void ProcessTopupVolleyError(VolleyError pError)
     {
+        scrollView.fullScroll(View.FOCUS_UP);
         int statusCode = 0;
         NetworkResponse networkResponse = pError.networkResponse;
 
