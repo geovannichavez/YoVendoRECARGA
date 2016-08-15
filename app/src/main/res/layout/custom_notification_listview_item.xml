@@ -42,14 +42,19 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="8dp"
                     android:text="Tu cuenta está activada"
-                    android:textSize="18sp"/>
+                    android:textColor="@color/SecondaryTitleTextColor"
+                    android:singleLine="true"
+                    android:textSize="20sp"/>
             </LinearLayout>
 
             <TextView
                 android:id="@+id/tvContenidoNotificacion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
+                android:textSize="15sp"
+                android:ellipsize="end"
+                android:textColor="@color/TextColor"
+                android:maxLines="3"
                 android:text="Ya puedes comenzar a vender saldo desde la App de YVS.com donde tu Master YVS te realizará recargas a tu cuenta para que comiences a vender desde donde quiera que te encuentres."/>
         </LinearLayout>
 

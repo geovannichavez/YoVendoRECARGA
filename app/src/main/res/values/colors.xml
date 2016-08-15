@@ -50,4 +50,10 @@
     <color name="refresh_progress_2">@color/AppGreen</color>
     <color name="refresh_progress_3">@color/AppGreen</color>
 
+
+    <!--    ENGAGEMENT CUSTOM COLORS     -->
+
+    <color name="DarkGrayEngagementTheme">#333333</color>
+    <color name="PressedDarkGrayEngagementTheme">#6b6b6b</color>
+
 </resources>

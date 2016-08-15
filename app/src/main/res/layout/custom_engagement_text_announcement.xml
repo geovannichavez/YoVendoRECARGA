@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@drawable/bg_home"
+              android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/topbarContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="55dp"
+        android:background="@color/ApplicationGreenTheme"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/activity_horizontal_margin">
+
+        <ImageView
+            android:id="@+id/tbLogo"
+            android:layout_width="195dp"
+            android:layout_height="23dp"
+            android:src="@drawable/logo_horizontal"/>
+
+    </LinearLayout>
+
+    <!--<ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:background="@android:color/white">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include layout="@layout/engagement_content_title"/>
+
+            <TextView
+                android:id="@+id/body"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:autoLink="web|email|map"
+                android:padding="16dip"
+                android:textSize="16sp"
+                android:text="Este es el cuerpo del mensaje como tal, el que se muestra en la pantalla de detalle (diferente del contenido de la notificacion)"
+                android:textColor="@color/TextColor"/>
+        </LinearLayout>
+    </ScrollView>-->
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/ActivityWhiteBackground"
+            android:layout_marginLeft="@dimen/ActivityHorizontalCustomMargin"
+            android:layout_marginRight="@dimen/ActivityHorizontalCustomMargin"
+            android:layout_marginTop="@dimen/ActivityHorizontalCustomMargin"
+            android:orientation="vertical" >
+
+            <include layout="@layout/engagement_content_title" />
+
+            <TextView
+                android:id="@+id/body"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:autoLink="web|email|map"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/ActivityVerticalCustomMargin"
+                android:paddingBottom="@dimen/ActivityHorizontalExtraCustomMargin"
+                android:textSize="16sp"
+                android:text="Este es el cuerpo del mensaje como tal, el que se muestra en la pantalla de detalle (diferente del contenido de la notificacion)"
+                android:textColor="@color/TextColor"/>
+        </LinearLayout>
+    </ScrollView>
+|
+
+    <include layout="@layout/engagement_button_bar"/>
+
+</LinearLayout>

@@ -3,6 +3,7 @@ package com.globalpaysolutions.yovendosaldo.customs;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
+import android.util.Log;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -71,6 +72,10 @@ public final class YVScomSingleton
         //int socketTimeout = 45000;//45 segundos
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, pMaxRetries, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         req.setRetryPolicy(policy);
+
+        int retryIntents = policy.getCurrentRetryCount();
+        Log.i("CurrentRetryCount", String.valueOf(retryIntents));
+
         getRequestQueue().add(req);
     }
 

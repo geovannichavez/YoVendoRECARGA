@@ -2,6 +2,7 @@ package com.globalpaysolutions.yovendosaldo;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -11,11 +12,10 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -34,7 +34,6 @@ import com.globalpaysolutions.yovendosaldo.customs.SessionManager;
 import com.globalpaysolutions.yovendosaldo.customs.StringsURL;
 import com.globalpaysolutions.yovendosaldo.customs.YVScomSingleton;
 import com.globalpaysolutions.yovendosaldo.model.Notification;
-import com.globalpaysolutions.yovendosaldo.notifications.YvsNotificationsHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,7 +59,6 @@ public class Notificaciones extends AppCompatActivity
     //Variables globales
     SessionManager sessionManager;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -72,8 +70,8 @@ public class Notificaciones extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Borra el listado de notificaciones que se han almacenado
-        YvsNotificationsHandler.notifications.clear();
-        YvsNotificationsHandler.Counter = 0;
+        //YvsNotificationsHandler.notifications.clear();
+        //YvsNotificationsHandler.Counter = 0;
 
         progressBar = (ProgressBar) findViewById(R.id.pbLoadingNotif);
         SwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout_notifications);
@@ -85,7 +83,7 @@ public class Notificaciones extends AppCompatActivity
         /*
         *
         *   LISTVIEW
-        *   Detecta si la primer fila del List est� en la posici�n primer mas alta,
+        *   Detecta si la primer fila del List está en la posición primer mas alta,
         *   entonces habilita el SwipeRefreshLayout, de lo contrario lo deshabilita.
         */
         NotifListView.setOnScrollListener(new AbsListView.OnScrollListener()
@@ -101,6 +99,19 @@ public class Notificaciones extends AppCompatActivity
             {
                 int topRowVerticalPosition = (NotifListView == null || NotifListView.getChildCount() == 0) ? 0 : NotifListView.getChildAt(0).getTop();
                 SwipeRefresh.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+            }
+        });
+        NotifListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                Notification notification = ((Notification) parent.getItemAtPosition(position));
+
+                Intent notifDetail = new Intent(getApplicationContext(), DetalleNotificacion.class);
+                notifDetail.putExtra("notifTitle", notification.getTitle());
+                notifDetail.putExtra("notifMessage", notification.getContent());
+                startActivity(notifDetail);
             }
         });
 
@@ -138,7 +149,7 @@ public class Notificaciones extends AppCompatActivity
 
     }
 
-    public void RequestNotificationsHistory(boolean isSwipe)
+    /*public void RequestNotificationsHistory(boolean isSwipe)
     {
         if (isSwipe)
         {
@@ -174,7 +185,7 @@ public class Notificaciones extends AppCompatActivity
             }
         })
         {
-            //Se a�ade el header para enviar el Token
+            //Se añade el header para enviar el Token
             @Override
             public Map<String, String> getHeaders()
             {
@@ -183,11 +194,10 @@ public class Notificaciones extends AppCompatActivity
                 headers.put("Content-Type", "application/json; charset=utf-8");
                 return headers;
             }
-        }, 1); //Parametro de n�mero de re-intentos
-    }
+        }, 1); //Parametro de número de re-intentos
+    }*/
 
-
-    public void ProcessResponse(JSONObject pResponse)
+    /*public void ProcessResponse(JSONObject pResponse)
     {
         HideSwipe();
         SetProgressBarVisible(false);
@@ -204,7 +214,7 @@ public class Notificaciones extends AppCompatActivity
                 {
                     JSONObject JsonNotification = Notifications.getJSONObject(i);
 
-                    //Obtenci�n de fecha
+                    //Obtención de fecha
                     String StrNotificationDate = JsonNotification.has("Date") ? JsonNotification.getString("Date") : "";
                     SimpleDateFormat Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                     Date DateNotification = Format.parse(StrNotificationDate);
@@ -229,7 +239,105 @@ public class Notificaciones extends AppCompatActivity
         {
             e.printStackTrace();
         }
+    }*/
+
+
+    public void RequestNotificationsHistory(boolean isSwipe)
+    {
+        if (isSwipe)
+        {
+            SetProgressBarVisible(false);
+            SwipeRefresh.setRefreshing(true);
+            NotifAdapter.clear();
+            NotifAdapter.notifyDataSetChanged();
+        }
+        else
+        {
+            SetProgressBarVisible(true);
+        }
+
+        YVScomSingleton.getInstance(Notificaciones.this)
+                .addToRequestQueue(new JsonObjectRequest(
+                        Request.Method.GET,
+                        StringsURL.CEOA_NOTIFICATIONS_HISTORY,
+                        null,
+                        new Response.Listener<JSONObject>()
+                        {
+                            @Override
+                            public void onResponse(JSONObject response)
+                            {
+                                Log.d("Mensaje JSON ", response.toString());
+                                ProcessCEOANotificationsResponse(response);
+                            }
+                        }, new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        HandleVolleyError(error);
+                    }
+                })
+                {
+                    @Override
+                    public Map<String, String> getHeaders()
+                    {
+                        Map<String, String> headers = new HashMap<String, String>();
+                        headers.put("apikey", StringsURL.CEO_ANALYTICS_APIKEY);
+                        headers.put("Content-Type", "application/json; charset=utf-8");
+                        return headers;
+                    }
+                }, 1); //Parametro de número de re-intentos
     }
+
+
+    public void ProcessCEOANotificationsResponse(JSONObject pResponse)
+    {
+        HideSwipe();
+        SetProgressBarVisible(false);
+        try
+        {
+            JSONObject NotificationsHistory = pResponse.getJSONObject("NotificationsHistory");
+            JSONArray Notifications = NotificationsHistory.getJSONArray("notifications");
+
+            for (int i = 0; i < Notifications.length(); i++)
+            {
+                Notification notification = new Notification();
+
+                try
+                {
+                    JSONObject JsonNotification = Notifications.getJSONObject(i);
+
+                    //Obtención de fecha
+                    String StrNotificationDate = JsonNotification.has("Date") ? JsonNotification.getString("Date") : "";
+                    SimpleDateFormat Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                    Date DateNotification = Format.parse(StrNotificationDate);
+
+                    //Asignacion a objeto para Adapter
+                    notification.setTitle(JsonNotification.has("Title") ? JsonNotification.getString("Title") : "");
+                    notification.setContent(JsonNotification.has("Message") ? JsonNotification.getString("Message") : "");
+                    notification.setDate(DateNotification);
+
+                    NotifAdapter.add(notification);
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+                catch (ParseException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+
+        } catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
+
 
     public void HandleVolleyError(VolleyError pError)
     {
@@ -327,18 +435,18 @@ public class Notificaciones extends AppCompatActivity
 
     /*
     *
-    *   OTROS M�TODOS
+    *   OTROS MÉTODOS
     *
     */
 
-    public String RetrieveSavedToken()
+    /*public String RetrieveSavedToken()
     {
         String Token;
         HashMap<String, String> MapToken = sessionManager.GetSavedToken();
         Token = MapToken.get(SessionManager.KEY_TOKEN);
 
         return Token;
-    }
+    }*/
 
     public void SetProgressBarVisible(boolean pVisible)
     {
@@ -405,4 +513,5 @@ public class Notificaciones extends AppCompatActivity
         }
         return haveConnectedWifi || haveConnectedMobile;
     }
+
 }

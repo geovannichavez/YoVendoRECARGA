@@ -2,60 +2,159 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.android.yovendosaldo">
 
-    <!-- Se añade permisos para ingresar a Internet y a la Red -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION"/>
 
-    <!-- Permisos para interaccion con GCM -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <!-- Ubicaciones en tiempo real -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <!-- Google Play Services Version -->
+    <meta-data
+        android:name="com.google.android.gms.version"
+        android:value="@integer/google_play_services_version"/>
+
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <uses-permission android:name="com.globalpaysolutions.yovendosaldo.permission.C2D_MESSAGE"/>
 
     <permission
-        android:name="com.android.yovendosaldo.permission.C2D_MESSAGE"
+        android:name="com.globalpaysolutions.yovendosaldo.permission.C2D_MESSAGE"
         android:protectionLevel="signature"/>
 
-    <uses-permission android:name="com.android.yovendosaldo.permission.C2D_MESSAGE"/>
-
     <application
+        android:name="com.globalpaysolutions.yovendosaldo.engagement.AzmeApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
 
-        <!-- Instance ID Service -->
+        <!--
+        :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :::::::::::::::::::::::     AZURE MOBILE ENGAGEMENT         :::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        -->
+
         <service
-            android:name="com.globalpaysolutions.yovendosaldo.notifications.YvsInstanceIDService"
-            android:exported="false">
+            android:name="com.microsoft.azure.engagement.service.EngagementService"
+            android:exported="false"
+            android:label="YoVendoSaldo"
+            android:process=":Engagement"/>
+
+        <!--
+        <activity android:name="com.microsoft.azure.engagement.reach.activity.EngagementTextAnnouncementActivity"
+                  android:theme="@style/AppTheme"
+                  android:exported="false">
             <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID"/>
+                <action android:name="com.microsoft.azure.engagement.reach.intent.action.ANNOUNCEMENT"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
-        </service>
-        <!-- IntentService -->
-        <service
-            android:name="com.globalpaysolutions.yovendosaldo.notifications.RegistrationIntentService"
-            android:exported="false">
-        </service>
+        </activity>
+        -->
+        <activity
+            android:name="com.globalpaysolutions.yovendosaldo.engagement.CustomTextAnnouncementActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="com.microsoft.azure.engagement.reach.intent.action.ANNOUNCEMENT"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.microsoft.azure.engagement.reach.activity.EngagementWebAnnouncementActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Light">
+            <intent-filter>
+                <action android:name="com.microsoft.azure.engagement.reach.intent.action.ANNOUNCEMENT"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+
+                <data android:mimeType="text/html"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.microsoft.azure.engagement.reach.activity.EngagementPollActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="com.microsoft.azure.engagement.reach.intent.action.POLL"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.microsoft.azure.engagement.reach.activity.EngagementLoadingActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Dialog">
+            <intent-filter>
+                <action android:name="com.microsoft.azure.engagement.reach.intent.action.LOADING"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
         <receiver
-            android:name="com.microsoft.windowsazure.notifications.NotificationsBroadcastReceiver"
+            android:name="com.microsoft.azure.engagement.reach.EngagementReachReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="com.microsoft.azure.engagement.intent.action.AGENT_CREATED"/>
+                <action android:name="com.microsoft.azure.engagement.intent.action.MESSAGE"/>
+                <action android:name="com.microsoft.azure.engagement.reach.intent.action.ACTION_NOTIFICATION"/>
+                <action android:name="com.microsoft.azure.engagement.reach.intent.action.EXIT_NOTIFICATION"/>
+                <action android:name="com.microsoft.azure.engagement.reach.intent.action.DOWNLOAD_TIMEOUT"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.microsoft.azure.engagement.reach.EngagementReachDownloadReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
+            </intent-filter>
+        </receiver>
+
+        <meta-data
+            android:name="engagement:reach:notification:icon"
+            android:value="ic_notification"/>
+        <meta-data
+            android:name="engagement:reach:notification:"
+            android:value="ic_notification"/>
+        <meta-data
+            android:name="engagement:gcm:sender"
+            android:value="225980696595\n"/>
+
+        <receiver
+            android:name="com.microsoft.azure.engagement.gcm.EngagementGCMEnabler"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.microsoft.azure.engagement.intent.action.APPID_GOT"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- Este es el que Receiver de las notificaciones -->
+        <receiver
+            android:name="com.microsoft.azure.engagement.gcm.EngagementGCMReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
 
-                <category android:name="com.globalpaysolutions.yovendosaldo"/>
-            </intent-filter>
-        </receiver>
-        <receiver android:name="com.globalpaysolutions.yovendosaldo.notifications.NotificationBroadcastReceiver">
-            <intent-filter>
-                <action android:name="notification_cancelled"/>
+                <category android:name="com.android.yovendosaldo"/>
             </intent-filter>
         </receiver>
 
-        <!-- Google Play Services -->
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version"/>
+
+        <!--
+        :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :::::::::::::::::::::::     END AZURE MOBILE ENGAGEMENT         :::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        -->
+
 
         <!-- Activities -->
         <activity
@@ -128,9 +227,15 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
-        <activity android:name="com.globalpaysolutions.yovendosaldo.DepositoBancario"
-                  android:label="@string/title_activity_deposito_bancario"
-                  android:parentActivityName="com.globalpaysolutions.yovendosaldo.Home"
+        <activity
+            android:name="com.globalpaysolutions.yovendosaldo.DepositoBancario"
+            android:label="@string/title_activity_deposito_bancario"
+            android:parentActivityName="com.globalpaysolutions.yovendosaldo.Home"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
+        </activity>
+        <activity android:name="com.globalpaysolutions.yovendosaldo.DetalleNotificacion"
+                  android:parentActivityName="com.globalpaysolutions.yovendosaldo.Notificaciones"
                   android:screenOrientation="portrait"
                   android:theme="@style/AppTheme">
         </activity>

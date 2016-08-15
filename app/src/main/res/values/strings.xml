@@ -137,7 +137,7 @@
     <string name="sv_title_3">Número Telefónico</string>
     <string name="sv_content_3">Aquí escribes el número de teléfono.</string>
     <string name="sv_title_2">Operador</string>
-    <string name="sv_content_2">Seleccione el operador del que se hará la recarga.</string>
+    <string name="sv_content_2">Selecciona el operador del que se hará la recarga.</string>
     <string name="sv_title_1">Saldo Disponible</string>
     <string name="sv_content_1">Este es el saldo que tienes para vender.</string>
     <string name="sv_title_4">Monto de la Recarga</string>

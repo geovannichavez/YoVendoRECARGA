@@ -11,6 +11,7 @@
     <dimen name="VerticalItemSpace">28dp</dimen>
     <dimen name="VerticalMediumItemSpace">16dp</dimen>
     <dimen name="VerticalLargeItemSpace">34dp</dimen>
+    <dimen name="ShortVerticalMargin">8dp</dimen>
 
     <!--Margenes de pantalla personalizados-->
     <dimen name="ActivityHorizontalCustomMargin">20dp</dimen>

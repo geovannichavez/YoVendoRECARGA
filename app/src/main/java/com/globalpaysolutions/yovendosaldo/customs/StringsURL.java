@@ -9,10 +9,10 @@ public final class StringsURL
     //public final static String URL_BASE = "http://csncusgats.cloudapp.net:82/v1/";
 
     //PRE-PRODUCCIÓN (Enviando recargas de prueba)
-    //public final static String URL_BASE = "http://csncusgats.cloudapp.net:8074/v1/";
+    public final static String URL_BASE = "http://csncusgats.cloudapp.net:8074/v1/";
 
     //Servidor para DESARROLLO
-    public final static String URL_BASE = "http://csncusgats.cloudapp.net:8073/v1/";
+    //public final static String URL_BASE = "http://csncusgats.cloudapp.net:8073/v1/";
 
     //  :::::   LOCALHOST API   :::::
     //public final static String URL_BASE = "http://10.0.2.2:49435/";
@@ -44,6 +44,23 @@ public final class StringsURL
     public final static String NOTIFICATIONSHISTORY = URL_BASE + "getnotifications/";
 
     public final static String BALANCREQUEST = URL_BASE + "balancerequest";
+
+    /**
+     *
+     *
+     *  CEOAnalytics API
+     *
+     **/
+
+    //Desarrollo
+    public final static String CEO_ANALYTICS_URL_BASE = "http://csncusgats.cloudapp.net:8076/v1/";
+
+    public static String CEO_ANALYTICS_APIKEY = "a1bXuav8tqtXQWPALOhdQJvAQ1IK8esE4d6YYGBk+qc=";
+
+    public final static String CEOA_NOTIFICATIONS_HISTORY = CEO_ANALYTICS_URL_BASE + "notificationshistory/android";
+
+    public final static String CEOA_DEVICE_DATA = CEO_ANALYTICS_URL_BASE + "api/devicedata";
+
 
 
     /**

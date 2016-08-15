@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -12,12 +14,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -55,12 +60,16 @@ import com.globalpaysolutions.yovendosaldo.adapters.AmountSpinnerAdapter;
 import com.globalpaysolutions.yovendosaldo.adapters.OperatorsAdapter;
 import com.globalpaysolutions.yovendosaldo.customs.CustomFullScreenDialog;
 import com.globalpaysolutions.yovendosaldo.customs.Data;
+import com.globalpaysolutions.yovendosaldo.customs.DeviceName;
+import com.globalpaysolutions.yovendosaldo.customs.LocationTracker;
 import com.globalpaysolutions.yovendosaldo.customs.PinDialogBuilder;
 import com.globalpaysolutions.yovendosaldo.customs.SessionManager;
 import com.globalpaysolutions.yovendosaldo.customs.StringsURL;
 import com.globalpaysolutions.yovendosaldo.customs.Validation;
 import com.globalpaysolutions.yovendosaldo.customs.YVScomSingleton;
+import com.globalpaysolutions.yovendosaldo.customs.YvsPhoneStateListener;
 import com.globalpaysolutions.yovendosaldo.model.Amount;
+import com.globalpaysolutions.yovendosaldo.model.LocationData;
 import com.globalpaysolutions.yovendosaldo.model.Operator;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.Target;
@@ -78,16 +87,26 @@ import java.util.List;
 import java.util.Map;
 
 //For Push Notifications
-import com.globalpaysolutions.yovendosaldo.notifications.NotificationSettings;
-import com.globalpaysolutions.yovendosaldo.notifications.RegisterClient;
-import com.globalpaysolutions.yovendosaldo.notifications.YvsNotificationsHandler;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.*;
-import com.microsoft.windowsazure.notifications.NotificationsManager;
+
+//Azure Mobile Engagement
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.microsoft.azure.engagement.EngagementAgent;
+import com.microsoft.azure.engagement.EngagementAgentUtils;
 
 
-public class Home extends AppCompatActivity
+//Location
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+
+
+public class Home extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener
 {
     //Adapters y Layouts
     OperatorsAdapter OpeAdapter;
@@ -130,23 +149,58 @@ public class Home extends AppCompatActivity
     public PinDialogBuilder.CustomOnClickListener ClickListener;
     String mNMO;
 
+    //Location
+    LocationTracker locationTracker;
+    LocationData mLocationData;
+    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
+    private Location mLastLocation;
+    private GoogleApiClient mGoogleApiClient;
+    private boolean mRequestingLocationUpdates = true;
+    private LocationRequest mLocationRequest;
+    private static int UPDATE_INTERVAL = 10000; // 10 sec
+    private static int FATEST_INTERVAL = 5000; // 5 sec
+    private static int DISPLACEMENT = 10; // 10 meters
+
+
+    //Signal
+    TelephonyManager mTelephonyManager;
+    YvsPhoneStateListener psListener;
+
+
     //Push Notifications
     public static Home homeActivity;
     public static Boolean isVisible = false;
     private GoogleCloudMessaging gcm;
-    private RegisterClient registerClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        if (EngagementAgentUtils.isInDedicatedEngagementProcess(this))
+        {
+            return;
+        }
         setContentView(R.layout.activity_home);
+
+        //Azure Mobile Engagement
+        /*EngagementConfiguration engagementConfiguration = new EngagementConfiguration();
+        engagementConfiguration.setConnectionString("Endpoint=CEOAnalyticsYVS.device.mobileengagement.windows.net;SdkKey=705ef5ca3c645a0af96997df0becbffe;AppId=cua000312");
+        EngagementAgent.getInstance(this).init(engagementConfiguration);*/
+
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
+
+
         sessionManager = new SessionManager(Home.this);
         CustomDialogCreator = new CustomFullScreenDialog(Home.this, Home.this);
 
+        //Signal
+        psListener = new YvsPhoneStateListener();
+        mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        mTelephonyManager.listen(psListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 
         SwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         tvBalance = (TextView) findViewById(R.id.tvAvailableBalance);
@@ -176,7 +230,7 @@ public class Home extends AppCompatActivity
         rlMainHomeContent = (RelativeLayout) findViewById(R.id.rlMainHomeContent);
 
         //Setea el menu dependiendo del tipo de vendedor
-        if(isVendorM())
+        if (isVendorM())
         {
             navigationView.inflateMenu(R.menu.m_vendor_drawer);
         }
@@ -321,9 +375,6 @@ public class Home extends AppCompatActivity
         });
 
 
-
-
-
         if (sessionManager.IsUserLoggedIn())
         {
             GetUserBag(false);
@@ -374,7 +425,7 @@ public class Home extends AppCompatActivity
         *
         */
         homeActivity = this;
-        if (sessionManager.IsUserLoggedIn())
+        /*if (sessionManager.IsUserLoggedIn())
         {
             NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, YvsNotificationsHandler.class);
             gcm = GoogleCloudMessaging.getInstance(this);
@@ -384,13 +435,32 @@ public class Home extends AppCompatActivity
             {
                 BeginDeviceRegistration();
             }
+        }*/
+
+        /*
+        *
+        *   LOCATION
+        *
+        *
+        */
+
+        if (checkPlayServices())
+        {
+            buildGoogleApiClient();
+            createLocationRequest();
         }
+
+        mLocationData = new LocationData();
+
+
 
     }
 
 
     public void RequestTopUp(View view)
     {
+        getLocation();
+
         EnableTopupButton(false);
         Log.i("Print click", "Para saber cuantas veces se ha hecho click en el botón.");
 
@@ -400,50 +470,56 @@ public class Home extends AppCompatActivity
 
         final String PhoneNumber = txtPhoneNumber.getText().toString();
 
-
-        if (!RetrieveUserPin().isEmpty())
+        if (CheckValidation())
         {
-            if (sessionManager.IsSecurityPinActive())
+            if (!RetrieveUserPin().isEmpty())
             {
-
-                //Construye el dialogo, sobreescribe el método del click
-                //y lo muestra
-                ClickListener = new PinDialogBuilder.CustomOnClickListener()
+                if (sessionManager.IsSecurityPinActive())
                 {
-                    @Override
-                    public void onAcceptClick()
+
+                    //Construye el dialogo, sobreescribe el método del click
+                    //y lo muestra
+                    ClickListener = new PinDialogBuilder.CustomOnClickListener()
                     {
-                        final String strPIN = PinDialogBuilder.strPIN;
-                        if (sessionManager.ValidEnteredPIN(strPIN))
+                        @Override
+                        public void onAcceptClick()
                         {
-                            PinDialogBuilder.dismiss();
-                            BeginTopup(PhoneNumber);
-                            Data.IntentCounter = 0;
-                        }
-                        else
-                        {
-                            //Valida que los intentos no hayan sido más de 4
-                            if(Data.IntentCounter < 3)
+                            final String strPIN = PinDialogBuilder.strPIN;
+                            if (sessionManager.ValidEnteredPIN(strPIN))
                             {
-                                PinDialogBuilder.GenerateIncorrectPINText();
-                                Data.IntentCounter = Data.IntentCounter +1;
+                                PinDialogBuilder.dismiss();
+                                BeginTopup(PhoneNumber);
+                                Data.IntentCounter = 0;
                             }
                             else
                             {
-                                Data.IntentCounter = 0;
-                                sessionManager.LogoutUser();
+                                //Valida que los intentos no hayan sido más de 4
+                                if (Data.IntentCounter < 3)
+                                {
+                                    PinDialogBuilder.GenerateIncorrectPINText();
+                                    Data.IntentCounter = Data.IntentCounter + 1;
+                                }
+                                else
+                                {
+                                    Data.IntentCounter = 0;
+                                    sessionManager.LogoutUser();
+                                }
+
                             }
-
                         }
-                    }
-                };
-                PinDialogBuilder = new PinDialogBuilder(Home.this, ClickListener, PhoneNumber);
+                    };
+                    PinDialogBuilder = new PinDialogBuilder(Home.this, ClickListener, PhoneNumber);
 
-                //Muestra el teclado al aparecer el dialogo
-                PinDialogBuilder.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-                PinDialogBuilder.show();
-                EnableTopupButton(true);
+                    //Muestra el teclado al aparecer el dialogo
+                    PinDialogBuilder.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                    PinDialogBuilder.show();
+                    EnableTopupButton(true);
 
+                }
+                else
+                {
+                    BeginTopup(PhoneNumber);
+                }
             }
             else
             {
@@ -452,8 +528,9 @@ public class Home extends AppCompatActivity
         }
         else
         {
-            BeginTopup(PhoneNumber);
+            EnableTopupButton(true);
         }
+
     }
 
     public void BeginTopup(String PhoneNumber)
@@ -462,23 +539,25 @@ public class Home extends AppCompatActivity
         {
             PhoneNumber = PhoneNumber.replace("-", "");
 
-            if (CheckValidation())
-            {
-                String Amount = String.valueOf(AmountTopup);
-                ProgressDialog = new ProgressDialog(Home.this);
-                ProgressDialog.setMessage("Enviando Recarga...");
-                ProgressDialog.show();
-                ProgressDialog.setCancelable(false);
-                ProgressDialog.setCanceledOnTouchOutside(false);
+            sendDeviceData(collectDeviceData());
 
-                //***   ALERTA!! CON ESTE METODO SE ENVIA               ***
-                //***   LA RECARGA, TENER CUIDADO CON IMPLEMENTACION    ***
-                TopUp(PhoneNumber, Amount);
-            }
+            /*if (CheckValidation())
+            {*/
+            String Amount = String.valueOf(AmountTopup);
+            ProgressDialog = new ProgressDialog(Home.this);
+            ProgressDialog.setMessage("Enviando Recarga...");
+            ProgressDialog.show();
+            ProgressDialog.setCancelable(false);
+            ProgressDialog.setCanceledOnTouchOutside(false);
+
+            //***   ALERTA!! CON ESTE METODO SE ENVIA               ***
+            //***   LA RECARGA, TENER CUIDADO CON IMPLEMENTACION    ***
+           // TopUp(PhoneNumber, Amount);
+            /*}
             else
             {
                 EnableTopupButton(true);
-            }
+            }*/
         }
     }
 
@@ -502,11 +581,7 @@ public class Home extends AppCompatActivity
             ex.printStackTrace();
         }
 
-        YVScomSingleton.getInstance(this)
-                .addToRequestQueue(
-                        new JsonObjectRequest(
-                                Request.Method.POST,
-                                StringsURL.TOPUP + pPhoneNumber + "/" + pAmount,
+        YVScomSingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(Request.Method.POST, StringsURL.TOPUP + pPhoneNumber + "/" + pAmount,
                 //StringsURL.TEST_TOPUP_GATS_ERROR,
                 jTopUp, new Response.Listener<JSONObject>()
         {
@@ -562,15 +637,12 @@ public class Home extends AppCompatActivity
             sessionManager.SaveAvailableBalance(Balance);
             SetBalanceTextView();
             Log.d("Resultado: ", Message);
-        }
-        catch (JSONException e)
+        } catch (JSONException e)
         {
             e.printStackTrace();
         }
 
-        CustomDialogCreator.CreateFullScreenDialog(getString(R.string.dialog_succeed_topoup_title),
-                getString(R.string.dialog_succeed_topup_content),
-                PhoneUsed, Operator, "Enviar Otra Recarga", "NEWACTION", false, true);
+        CustomDialogCreator.CreateFullScreenDialog(getString(R.string.dialog_succeed_topoup_title), getString(R.string.dialog_succeed_topup_content), PhoneUsed, Operator, "Enviar Otra Recarga", "NEWACTION", false, true);
 
         //Resetea todos los controles
         IsExecuting = false;
@@ -757,7 +829,6 @@ public class Home extends AppCompatActivity
 
             }
         });
-
 
 
         Operator op1 = new Operator();
@@ -968,10 +1039,9 @@ public class Home extends AppCompatActivity
             Log.i("Amounts", "Request para traer montos");
 
 
-            if(!isFirstTime)
+            if (!isFirstTime)
             {
-                SwipeRefresh.setProgressViewOffset(false, 0,
-                        (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
+                SwipeRefresh.setProgressViewOffset(false, 0, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
                 SwipeRefresh.setRefreshing(true);
             }
 
@@ -1031,16 +1101,7 @@ public class Home extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onPause()
-    {
-        super.onPause();
-        if (ProgressDialog != null && ProgressDialog.isShowing())
-        {
-            ProgressDialog.dismiss();
-        }
-        isVisible = false;
-    }
+
 
     /*
     * ***********************
@@ -1164,7 +1225,7 @@ public class Home extends AppCompatActivity
 
     public void HideSwipe()
     {
-        if (SwipeRefresh.isShown() && SwipeRefresh != null && !RetrievingAmounts )
+        if (SwipeRefresh.isShown() && SwipeRefresh != null && !RetrievingAmounts)
         {
             SwipeRefresh.setRefreshing(false);
         }
@@ -1274,7 +1335,7 @@ public class Home extends AppCompatActivity
         {
 
             int TextLength = 0;
-            private static final char space = '-';
+            private static final char dash = '-';
 
             @Override
             public void afterTextChanged(Editable text)
@@ -1297,7 +1358,7 @@ public class Home extends AppCompatActivity
                 if (text.length() > 0 && (text.length() % 5) == 0)
                 {
                     final char c = text.charAt(text.length() - 1);
-                    if (space == c)
+                    if (dash == c)
                     {
                         text.delete(text.length() - 1, text.length());
                     }
@@ -1306,10 +1367,10 @@ public class Home extends AppCompatActivity
                 if (text.length() > 0 && (text.length() % 5) == 0)
                 {
                     char c = text.charAt(text.length() - 1);
-                    // Only if its a digit where there should be a space we insert a space
-                    if (Character.isDigit(c) && TextUtils.split(text.toString(), String.valueOf(space)).length <= 3)
+                    // Only if its a digit where there should be a dash we insert a dash
+                    if (Character.isDigit(c) && TextUtils.split(text.toString(), String.valueOf(dash)).length <= 3)
                     {
-                        text.insert(text.length() - 1, String.valueOf(space));
+                        text.insert(text.length() - 1, String.valueOf(dash));
                     }
                 }
             }
@@ -1536,13 +1597,11 @@ public class Home extends AppCompatActivity
         {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
             {
-                GridViewOperators.getChildAt(i)
-                        .setBackground(getResources().getDrawable(R.drawable.custom_rounded_corner_operator));
+                GridViewOperators.getChildAt(i).setBackground(getResources().getDrawable(R.drawable.custom_rounded_corner_operator));
             }
             else
             {
-                GridViewOperators.getChildAt(i)
-                        .setBackgroundDrawable(getResources().getDrawable(R.drawable.custom_rounded_corner_operator));
+                GridViewOperators.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.custom_rounded_corner_operator));
             }
         }
 
@@ -1631,38 +1690,6 @@ public class Home extends AppCompatActivity
         return true;
     }
 
-    public void BeginDeviceRegistration()
-    {
-        new AsyncTask<Object, Object, Object>()
-        {
-            @Override
-            protected Object doInBackground(Object... params)
-            {
-                try
-                {
-                    String regid = gcm.register(NotificationSettings.SenderId);
-                    registerClient.RegisterDevice(regid, new HashSet<String>());
-                }
-                catch (Exception e)
-                {
-                    /*runOnUiThread(new Runnable() {
-                        public void run() {
-                            // runs on UI thread
-                            Toast.makeText(Home.this, "MainActivity - Failed to register", Toast.LENGTH_LONG).show();
-                        }
-                    });*/
-                    Log.i("NotifHub:", "Falló registro de dispositivo");
-
-                    return e;
-                }
-                return null;
-            }
-            protected void onPostExecute(Object result)
-            {
-
-            }
-        }.execute(null, null, null);
-    }
 
     public boolean isVendorM()
     {
@@ -1675,23 +1702,327 @@ public class Home extends AppCompatActivity
 
 
     @Override
-    protected void onStart() {
+    protected void onStart()
+    {
         super.onStart();
         isVisible = true;
+        if (mGoogleApiClient != null)
+        {
+            mGoogleApiClient.connect();
+        }
     }
 
     @Override
-    protected void onResume() {
+    public void onPause()
+    {
+        super.onPause();
+        EngagementAgent.getInstance(this).endActivity();
+        if (ProgressDialog != null && ProgressDialog.isShowing())
+        {
+            ProgressDialog.dismiss();
+        }
+        isVisible = false;
+        stopLocationUpdates();
+    }
+
+    @Override
+    protected void onResume()
+    {
         super.onResume();
+        // Uses short class name and removes "Activity" at the end.
+        String activityNameOnEngagement = EngagementAgentUtils.buildEngagementActivityName(getClass());
+        EngagementAgent.getInstance(this).startActivity(this, activityNameOnEngagement, null);
         isVisible = true;
+
+        // Resuming the periodic location updates
+        if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates)
+        {
+            startLocationUpdates();
+        }
     }
 
     @Override
-    protected void onStop() {
+    protected void onStop()
+    {
         super.onStop();
         isVisible = false;
+        if (mGoogleApiClient.isConnected())
+        {
+            mGoogleApiClient.disconnect();
+        }
     }
 
+    public JSONObject collectDeviceData()
+    {
+        //Carrier Name
+        String carrierName = mTelephonyManager.getNetworkOperatorName();
+
+        //Network Type
+        String networkType = getNetworkType();
+
+        //dBm Signal Strength
+        //int signalStrength = psListener.signalStrengthValue;
+        int signalStrength = YvsPhoneStateListener.signalStrengthPercent;
+
+        //Device manufacturer
+        String Manufacturer = Build.MANUFACTURER;
+        Manufacturer = Manufacturer.substring(0, 1).toUpperCase() + Manufacturer.substring(1).toLowerCase();
+
+        //Device Model
+        String Model = DeviceName.getDeviceName();
+
+        //Location data, duh!!..
+        //mLocationData = locationTracker.getLocation();
+
+
+        JSONObject deviceData = new JSONObject();
+        try
+        {
+            deviceData.put("carrierName", carrierName);
+            deviceData.put("networkType", networkType);
+            deviceData.put("dBm", signalStrength);
+            deviceData.put("phoneModel", Model);
+            deviceData.put("phoneManufacturer", Manufacturer);
+            deviceData.put("latitude", mLocationData.getLatitude());
+            deviceData.put("longitude", mLocationData.getLongitude());
+
+        } catch (JSONException ex)
+        {
+            ex.printStackTrace();
+        }
+
+        return deviceData;
+
+    }
+
+    private String getNetworkType()
+    {
+        int networkType = mTelephonyManager.getNetworkType();
+
+        switch (networkType)
+        {
+            case TelephonyManager.NETWORK_TYPE_1xRTT:
+                return "1xRTT";
+            case TelephonyManager.NETWORK_TYPE_CDMA:
+                return "CDMA";
+            case TelephonyManager.NETWORK_TYPE_EDGE:
+                return "EDGE";
+            case TelephonyManager.NETWORK_TYPE_EHRPD:
+                return "eHRPD";
+            case TelephonyManager.NETWORK_TYPE_EVDO_0:
+                return "EVDO rev. 0";
+            case TelephonyManager.NETWORK_TYPE_EVDO_A:
+                return "EVDO rev. A";
+            case TelephonyManager.NETWORK_TYPE_EVDO_B:
+                return "EVDO rev. B";
+            case TelephonyManager.NETWORK_TYPE_GPRS:
+                return "GPRS";
+            case TelephonyManager.NETWORK_TYPE_HSDPA:
+                return "HSDPA";
+            case TelephonyManager.NETWORK_TYPE_HSPA:
+                return "HSPA";
+            case TelephonyManager.NETWORK_TYPE_HSPAP:
+                return "HSPA+";
+            case TelephonyManager.NETWORK_TYPE_HSUPA:
+                return "HSUPA";
+            case TelephonyManager.NETWORK_TYPE_IDEN:
+                return "iDen";
+            case TelephonyManager.NETWORK_TYPE_LTE:
+                return "LTE";
+            case TelephonyManager.NETWORK_TYPE_UMTS:
+                return "UMTS";
+            case TelephonyManager.NETWORK_TYPE_UNKNOWN:
+                return "Unknown";
+        }
+        throw new RuntimeException("New type of network");
+    }
+
+    public void sendDeviceData(JSONObject pDeviceData)
+    {
+        YVScomSingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(Request.Method.POST, StringsURL.CEOA_DEVICE_DATA, pDeviceData, new Response.Listener<JSONObject>()
+        {
+            @Override
+            public void onResponse(JSONObject response)
+            {
+                Log.d("Mensaje JSON ", response.toString());
+            }
+        }, new Response.ErrorListener()
+        {
+            @Override
+            public void onErrorResponse(VolleyError error)
+            {
+                String errorDetails = error.getMessage();
+                Log.i("DeviceData", errorDetails);
+            }
+        })
+        {
+            //Se añade el header para enviar el Token
+            @Override
+            public Map<String, String> getHeaders()
+            {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("apikey", StringsURL.CEO_ANALYTICS_APIKEY);
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                return headers;
+            }
+        }, 1);
+    }
+
+    /*
+    *
+    *
+    *   LOCATION LOGIC
+    *
+    *
+    */
+
+    /**
+     * Method to display the location on UI
+     * */
+    private void getLocation()
+    {
+
+        if ( Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+        if (mLastLocation != null)
+        {
+            double latitude = mLastLocation.getLatitude();
+            double longitude = mLastLocation.getLongitude();
+
+            mLocationData.setLongitude(longitude);
+            mLocationData.setLatitude(latitude);
+        }
+        else
+        {
+            Log.i(TAG, "Couldn't get the location. Make sure location is enabled on the device");
+        }
+    }
+
+    /**
+     * Method to toggle periodic location updates
+     * */
+    private void startPeriodicLocationUpdates()
+    {
+        if (mRequestingLocationUpdates)
+        {
+            // Starting the location updates
+            startLocationUpdates();
+            Log.d(TAG, "Periodic location updates started!");
+        }
+    }
+
+    /**
+     * Creating google api client object
+     * */
+    protected synchronized void buildGoogleApiClient()
+    {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API).build();
+    }
+
+    /**
+     * Creating location request object
+     * */
+    protected void createLocationRequest()
+    {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        mLocationRequest.setFastestInterval(FATEST_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setSmallestDisplacement(DISPLACEMENT);
+    }
+
+    /**
+     * Method to verify google play services on the device
+     * */
+    private boolean checkPlayServices()
+    {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+
+        if (resultCode != ConnectionResult.SUCCESS)
+        {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode))
+            {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            }
+            else
+            {
+                /*Toast.makeText(getApplicationContext(), "This device is not supported.", Toast.LENGTH_LONG).show();
+                finish();*/
+                Log.i(TAG, "This device does not support Google Play Services");
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Starting the location updates
+     * */
+    protected void startLocationUpdates()
+    {
+        if ( Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+    }
+
+    /**
+     * Stopping location updates
+     */
+    protected void stopLocationUpdates()
+    {
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+    }
+
+    /**
+     * Google api callback methods
+     */
+    @Override
+    public void onConnectionFailed(ConnectionResult result)
+    {
+        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+    }
+
+    @Override
+    public void onConnected(Bundle arg0)
+    {
+
+        // Once connected with google api, get the location
+        //displayLocation();
+
+        if (mRequestingLocationUpdates)
+        {
+            //startLocationUpdates();
+            startPeriodicLocationUpdates();
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int arg0)
+    {
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onLocationChanged(Location location)
+    {
+        // Assign the new location
+        mLastLocation = location;
+        Log.i(TAG, "Location DID changed");
+
+    }
 
 }
 

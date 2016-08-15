@@ -106,4 +106,16 @@
         <item name="android:activatedBackgroundIndicator">@color/AppGreen</item>
     </style>
 
+
+    <!--    ENGAGEMENTE CUSTOM THEMES -->
+    <style
+        name="Widget.CompoundButton.RadioButton"
+        parent="@android:style/Widget.CompoundButton.RadioButton"
+        >
+        <item name="android:button">@drawable/custom_bg_radio_button</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+    </style>
+
 </resources>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       android:layout_width="fill_parent"
+       android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/lnrTopbar"
+        android:layout_width="fill_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/ApplicationGreenTheme"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/activity_horizontal_margin">
+
+        <ImageView
+            android:id="@+id/tbLogo"
+            android:layout_width="195dp"
+            android:layout_height="23dp"
+            android:src="@drawable/logo_horizontal"/>
+
+    </LinearLayout>
+</merge>

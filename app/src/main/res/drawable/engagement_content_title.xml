@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Azure Mobile Engagement Android SDK
+  Copyright (c) Microsoft Corporation
+
+  All rights reserved.
+
+  MIT License
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the ""Software""), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!-- 1px * 2 lines at top -->
+    <item>
+        <shape android:shape="rectangle" >
+            <size android:height="1dip" />
+
+            <solid android:color="#b8b8b8" />
+        </shape>
+    </item>
+    <item android:top="1dip">
+        <shape android:shape="rectangle" >
+            <size android:height="1dip" />
+
+            <solid android:color="#a6a6a6" />
+        </shape>
+    </item>
+
+    <!-- a light grey gradient -->
+    <item android:top="2dip">
+        <shape android:shape="rectangle" >
+            <size android:height="29dip" />
+
+            <gradient
+                android:angle="-90"
+                android:endColor="#707070"
+                android:startColor="#989898" />
+        </shape>
+    </item>
+
+    <!-- a dark grey solid -->
+    <item android:top="31dip">
+        <shape android:shape="rectangle" >
+            <size android:height="30dip" />
+            <solid android:color="#22666666" />
+        </shape>
+    </item>
+
+    <!-- 2px bottom line at bottom -->
+    <item android:top="61dip">
+        <shape android:shape="rectangle" >
+            <size android:height="2dip" />
+            <solid android:color="#99343434" />
+        </shape>
+    </item>
+
+</layer-list>

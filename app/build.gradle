@@ -5,19 +5,27 @@ android {
     buildToolsVersion '23.0.3'
 
     //Clases para Http de apache
-    useLibrary  'org.apache.http.legacy'
+    useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         applicationId "com.globalpaysolutions.yovendosaldo"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 11
-        versionName "1.23"
+        versionCode 15
+        versionName "1.32"
+
+        //Multi DEX
+        multiDexEnabled true
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled true
+            shrinkResources false
         }
     }
     lintOptions {
@@ -31,39 +39,24 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':Volley')
     compile files('libs/common-lang3.jar')
-
     //Sticky View
-
     //Showcase Intructions
-    
-
     compile 'com.android.support:appcompat-v7:23.3.0'
-
     compile 'com.android.support:preference-v7:23.3.0'
-
     compile 'com.android.support:design:23.3.0'
-
     compile 'com.android.support:support-v4:23.3.0'
-
     compile 'se.emilsjolander:StickyScrollViewItems:1.1.0'
-    
     compile 'com.github.amlcurran.showcaseview:library:5.4.3'
-
     //Google Cloud Messaging
-
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
-
     //Azure Notifications Hub
+    //compile 'com.microsoft.azure:notification-hubs-android-sdk:0.4@aar'
+    //compile 'com.microsoft.azure:azure-notifications-handler:1.0.1@aar'
+    compile files('libs/mobile-engagement-4.2.2.jar')
 
-    compile 'com.microsoft.azure:notification-hubs-android-sdk:0.4@aar'
-    
-    compile 'com.microsoft.azure:azure-notifications-handler:1.0.1@aar'
+    //Location
+    //compile 'com.google.android.gms:play-services:5.+'
+    compile 'com.google.android.gms:play-services:8.4.0'
 
-
-}
-
-repositories {
-    maven {
-        url "http://dl.bintray.com/microsoftazuremobile/SDK"
-    }
+    compile 'com.android.support:multidex:1.0.0'
 }
