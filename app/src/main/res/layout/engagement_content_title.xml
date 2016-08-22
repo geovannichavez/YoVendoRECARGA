@@ -59,7 +59,7 @@
             android:paddingTop="@dimen/ActivityVerticalCustomMargin"
             android:textColor="@color/MainTitleTextColor"
             android:text="Prueba de sonido"
-            android:textColorLink="@android:color/white"
+            android:textColorLink="@color/MainTitleTextColor"
             android:textSize="22sp"
             />
 

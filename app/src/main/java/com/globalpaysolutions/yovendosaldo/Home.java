@@ -552,7 +552,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
 
             //***   ALERTA!! CON ESTE METODO SE ENVIA               ***
             //***   LA RECARGA, TENER CUIDADO CON IMPLEMENTACION    ***
-           // TopUp(PhoneNumber, Amount);
+            TopUp(PhoneNumber, Amount);
             /*}
             else
             {
@@ -581,7 +581,9 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
             ex.printStackTrace();
         }
 
-        YVScomSingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(Request.Method.POST, StringsURL.TOPUP + pPhoneNumber + "/" + pAmount,
+        YVScomSingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(Request.Method.POST,
+                StringsURL.TOPUP + pPhoneNumber + "/" + pAmount,
+                //StringsURL.TEST_TIMEOUT,
                 //StringsURL.TEST_TOPUP_GATS_ERROR,
                 jTopUp, new Response.Listener<JSONObject>()
         {
@@ -612,7 +614,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
                 headers.put("Content-Type", "application/json; charset=utf-8");
                 return headers;
             }
-        }, 0);
+        }, -1);
     }
 
     /*

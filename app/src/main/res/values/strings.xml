@@ -164,7 +164,8 @@
     <string name="demo_digicel_1"></string>
     <string name="demo_digicel_2"></string>-->
 
-    <string name="bank_name_citi">Banco Citibank de El Salvador, S.A.</string>
+    <!--<string name="bank_name_citi">Banco Citibank de El Salvador, S.A.</string>-->
+    <string name="bank_name_citi">Banco Cuscatlán, S.A.</string>
     <string name="bank_name_agricola">Banco Agricola, S.A.</string>
     <string name="bank_name_bac">Banco de América Central, S.A.</string>
 

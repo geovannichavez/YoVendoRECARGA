@@ -1,11 +1,23 @@
 package com.globalpaysolutions.yovendosaldo.customs;
 
+import android.os.AsyncTask;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 //import org.apache.http.conn.util.InetAddressUtils;
 
-public class Utils {
+public class Utils
+{
 
     /**
      * Get IP address from first non-localhost interface
@@ -38,5 +50,7 @@ public class Utils {
         } catch (Exception ex) { } // for now eat exceptions
         return "";
     }
+
+
 
 }

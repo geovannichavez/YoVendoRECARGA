@@ -147,6 +147,7 @@
                 android:background="@drawable/btn_effect_ripple_green"
                 android:clickable="true"
                 android:text="Enviar"
+                android:onClick="testValidate"
                 android:textColor="@color/ActivityWhiteBackground"/>
 
 

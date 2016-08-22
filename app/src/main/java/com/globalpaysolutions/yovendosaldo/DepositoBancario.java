@@ -105,14 +105,14 @@ public class DepositoBancario extends AppCompatActivity
         edMonto = (EditText) findViewById(R.id.edMonto);
         edComprobante = (EditText) findViewById(R.id.edComprobante);
         btnEnviar = (Button) findViewById(R.id.btnEnviarDeposito);
-        btnEnviar.setOnClickListener(new View.OnClickListener()
+        /*btnEnviar.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
                 VoucherValidation();
             }
-        });
+        });*/
 
         tvFechaDeposito = (TextView) findViewById(R.id.tvFechaDeposito);
         tvFechaDeposito.setOnClickListener(new View.OnClickListener()
@@ -179,7 +179,7 @@ public class DepositoBancario extends AppCompatActivity
             String Comprobante = edComprobante.getText().toString();
             int BancoID = SelectedBank;
             //Se formatea para pasarlo al objeto json
-            String Fecha = new SimpleDateFormat("dd-MMM-yyyy", new Locale("es_ES")).format(DepositDate);
+            String Fecha = new SimpleDateFormat("MM-dd-yyyy", new Locale("es_ES")).format(DepositDate);
 
             JSONObject jVoucher = new JSONObject();
 
@@ -384,8 +384,8 @@ public class DepositoBancario extends AppCompatActivity
                         VoucherMinLength = 9;
                         break;
                     case 3: //Banco America Central
-                        ChangeEdittextMaxLength(8, edComprobante);
-                        VoucherMinLength = 8;
+                        ChangeEdittextMaxLength(9, edComprobante);
+                        VoucherMinLength = 9;
                         break;
                     default:
                         ChangeEdittextMaxLength(9, edComprobante);
@@ -561,5 +561,12 @@ public class DepositoBancario extends AppCompatActivity
         InputFilter[] FilterArray = new InputFilter[1];
         FilterArray[0] = new InputFilter.LengthFilter(pLength);
         pEditText.setFilters(FilterArray);
+    }
+
+
+
+    public void testValidate(View view)
+    {
+        VoucherValidation();
     }
 }

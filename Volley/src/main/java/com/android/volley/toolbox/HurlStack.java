@@ -178,11 +178,16 @@ public class HurlStack implements HttpStack {
     private HttpURLConnection openConnection(URL url, Request<?> request) throws IOException {
         HttpURLConnection connection = createConnection(url);
 
+        //Retries bug stuff...
+        //See: https://groups.google.com/forum/#!topic/volley-users/8PE9dBbD6iA
+        //http://stackoverflow.com/questions/22428343/android-volley-double-post-when-have-slow-request/23865881#23865881
+
         int timeoutMs = request.getTimeoutMs();
         connection.setConnectTimeout(timeoutMs);
         connection.setReadTimeout(timeoutMs);
         connection.setUseCaches(false);
         connection.setDoInput(true);
+       //connection.setChunkedStreamingMode(0);
 
         // use caller-provided custom SslSocketFactory, if any, for HTTPS
         if ("https".equals(url.getProtocol()) && mSslSocketFactory != null) {
