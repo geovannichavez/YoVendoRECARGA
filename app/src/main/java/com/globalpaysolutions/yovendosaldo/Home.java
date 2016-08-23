@@ -1,5 +1,6 @@
 package com.globalpaysolutions.yovendosaldo;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -65,6 +67,7 @@ import com.globalpaysolutions.yovendosaldo.customs.LocationTracker;
 import com.globalpaysolutions.yovendosaldo.customs.PinDialogBuilder;
 import com.globalpaysolutions.yovendosaldo.customs.SessionManager;
 import com.globalpaysolutions.yovendosaldo.customs.StringsURL;
+import com.globalpaysolutions.yovendosaldo.customs.TopUpSingleton;
 import com.globalpaysolutions.yovendosaldo.customs.Validation;
 import com.globalpaysolutions.yovendosaldo.customs.YVScomSingleton;
 import com.globalpaysolutions.yovendosaldo.customs.YvsPhoneStateListener;
@@ -210,6 +213,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         lnrBalance = (LinearLayout) findViewById(R.id.rectangle);
 
         isFirstTime = sessionManager.IsFirstTime();
+        homeActivity = this;
 
         InitializeValidation();
         CheckLogin();
@@ -264,12 +268,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
                         return true;
 
                     case R.id.ValidarDeposito:
-                        /*FragmentDepositoBancario fragmentDepositoBancario = new FragmentDepositoBancario();
-                        android.support.v4.app.FragmentTransaction fragmentTransactionDepo = getSupportFragmentManager().beginTransaction();
-                        rlMainHomeContent.setVisibility(View.GONE);
-                        toolbar.setTitle("");
-                        fragmentTransactionDepo.replace(R.id.frame, fragmentDepositoBancario);
-                        fragmentTransactionDepo.commit();*/
                         Intent deposito = new Intent(getApplication().getApplicationContext(), DepositoBancario.class);
                         startActivity(deposito);
                         return true;
@@ -371,6 +369,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
             public void onRefresh()
             {
                 GetUserBag(true);
+                RetrieveAmounts();
             }
         });
 
@@ -419,23 +418,9 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         });
 
 
-        /*
-        *
-        *   PUSH NOTIFICATIONS
-        *
-        */
-        homeActivity = this;
-        /*if (sessionManager.IsUserLoggedIn())
-        {
-            NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, YvsNotificationsHandler.class);
-            gcm = GoogleCloudMessaging.getInstance(this);
-            registerClient = new RegisterClient(this);
 
-            if(CheckGooglePlayServices())
-            {
-                BeginDeviceRegistration();
-            }
-        }*/
+
+
 
         /*
         *
@@ -581,10 +566,9 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
             ex.printStackTrace();
         }
 
-        YVScomSingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(Request.Method.POST,
+        TopUpSingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(
+                Request.Method.POST,
                 StringsURL.TOPUP + pPhoneNumber + "/" + pAmount,
-                //StringsURL.TEST_TIMEOUT,
-                //StringsURL.TEST_TOPUP_GATS_ERROR,
                 jTopUp, new Response.Listener<JSONObject>()
         {
             @Override
@@ -1071,6 +1055,8 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
 
         }
     }
+
+
 
 
     /*
@@ -1973,11 +1959,15 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     {
         if ( Build.VERSION.SDK_INT >= 23 &&
                 ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
+                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
 
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 3);
+        }
+        else
+        {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
     }
 
     /**

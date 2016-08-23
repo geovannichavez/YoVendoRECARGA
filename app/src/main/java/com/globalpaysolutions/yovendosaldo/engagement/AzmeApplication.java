@@ -1,6 +1,9 @@
 package com.globalpaysolutions.yovendosaldo.engagement;
 
+import android.content.Context;
 import android.content.Intent;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 
 import com.microsoft.azure.engagement.EngagementAgent;
 import com.microsoft.azure.engagement.EngagementApplication;
@@ -8,7 +11,7 @@ import com.microsoft.azure.engagement.EngagementConfiguration;
 import com.microsoft.azure.engagement.reach.EngagementReachAgent;
 
 /**
- * Created by Josué Chávez on 08/08/2016.
+ * Created by Josuï¿½ Chï¿½vez on 08/08/2016.
  */
 public final class AzmeApplication extends EngagementApplication
 {
@@ -22,5 +25,11 @@ public final class AzmeApplication extends EngagementApplication
 
         final EngagementReachAgent reachAgent = EngagementReachAgent.getInstance(this);
         reachAgent.registerNotifier(new AzmeNotifier(this), Intent.CATEGORY_DEFAULT);
+    }
+
+    protected void attachBaseContext(Context base)
+    {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 }

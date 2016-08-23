@@ -67,8 +67,9 @@ public final class YVScomSingleton
         //int socketTimeout = DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 48;
         //int socketTimeout = 10000;//10 segundos
         //int socketTimeout = 15000;//15 segundos
-        int socketTimeout = 0;
+        //int socketTimeout = 0;
         //int socketTimeout = 120000;
+        int socketTimeout = 8000;//8 segundos
 
         //Setea el Timeout para la Request
         //int socketTimeout = 45000;//45 segundos
