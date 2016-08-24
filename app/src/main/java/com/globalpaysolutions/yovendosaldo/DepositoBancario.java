@@ -39,6 +39,8 @@ import com.globalpaysolutions.yovendosaldo.customs.StringsURL;
 import com.globalpaysolutions.yovendosaldo.customs.Validation;
 import com.globalpaysolutions.yovendosaldo.customs.YVScomSingleton;
 import com.globalpaysolutions.yovendosaldo.model.Bank;
+import com.microsoft.azure.engagement.EngagementAgent;
+import com.microsoft.azure.engagement.EngagementAgentUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -324,6 +326,24 @@ public class DepositoBancario extends AppCompatActivity
         }
     }
 
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        EngagementAgent.getInstance(this).endActivity();
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        String activityNameOnEngagement = EngagementAgentUtils.buildEngagementActivityName(getClass());
+        EngagementAgent.getInstance(this).startActivity(this, activityNameOnEngagement, null);
+    }
+
+
+
     /*
     ****************************
     OTROS METODOS
@@ -385,7 +405,7 @@ public class DepositoBancario extends AppCompatActivity
                         break;
                     case 3: //Banco America Central
                         ChangeEdittextMaxLength(9, edComprobante);
-                        VoucherMinLength = 9;
+                        VoucherMinLength = 8;
                         break;
                     default:
                         ChangeEdittextMaxLength(9, edComprobante);
@@ -565,7 +585,7 @@ public class DepositoBancario extends AppCompatActivity
 
 
 
-    public void testValidate(View view)
+    public void validateBankVoucher(View view)
     {
         VoucherValidation();
     }

@@ -34,6 +34,8 @@ import com.globalpaysolutions.yovendosaldo.customs.SessionManager;
 import com.globalpaysolutions.yovendosaldo.customs.StringsURL;
 import com.globalpaysolutions.yovendosaldo.customs.YVScomSingleton;
 import com.globalpaysolutions.yovendosaldo.model.Notification;
+import com.microsoft.azure.engagement.EngagementAgent;
+import com.microsoft.azure.engagement.EngagementAgentUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,6 +65,12 @@ public class Notificaciones extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        //Mobile Engagement
+        if (EngagementAgentUtils.isInDedicatedEngagementProcess(this))
+        {
+            return;
+        }
+
         setContentView(R.layout.activity_notificaciones);
         toolbar = (Toolbar) findViewById(R.id.notifToolbar);
         toolbar.setTitle(getString(R.string.title_activity_notificaciones));
@@ -336,9 +344,6 @@ public class Notificaciones extends AppCompatActivity
         }
     }
 
-
-
-
     public void HandleVolleyError(VolleyError pError)
     {
         HideSwipe();
@@ -432,6 +437,21 @@ public class Notificaciones extends AppCompatActivity
         }
     }
 
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        EngagementAgent.getInstance(this).endActivity();
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        String activityNameOnEngagement = EngagementAgentUtils.buildEngagementActivityName(getClass());
+        EngagementAgent.getInstance(this).startActivity(this, activityNameOnEngagement, null);
+    }
 
     /*
     *

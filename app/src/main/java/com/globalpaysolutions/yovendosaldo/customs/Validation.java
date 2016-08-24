@@ -135,7 +135,7 @@ public class Validation
         editText.setError(null);
 
         String LengthText = editText.getText().toString();
-        if(LengthText.length() == pMinLength)
+        if(LengthText.length() >= pMinLength)
         {
             valid = true;
         }

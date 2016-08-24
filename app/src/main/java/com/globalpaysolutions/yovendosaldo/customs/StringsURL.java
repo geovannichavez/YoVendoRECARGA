@@ -11,7 +11,7 @@ public final class StringsURL
     //PRE-PRODUCCIÓN (Enviando recargas de prueba)
     public final static String URL_BASE = "http://csncusgats.cloudapp.net:8074/v1/";
 
-    //Servidor para DESARROLLO
+    //Servidor para DESARROLLOm
     //public final static String URL_BASE = "http://csncusgats.cloudapp.net:8073/v1/";
 
     //  :::::   LOCALHOST API   :::::

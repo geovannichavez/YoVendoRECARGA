@@ -20,6 +20,8 @@ import com.globalpaysolutions.yovendosaldo.customs.SlidingTabLayout;
 import com.globalpaysolutions.yovendosaldo.customs.StringsURL;
 import com.globalpaysolutions.yovendosaldo.customs.YVScomSingleton;
 import com.globalpaysolutions.yovendosaldo.model.PaymentItem;
+import com.microsoft.azure.engagement.EngagementAgent;
+import com.microsoft.azure.engagement.EngagementAgentUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,9 +79,17 @@ public class HistorialVentas extends AppCompatActivity
     public void onPause()
     {
         super.onPause();
-
+        EngagementAgent.getInstance(this).endActivity();
         CreateArrayUpdate();
 
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        String activityNameOnEngagement = EngagementAgentUtils.buildEngagementActivityName(getClass());
+        EngagementAgent.getInstance(this).startActivity(this, activityNameOnEngagement, null);
     }
 
     public void CreateArrayUpdate()
