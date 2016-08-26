@@ -337,17 +337,6 @@ public class Data
         {
             if(statusCode == 502)
             {
-               /* AlertDialog.Builder alertDialog = new AlertDialog.Builder(pContex);
-                alertDialog.setTitle(pContex.getString(R.string.expired_session));
-                alertDialog.setMessage(pContex.getString(R.string.dialog_error_topup_content));
-                alertDialog.setNeutralButton("Ok", new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        sessionManager.LogoutUser();
-                    }
-                });
-                alertDialog.show();*/
                 Log.e("Montos: ","Ocurrió 'ServerError', sesion expirada");
             }
             else
@@ -363,17 +352,6 @@ public class Data
         }
         else if(pError instanceof AuthFailureError)
         {
-            /*AlertDialog.Builder alertDialog = new AlertDialog.Builder(Home.this);
-            alertDialog.setTitle("ERROR");
-            alertDialog.setMessage("Las credenciales son incorrectas");
-            alertDialog.setNeutralButton("Ok", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    sessionManager.LogoutUser();
-                }
-            });
-            alertDialog.show();*/
             Log.e("Montos: ","Ocurrió un 'AuthFailureError'.");
 
         }

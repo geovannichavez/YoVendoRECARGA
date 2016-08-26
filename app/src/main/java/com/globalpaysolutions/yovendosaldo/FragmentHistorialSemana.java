@@ -94,6 +94,7 @@ public class FragmentHistorialSemana extends Fragment
                 new JsonObjectRequest(
                         Request.Method.GET,
                         StringsURL.HISTORY_GMT0 + "/week",
+                        //StringsURL.HISTORY + "/week",
                         null,
                         new Response.Listener<JSONObject>()
                         {

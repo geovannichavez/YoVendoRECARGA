@@ -503,7 +503,6 @@ public class Login extends AppCompatActivity
 
     public String getPublicIPAddress()
     {
-        //String RequestURL = "http://ip-api.com/json";
         String RequestURL = "http://myexternalip.com/json";
 
         String publicIpAddress = "";

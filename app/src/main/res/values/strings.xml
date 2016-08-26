@@ -223,4 +223,9 @@
     <string name="request_airtime">Solictar Saldo</string>
     <string name="request_airtime_confirmation">¿Desea solictar saldo al Master?</string>
 
+
+    <!--    Location Dialog     -->
+    <string name="title_activate_location">Activar Ubicación</string>
+    <string name="content_activate_location">Debe activar la ubicación antes de continuar.</string>
+
 </resources>

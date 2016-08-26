@@ -8,12 +8,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -151,6 +153,8 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     PinDialogBuilder PinDialogBuilder;
     public PinDialogBuilder.CustomOnClickListener ClickListener;
     String mNMO;
+    boolean mFineLocationGranted;
+    boolean mCoarseLocationGranted;
 
     //Location
     LocationTracker locationTracker;
@@ -173,8 +177,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     //Push Notifications
     public static Home homeActivity;
     public static Boolean isVisible = false;
-    private GoogleCloudMessaging gcm;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -186,11 +188,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         }
         setContentView(R.layout.activity_home);
 
-        //Azure Mobile Engagement
-        /*EngagementConfiguration engagementConfiguration = new EngagementConfiguration();
-        engagementConfiguration.setConnectionString("Endpoint=CEOAnalyticsYVS.device.mobileengagement.windows.net;SdkKey=705ef5ca3c645a0af96997df0becbffe;AppId=cua000312");
-        EngagementAgent.getInstance(this).init(engagementConfiguration);*/
-
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
@@ -199,11 +196,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
 
         sessionManager = new SessionManager(Home.this);
         CustomDialogCreator = new CustomFullScreenDialog(Home.this, Home.this);
-
-        //Signal
-        psListener = new YvsPhoneStateListener();
-        mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        mTelephonyManager.listen(psListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 
         SwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         tvBalance = (TextView) findViewById(R.id.tvAvailableBalance);
@@ -218,9 +210,13 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         InitializeValidation();
         CheckLogin();
         RetrieveSavedToken();
-        RetrieveAmounts();
+        //RetrieveAmounts();
 
 
+        //Signal
+        psListener = new YvsPhoneStateListener();
+        mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        mTelephonyManager.listen(psListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 
         /*
         * *****************************
@@ -357,6 +353,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
             ExecuteShowcase();
         }
 
+
         /*
         *
         *   SWIPEREFRESH
@@ -369,7 +366,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
             public void onRefresh()
             {
                 GetUserBag(true);
-                RetrieveAmounts();
             }
         });
 
@@ -434,9 +430,17 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
             buildGoogleApiClient();
             createLocationRequest();
         }
-
         mLocationData = new LocationData();
 
+        if(!isFirstTime)
+        {
+            askForLocationActivation();
+        }
+
+        if(sessionManager.IsUserLoggedIn())
+        {
+            RetrieveAmounts();
+        }
 
 
     }
@@ -576,6 +580,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
             {
                 //Procesar la respuesta del servidor
                 Log.d("Mensaje JSON ", response.toString());
+
                 //Esconde el Progress Dialog
                 ProgressDialog.dismiss();
                 ProcessTopupResponse(response);
@@ -1024,7 +1029,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
             gridOperators.setEnabled(false);
             Log.i("Amounts", "Request para traer montos");
 
-
             if (!isFirstTime)
             {
                 SwipeRefresh.setProgressViewOffset(false, 0, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
@@ -1042,9 +1046,17 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
                         RetrievingAmounts = false;
                         SwipeRefresh.setRefreshing(false);
                         gridOperators.setEnabled(true);
+
+                        getLocation();
+
+                        /* Se obtiene la ubicacion despues de que
+                        los montos se hayan obtenido para darle suficiente
+                        tiempo a LocationRequest de conectar */
+                        sendDeviceData(collectDeviceData());
                     }
                     else
                     {
+                        getLocation();
                         RetrievingAmounts = false;
                         SwipeRefresh.setRefreshing(false);
                         gridOperators.setEnabled(true);
@@ -1528,6 +1540,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
                     case 4:
                         scrollView.fullScroll(View.FOCUS_UP);
                         showcaseView.hide();
+                        askForLocationActivation();
                 }
                 ShowCaseCounter++;
             }
@@ -1827,33 +1840,39 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
 
     public void sendDeviceData(JSONObject pDeviceData)
     {
-        YVScomSingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(Request.Method.POST, StringsURL.CEOA_DEVICE_DATA, pDeviceData, new Response.Listener<JSONObject>()
+        if(isLocationServiceEnabled())
         {
-            @Override
-            public void onResponse(JSONObject response)
+            if(mLocationData.getLatitude() != 0 && mLocationData.getLongitude() != 0)
             {
-                Log.d("Mensaje JSON ", response.toString());
+                YVScomSingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(Request.Method.POST, StringsURL.CEOA_DEVICE_DATA, pDeviceData, new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response)
+                    {
+                        Log.d("DeviceData ", response.toString());
+                    }
+                }, new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        String errorDetails = error.getMessage();
+                        Log.i("DeviceData", errorDetails);
+                    }
+                })
+                {
+                    //Se añade el header para enviar el Token
+                    @Override
+                    public Map<String, String> getHeaders()
+                    {
+                        Map<String, String> headers = new HashMap<String, String>();
+                        headers.put("apikey", StringsURL.CEO_ANALYTICS_APIKEY);
+                        headers.put("Content-Type", "application/json; charset=utf-8");
+                        return headers;
+                    }
+                }, 1);
             }
-        }, new Response.ErrorListener()
-        {
-            @Override
-            public void onErrorResponse(VolleyError error)
-            {
-                String errorDetails = error.getMessage();
-                Log.i("DeviceData", errorDetails);
-            }
-        })
-        {
-            //Se añade el header para enviar el Token
-            @Override
-            public Map<String, String> getHeaders()
-            {
-                Map<String, String> headers = new HashMap<String, String>();
-                headers.put("apikey", StringsURL.CEO_ANALYTICS_APIKEY);
-                headers.put("Content-Type", "application/json; charset=utf-8");
-                return headers;
-            }
-        }, 1);
+        }
     }
 
     /*
@@ -1875,20 +1894,22 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
                 ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-        if (mLastLocation != null)
-        {
-            double latitude = mLastLocation.getLatitude();
-            double longitude = mLastLocation.getLongitude();
-
-            mLocationData.setLongitude(longitude);
-            mLocationData.setLatitude(latitude);
-        }
         else
         {
-            Log.i(TAG, "Couldn't get the location. Make sure location is enabled on the device");
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            if (mLastLocation != null)
+            {
+                double latitude = mLastLocation.getLatitude();
+                double longitude = mLastLocation.getLongitude();
+
+                mLocationData.setLongitude(longitude);
+                mLocationData.setLatitude(latitude);
+            }
+            else
+            {
+                Log.i(TAG, "Couldn't get the location. Make sure location is enabled on the device");
+            }
         }
     }
 
@@ -1990,7 +2011,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     @Override
     public void onConnected(Bundle arg0)
     {
-
         // Once connected with google api, get the location
         //displayLocation();
 
@@ -2014,6 +2034,67 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         mLastLocation = location;
         Log.i(TAG, "Location DID changed");
 
+    }
+
+    public boolean isLocationServiceEnabled()
+    {
+        LocationManager locationManager = null;
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+
+        if (locationManager == null)
+        {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        }
+
+        try
+        {
+            gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        }
+        catch(Exception ex)
+        {
+            //do nothing...
+        }
+
+        try
+        {
+            network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        }
+        catch(Exception ex)
+        {
+            //do nothing...
+        }
+
+        return gps_enabled || network_enabled;
+
+    }
+
+    public void askForLocationActivation()
+    {
+        if(!isLocationServiceEnabled())
+        {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(Home.this);
+            alertDialog.setTitle(getString(R.string.title_activate_location));
+            alertDialog.setMessage(getString(R.string.content_activate_location));
+            alertDialog.setCancelable(false);
+            alertDialog.setNeutralButton("ACTIVAR", new DialogInterface.OnClickListener()
+            {
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(myIntent);
+                }
+            });
+            alertDialog.setNegativeButton("CANCELAR", new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    dialog.dismiss();
+                }
+            });
+            alertDialog.show();
+        }
     }
 
 }

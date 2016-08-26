@@ -93,6 +93,7 @@ public class FragmentHistorialHoy extends Fragment
         YVScomSingleton.getInstance(getActivity()).addToRequestQueue(
                 new JsonObjectRequest(
                         Request.Method.GET,
+                        //StringsURL.HISTORY + "/today",
                         StringsURL.HISTORY_GMT0 + "/today",
                         null,
                         new Response.Listener<JSONObject>()
@@ -152,8 +153,7 @@ public class FragmentHistorialHoy extends Fragment
 
                     SimpleDateFormat TodayFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-                    if(TodayFormat.format(DateSale).equals(TodayFormat.format(new Date())))
-                    {
+                    //if(TodayFormat.format(DateSale).equals(TodayFormat.format(new Date()))) {
                         if(JsonSale.isNull("id"))
                         {
                             sale.setID("0");
@@ -172,7 +172,7 @@ public class FragmentHistorialHoy extends Fragment
                         sale.setDate(DateSale);
 
                         HistoryAdapter.add(sale);
-                    }
+                    //}
                 }
                 catch (JSONException e)
                 {
