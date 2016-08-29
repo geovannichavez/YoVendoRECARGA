@@ -11,8 +11,8 @@ android {
         applicationId "com.globalpaysolutions.yovendosaldo"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 17
-        versionName "1.33"
+        versionCode 19
+        versionName "1.35"
 
         //Multi DEX
         multiDexEnabled true

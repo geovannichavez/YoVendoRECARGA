@@ -996,8 +996,18 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
             selectedOperatorAmounts.add(Data.AmountHint(Home.this));
         }
 
-
-        selectedOperatorAmounts.add(Data.AmountHint(Home.this));
+        //Si no hay montos del operador seleccionado, añade el hint 2 veces
+        if(selectedOperatorAmounts.size() == 0)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                selectedOperatorAmounts.add(Data.AmountHint(Home.this));
+            }
+        }
+        else
+        {
+            selectedOperatorAmounts.add(Data.AmountHint(Home.this));
+        }
 
         AmountAdapter = new AmountSpinnerAdapter(this, R.layout.custom_amount_spinner_item, R.id.tvAmount, selectedOperatorAmounts);
         AmountAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

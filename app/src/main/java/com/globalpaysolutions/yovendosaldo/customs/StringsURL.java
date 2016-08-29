@@ -6,10 +6,10 @@ package com.globalpaysolutions.yovendosaldo.customs;
 public final class StringsURL
 {
     //Servidor para PRODUCCION
-    //public final static String URL_BASE = "http://csncusgats.cloudapp.net:82/v1/";
+    public final static String URL_BASE = "http://csncusgats.cloudapp.net:82/v1/";
 
     //PRE-PRODUCCIÓN (Enviando recargas de prueba)
-    public final static String URL_BASE = "http://csncusgats.cloudapp.net:8074/v1/";
+    //public final static String URL_BASE = "http://csncusgats.cloudapp.net:8074/v1/";
 
     //Servidor para DESARROLLOm
     //public final static String URL_BASE = "http://csncusgats.cloudapp.net:8073/v1/";
