@@ -151,7 +151,7 @@ public class FragmentHistorialSemana extends Fragment
                     Format.setTimeZone(TimeZone.getTimeZone("UTC"));
                     Date DateSale = Format.parse(DateSaleString);
 
-                    Calendar c = Calendar.getInstance();
+                    /*Calendar c = Calendar.getInstance();
 
                     c.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
                     c.set(Calendar.HOUR_OF_DAY, 0);
@@ -165,7 +165,7 @@ public class FragmentHistorialSemana extends Fragment
                     Date NextMonday= new Date(Monday.getTime()+7*24*60*60*1000);
 
                     if(DateSale.after(Monday) && DateSale.before(NextMonday))
-                    {
+                    {*/
                         if(JsonSale.isNull("id"))
                         {
                             sale.setID("0");
@@ -176,7 +176,6 @@ public class FragmentHistorialSemana extends Fragment
                         }
 
                         sale.setStatus(JsonSale.has("status") ? JsonSale.getString("status") : "");
-                        //sale.setID(JsonSale.isNull("id") ? JsonSale.has("id") ? JsonSale.getInt("id") : 0 : 0);
                         sale.setMSISDN(JsonSale.has("msisdn") ? JsonSale.getString("msisdn") : "[Sin número]");
                         sale.setAmount(JsonSale.has("Amount") ? JsonSale.getDouble("Amount") : 0);
                         sale.setOperator(JsonSale.has("Operator") ? JsonSale.getString("Operator"): "");
@@ -184,15 +183,15 @@ public class FragmentHistorialSemana extends Fragment
                         sale.setDate(DateSale);
 
                         HistoryAdapter.add(sale);
-                    }
+
                 }
                 catch (JSONException e)
                 {
                     e.printStackTrace();
                 }
-                catch (ParseException e)
+                catch (ParseException ex)
                 {
-                    e.printStackTrace();
+                    ex.printStackTrace();
                 }
             }
         }
