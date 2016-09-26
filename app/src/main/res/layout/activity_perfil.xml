@@ -12,7 +12,7 @@
         android:focusableInTouchMode="true"
         android:background="@color/ActivityWhiteBackground"
         android:orientation="vertical"
-        tools:context="com.globalpaysolutions.yovendosaldo.Perfil">
+        tools:context="com.globalpaysolutions.yovendorecarga.Perfil">
         <!--TOOLBAR-->
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbarProf"

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:focusableInTouchMode="true"
-    tools:context="com.globalpaysolutions.yovendosaldo.DepositoBancario">
+    tools:context="com.globalpaysolutions.yovendorecarga.DepositoBancario">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/depoToolbar"

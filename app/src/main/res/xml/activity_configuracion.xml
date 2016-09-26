@@ -9,12 +9,12 @@
             android:title="@string/preference_pin_title">
             <intent
                 android:action="android.intent.action.VIEW"
-                android:targetClass="com.globalpaysolutions.yovendosaldo.ManejoPIN"
-                android:targetPackage="com.globalpaysolutions.yovendosaldo"/>
+                android:targetClass="com.globalpaysolutions.yovendorecarga.ManejoPIN"
+                android:targetPackage="com.globalpaysolutions.yovendorecarga"/>
             <!--<intent
                 android:action="android.intent.action.VIEW"
-                android:targetClass="com.globalpaysolutions.yovendosaldo.Configuracion"
-                android:targetPackage="com.globalpaysolutions.yovendosaldo">
+                android:targetClass="com.globalpaysolutions.yovendorecarga.Configuracion"
+                android:targetPackage="com.globalpaysolutions.yovendorecarga">
                 <extra
                     android:name="ConfFragment"
                     android:value="PIN"/>
@@ -27,8 +27,8 @@
 
             <intent
                 android:action="android.intent.action.VIEW"
-                android:targetClass="com.globalpaysolutions.yovendosaldo.Perfil"
-                android:targetPackage="com.globalpaysolutions.yovendosaldo">
+                android:targetClass="com.globalpaysolutions.yovendorecarga.Perfil"
+                android:targetPackage="com.globalpaysolutions.yovendorecarga">
 
             </intent>
         </Preference>
@@ -47,8 +47,8 @@
             android:title="@string/preference_politics_title">
             <intent
                 android:action="android.intent.action.VIEW"
-                android:targetClass="com.globalpaysolutions.yovendosaldo.InfoGeneral"
-                android:targetPackage="com.globalpaysolutions.yovendosaldo"/>
+                android:targetClass="com.globalpaysolutions.yovendorecarga.InfoGeneral"
+                android:targetPackage="com.globalpaysolutions.yovendorecarga"/>
         </Preference>
         <Preference
             android:key="yvs_califica"

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.globalpaysolutions.yovendosaldo.HistorialVentas">
+    tools:context="com.globalpaysolutions.yovendorecarga.HistorialVentas">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/historyToolbar"
@@ -24,7 +24,7 @@
         android:orientation="vertical"
         tools:context="com.android.yovendosaldo.HistorialTabHost">
 
-        <com.globalpaysolutions.yovendosaldo.customs.SlidingTabLayout
+        <com.globalpaysolutions.yovendorecarga.customs.SlidingTabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

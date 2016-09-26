@@ -21,11 +21,11 @@
     <uses-permission android:name="com.globalpaysolutions.yovendosaldo.permission.C2D_MESSAGE"/>
 
     <permission
-        android:name="com.globalpaysolutions.yovendosaldo.permission.C2D_MESSAGE"
+        android:name="com.globalpaysolutions.yovendorecarga.permission.C2D_MESSAGE"
         android:protectionLevel="signature"/>
 
     <application
-        android:name="com.globalpaysolutions.yovendosaldo.engagement.AzmeApplication"
+        android:name="com.globalpaysolutions.yovendorecarga.engagement.AzmeApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -55,7 +55,7 @@
         </activity>
         -->
         <activity
-            android:name="com.globalpaysolutions.yovendosaldo.engagement.CustomTextAnnouncementActivity"
+            android:name="com.globalpaysolutions.yovendorecarga.engagement.CustomTextAnnouncementActivity"
             android:exported="false"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -157,7 +157,7 @@
 
         <!-- Activities -->
         <activity
-            android:name="com.globalpaysolutions.yovendosaldo.Home"
+            android:name="com.globalpaysolutions.yovendorecarga.Home"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -167,74 +167,74 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.globalpaysolutions.yovendosaldo.Login"
+            android:name="com.globalpaysolutions.yovendorecarga.Login"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
         <activity
-            android:name="com.globalpaysolutions.yovendosaldo.Configuracion"
+            android:name="com.globalpaysolutions.yovendorecarga.Configuracion"
             android:label="@string/title_activity_config"
-            android:parentActivityName="com.globalpaysolutions.yovendosaldo.Home"
+            android:parentActivityName="com.globalpaysolutions.yovendorecarga.Home"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
         <activity
-            android:name="com.globalpaysolutions.yovendosaldo.Perfil"
+            android:name="com.globalpaysolutions.yovendorecarga.Perfil"
             android:label="@string/title_activity_profile"
-            android:parentActivityName="com.globalpaysolutions.yovendosaldo.Configuracion"
+            android:parentActivityName="com.globalpaysolutions.yovendorecarga.Configuracion"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
         <activity
-            android:name="com.globalpaysolutions.yovendosaldo.InfoGeneral"
+            android:name="com.globalpaysolutions.yovendorecarga.InfoGeneral"
             android:label="@string/title_activity_infor"
-            android:parentActivityName="com.globalpaysolutions.yovendosaldo.Configuracion"
+            android:parentActivityName="com.globalpaysolutions.yovendorecarga.Configuracion"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
         <activity
-            android:name="com.globalpaysolutions.yovendosaldo.ManejoPIN"
+            android:name="com.globalpaysolutions.yovendorecarga.ManejoPIN"
             android:label="@string/title_activity_infor"
-            android:parentActivityName="com.globalpaysolutions.yovendosaldo.Configuracion"
+            android:parentActivityName="com.globalpaysolutions.yovendorecarga.Configuracion"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
         <activity
-            android:name="com.globalpaysolutions.yovendosaldo.PIN"
-            android:parentActivityName="com.globalpaysolutions.yovendosaldo.ManejoPIN"
+            android:name="com.globalpaysolutions.yovendorecarga.PIN"
+            android:parentActivityName="com.globalpaysolutions.yovendorecarga.ManejoPIN"
             android:theme="@style/AppTheme">
         </activity>
         <activity
-            android:name="com.globalpaysolutions.yovendosaldo.Notificaciones"
+            android:name="com.globalpaysolutions.yovendorecarga.Notificaciones"
             android:label="@string/title_activity_notificaciones"
-            android:parentActivityName="com.globalpaysolutions.yovendosaldo.Home"
+            android:parentActivityName="com.globalpaysolutions.yovendorecarga.Home"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
         <activity
-            android:name="com.globalpaysolutions.yovendosaldo.HistorialVentas"
+            android:name="com.globalpaysolutions.yovendorecarga.HistorialVentas"
             android:label="@string/title_activity_sales_history"
-            android:parentActivityName="com.globalpaysolutions.yovendosaldo.Home"
+            android:parentActivityName="com.globalpaysolutions.yovendorecarga.Home"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
         <activity
-            android:name="com.globalpaysolutions.yovendosaldo.SolicitarSaldo"
+            android:name="com.globalpaysolutions.yovendorecarga.SolicitarSaldo"
             android:label="@string/title_activity_request_airtime"
-            android:parentActivityName="com.globalpaysolutions.yovendosaldo.Home"
+            android:parentActivityName="com.globalpaysolutions.yovendorecarga.Home"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
         <activity
-            android:name="com.globalpaysolutions.yovendosaldo.DepositoBancario"
+            android:name="com.globalpaysolutions.yovendorecarga.DepositoBancario"
             android:label="@string/title_activity_deposito_bancario"
-            android:parentActivityName="com.globalpaysolutions.yovendosaldo.Home"
+            android:parentActivityName="com.globalpaysolutions.yovendorecarga.Home"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
-        <activity android:name="com.globalpaysolutions.yovendosaldo.DetalleNotificacion"
-                  android:parentActivityName="com.globalpaysolutions.yovendosaldo.Notificaciones"
+        <activity android:name="com.globalpaysolutions.yovendorecarga.DetalleNotificacion"
+                  android:parentActivityName="com.globalpaysolutions.yovendorecarga.Notificaciones"
                   android:screenOrientation="portrait"
                   android:theme="@style/AppTheme">
         </activity>

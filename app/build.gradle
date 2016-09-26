@@ -8,11 +8,11 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        applicationId "com.globalpaysolutions.yovendosaldo"
+        applicationId "com.globalpaysolutions.yovendorecarga"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 20
-        versionName "1.35"
+        versionCode 22
+        versionName "0.99"
 
         //Multi DEX
         multiDexEnabled true

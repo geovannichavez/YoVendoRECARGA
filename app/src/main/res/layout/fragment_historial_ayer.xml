@@ -4,7 +4,7 @@
              android:layout_height="match_parent"
              android:paddingLeft="16dp"
              android:paddingRight="16dp"
-             tools:context="com.globalpaysolutions.yovendosaldo.FragmentHistorialAyer">
+             tools:context="com.globalpaysolutions.yovendorecarga.FragmentHistorialAyer">
 
     <ProgressBar
         android:id="@+id/pbLoadingYesterday"
