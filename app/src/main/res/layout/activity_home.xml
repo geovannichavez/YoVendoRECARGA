@@ -81,6 +81,7 @@
                                 <!--Layout con rectangulo-->
                                 <LinearLayout
                                     android:id="@+id/rectangle"
+
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:background="@drawable/custom_rectangle"
@@ -159,14 +160,26 @@
                                     android:textColor="@color/SubtitleTextColor"
                                     android:textSize="14sp"/>
 
-                                <GridView
-                                    android:id="@+id/gvOperadores"
+                                <!--Para evitar el focus en EditText se
+                              ha añadido 'focusable' y 'focusableInTouchMode' -->
+                                <LinearLayout
                                     android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:choiceMode="singleChoice"
-                                    android:horizontalSpacing="8dp"
-                                    android:numColumns="4"
-                                    android:scrollbars="none"></GridView>
+                                    android:layout_height="70dp"
+                                    android:focusable="true"
+                                    android:focusableInTouchMode="true">
+
+                                    <GridView
+                                        android:id="@+id/gvOperadores"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center_horizontal"
+                                        android:choiceMode="singleChoice"
+                                        android:gravity="center_horizontal"
+                                        android:horizontalSpacing="8dp"
+                                        android:numColumns="2"
+                                        android:scrollbars="none"/>
+                                </LinearLayout>
+
 
                             </LinearLayout>
 
@@ -192,12 +205,12 @@
                                     android:id="@+id/etPhoneNumber"
                                     android:layout_width="250dp"
                                     android:layout_height="wrap_content"
+                                    android:digits="-0123456789"
                                     android:ellipsize="start"
                                     android:gravity="center"
                                     android:hint="@string/phone_number_edittext_hint"
                                     android:inputType="number|phone"
                                     android:maxLength="9"
-                                    android:digits="-0123456789"
                                     android:textSize="25sp"/>
                             </LinearLayout>
 

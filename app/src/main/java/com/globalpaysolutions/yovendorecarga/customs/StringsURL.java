@@ -22,6 +22,8 @@ public final class StringsURL
 
     public final static String SIGNIN = URL_BASE + "signin/";
 
+    public final static String AUTH_SIGNIN = URL_BASE + "auth/signin/";
+
     public final static String TOPUP = URL_BASE + "topup/";
 
     public final static String PASSWORD = URL_BASE + "password";
@@ -50,6 +52,11 @@ public final class StringsURL
 
     public final static String BANKS = URL_BASE + "banks/";
 
+    public final static String OPERATORS = URL_BASE + "operators/";
+
+    public final static String USER_NOTIFICATIONS = URL_BASE + "getUserNotifications/";
+
+
     /**
      *
      *
@@ -58,13 +65,20 @@ public final class StringsURL
      **/
 
     //Desarrollo
-    public final static String CEO_ANALYTICS_URL_BASE = "http://csncusgats.cloudapp.net:8076/v1/";
+    //public final static String CEO_ANALYTICS_URL_BASE = "http://csncusgats.cloudapp.net:8076/v1/";
+
+    //Pre-Produccion
+    public final static String CEO_ANALYTICS_URL_BASE = "http://csncusgats.cloudapp.net:8077/v1/";
 
     public static String CEO_ANALYTICS_APIKEY = "a1bXuav8tqtXQWPALOhdQJvAQ1IK8esE4d6YYGBk+qc=";
 
     public final static String CEOA_NOTIFICATIONS_HISTORY = CEO_ANALYTICS_URL_BASE + "notificationshistory/android";
 
     public final static String CEOA_DEVICE_DATA = CEO_ANALYTICS_URL_BASE + "api/devicedata";
+
+
+    public final static String CEO_MARK_NOTIFICATION_READ = CEO_ANALYTICS_URL_BASE + "setNotificationRead/";
+
 
 
 

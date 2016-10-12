@@ -3,6 +3,7 @@ package com.globalpaysolutions.yovendorecarga.customs;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.content.IntentCompat;
 import android.util.Log;
 
@@ -19,12 +20,15 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.yovendosaldo.R;
 import com.globalpaysolutions.yovendorecarga.Login;
 import com.globalpaysolutions.yovendorecarga.model.Amount;
+import com.globalpaysolutions.yovendorecarga.model.Operator;
 import com.globalpaysolutions.yovendorecarga.model.PaymentItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +42,7 @@ import java.util.Map;
  */
 public class Data
 {
+
     public static List<PaymentItem> PaymentItems = new ArrayList<>();
     public static List<Amount> Amounts = new ArrayList<>();
     public static List<Amount> resultAmountList = new ArrayList<>();
@@ -185,11 +190,11 @@ public class Data
 
 
 
-    /*
+    /* *********************************************************************************
     *
     *   RETRIEVE AMOUNTS
     *
-    */
+    * **********************************************************************************/
     public static void GetAmounts(final Context pContext, final VolleyCallback callback)
     {
         YVScomSingleton.getInstance(pContext).addToRequestQueue(
@@ -429,5 +434,6 @@ public class Data
         pContext.startActivity(i);
         ((Activity)pContext).finish();
     }
+
 
 }

@@ -13,6 +13,7 @@ import android.support.v4.app.NotificationCompat.BigTextStyle;
 
 import com.android.yovendosaldo.R;
 import com.globalpaysolutions.yovendorecarga.customs.SessionManager;
+import com.microsoft.azure.engagement.reach.CampaignId;
 import com.microsoft.azure.engagement.reach.EngagementDefaultNotifier;
 import com.microsoft.azure.engagement.reach.EngagementReachInteractiveContent;
 import com.microsoft.azure.engagement.reach.v11.EngagementNotificationUtilsV11;
@@ -43,6 +44,9 @@ public class AzmeNotifier extends EngagementDefaultNotifier
     @Override
     public Boolean handleNotification(EngagementReachInteractiveContent content) throws RuntimeException
     {
+        CampaignId azmeCampaign =  content.getCampaignId();
+
+        //if(azmeCampaign.getKind() = "")
         return super.handleNotification(content);
     }
 
@@ -160,7 +164,9 @@ public class AzmeNotifier extends EngagementDefaultNotifier
 
             /* Notify here instead of super class */
             final NotificationManager manager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-            manager.notify(getNotificationId(content), finalNotification); // notice the call to get the right identifier
+
+            int NotificationID = getNotificationId(content);
+            manager.notify(NotificationID, finalNotification); // notice the call to get the right identifier
 
             /* Return false, we notify ourselves */
             return false;

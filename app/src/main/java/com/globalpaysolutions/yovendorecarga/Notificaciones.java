@@ -1,5 +1,6 @@
 package com.globalpaysolutions.yovendorecarga;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -116,9 +117,16 @@ public class Notificaciones extends AppCompatActivity
             {
                 Notification notification = ((Notification) parent.getItemAtPosition(position));
 
+                if(position == 0)
+                {
+                    RemoveNotificationStatusBar();
+                }
+
                 Intent notifDetail = new Intent(getApplicationContext(), DetalleNotificacion.class);
+                notifDetail.putExtra("trackingID", notification.getTrackingID());
                 notifDetail.putExtra("notifTitle", notification.getTitle());
                 notifDetail.putExtra("notifMessage", notification.getContent());
+                notifDetail.putExtra("seen", notification.getSeen());
                 startActivity(notifDetail);
             }
         });
@@ -141,7 +149,8 @@ public class Notificaciones extends AppCompatActivity
             {
                 if(CheckConnection())
                 {
-                    RequestNotificationsHistory(true);
+                    //RequestNotificationsHistory(true);
+                    RequestUserNotifications(true);
                 }
 
             }
@@ -149,7 +158,8 @@ public class Notificaciones extends AppCompatActivity
 
         if(CheckConnection())
         {
-            RequestNotificationsHistory(false);
+            //RequestNotificationsHistory(false);
+            RequestUserNotifications(false);
         }
 
 
@@ -157,6 +167,7 @@ public class Notificaciones extends AppCompatActivity
 
     }
 
+    //region ANTERIOR
     /*public void RequestNotificationsHistory(boolean isSwipe)
     {
         if (isSwipe)
@@ -248,6 +259,61 @@ public class Notificaciones extends AppCompatActivity
             e.printStackTrace();
         }
     }*/
+    //endregion
+
+
+    /*
+    *
+    * *********************************************
+    *           PETICIONES
+    * *********************************************
+    */
+    public void RequestUserNotifications(boolean isSwipe)
+    {
+        if (isSwipe)
+        {
+            SetProgressBarVisible(false);
+            SwipeRefresh.setRefreshing(true);
+            NotifAdapter.clear();
+            NotifAdapter.notifyDataSetChanged();
+        }
+        else
+        {
+            SetProgressBarVisible(true);
+        }
+
+        YVScomSingleton.getInstance(Notificaciones.this)
+                .addToRequestQueue(new JsonObjectRequest(
+                        Request.Method.GET,
+                        StringsURL.USER_NOTIFICATIONS,
+                        null,
+                        new Response.Listener<JSONObject>()
+                        {
+                            @Override
+                            public void onResponse(JSONObject response)
+                            {
+                                Log.d("Mensaje JSON ", response.toString());
+                                ProcessUserNotifications(response);
+                            }
+                        }, new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        HandleVolleyError(error);
+                    }
+                })
+                {
+                    @Override
+                    public Map<String, String> getHeaders()
+                    {
+                        Map<String, String> headers = new HashMap<String, String>();
+                        headers.put("Token-Autorization", RetrieveSavedToken());
+                        headers.put("Content-Type", "application/json; charset=utf-8");
+                        return headers;
+                    }
+                }, 1); //Parametro de número de re-intentos
+    }
 
 
     public void RequestNotificationsHistory(boolean isSwipe)
@@ -297,6 +363,53 @@ public class Notificaciones extends AppCompatActivity
                 }, 1); //Parametro de número de re-intentos
     }
 
+
+    /*
+    *
+    * *********************************************
+    *           RESPUESTAS
+    * *********************************************
+    */
+
+    public void ProcessUserNotifications(JSONObject pResponse)
+    {
+        HideSwipe();
+        SetProgressBarVisible(false);
+        try
+        {
+            JSONObject NotificationsHistory = pResponse.getJSONObject("notifications");
+            JSONArray Notifications = NotificationsHistory.getJSONArray("userNotifications");
+
+            for (int i = 0; i < Notifications.length(); i++)
+            {
+                Notification notification = new Notification();
+
+                try
+                {
+                    JSONObject JsonNotification = Notifications.getJSONObject(i);
+
+
+                    //Asignacion a objeto para Adapter
+                    notification.setTrackingID(JsonNotification.has("trackingID") ? JsonNotification.getInt("trackingID") : 0);
+                    notification.setID(JsonNotification.has("notificationID") ? JsonNotification.getInt("notificationID") : 0);
+                    notification.setTitle(JsonNotification.has("title") ? JsonNotification.getString("title") : "");
+                    notification.setContent(JsonNotification.has("message") ? JsonNotification.getString("message") : "");
+                    notification.setSeen(JsonNotification.has("seen") ? JsonNotification.getBoolean("seen") : false);
+
+                    NotifAdapter.add(notification);
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+
+        } catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
 
     public void ProcessCEOANotificationsResponse(JSONObject pResponse)
     {
@@ -438,6 +551,13 @@ public class Notificaciones extends AppCompatActivity
     }
 
 
+
+    /*
+    *
+    * *********************************************
+    *           ACTIVITY LIFE CYCLE
+    * *********************************************
+    */
     @Override
     public void onPause()
     {
@@ -459,14 +579,14 @@ public class Notificaciones extends AppCompatActivity
     *
     */
 
-    /*public String RetrieveSavedToken()
+    public String RetrieveSavedToken()
     {
         String Token;
         HashMap<String, String> MapToken = sessionManager.GetSavedToken();
         Token = MapToken.get(SessionManager.KEY_TOKEN);
 
         return Token;
-    }*/
+    }
 
     public void SetProgressBarVisible(boolean pVisible)
     {
@@ -534,4 +654,11 @@ public class Notificaciones extends AppCompatActivity
         return haveConnectedWifi || haveConnectedMobile;
     }
 
+    public void RemoveNotificationStatusBar()
+    {
+        //int NOTIFICATION_ID = 237;
+        NotificationManager nMgr = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        //nMgr.cancel(NOTIFICATION_ID);
+        nMgr.cancelAll();
+    }
 }

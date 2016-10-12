@@ -11,6 +11,8 @@ public class Notification
     public String mTitle;
     public String mContent;
     public Date mDate;
+    public int mTrackingID;
+    public boolean mSeen;
 
     //GET
     public int getID()
@@ -31,6 +33,16 @@ public class Notification
     public Date getDate()
     {
         return this.mDate;
+    }
+
+    public int getTrackingID()
+    {
+        return mTrackingID;
+    }
+
+    public boolean getSeen()
+    {
+        return mSeen;
     }
 
     //SET
@@ -54,12 +66,24 @@ public class Notification
         this.mDate = pDate;
     }
 
-    public Notification(int pID, String pTitle, String pContent, Date pDate)
+    public void setTrackingID(int pTrackingID)
+    {
+        this.mTrackingID = pTrackingID;
+    }
+
+    public void setSeen(boolean pSeen)
+    {
+        this.mSeen = pSeen;
+    }
+
+    public Notification(int pID, String pTitle, String pContent, Date pDate, int pTrackingID, boolean pSeen)
     {
         this.setID(pID);
         this.setTitle(pTitle);
         this.setContent(pContent);
         this.setDate(pDate);
+        this.setTrackingID(pTrackingID);
+        this.setSeen(pSeen);
     }
 
     public Notification(){}

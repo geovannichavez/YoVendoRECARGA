@@ -12,11 +12,13 @@ import android.widget.TextView;
 
 import com.android.yovendosaldo.R;
 import com.globalpaysolutions.yovendorecarga.customs.Data;
+import com.globalpaysolutions.yovendorecarga.customs.SessionManager;
 import com.globalpaysolutions.yovendorecarga.model.PaymentItem;
 import com.globalpaysolutions.yovendorecarga.model.Sale;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -26,6 +28,7 @@ public class SalesHistoryAdapter extends ArrayAdapter<Sale>
 {
     Context AdapterContext;
     int AdapResource;
+    SessionManager sessionManager;
 
     // our ViewHolder.
     // caches our all layouts
@@ -45,6 +48,17 @@ public class SalesHistoryAdapter extends ArrayAdapter<Sale>
 
         AdapterContext = pContext;
         AdapResource = pResource;
+
+        sessionManager = new SessionManager(pContext);
+    }
+
+    public String RetrieveCountryPhoneCode()
+    {
+        String phoneCode = "";
+        HashMap<String, String> countryPhoneCode = sessionManager.GetCountryPhoneCode();
+        phoneCode = countryPhoneCode.get(SessionManager.KEY_PHONE_CODE);
+
+        return phoneCode;
     }
 
     @Override
@@ -118,7 +132,10 @@ public class SalesHistoryAdapter extends ArrayAdapter<Sale>
 
 
         //Número de Teléfono
-        String PhoneNumber = currentItem.getMSISDN().replace("503", "");
+
+
+        String phoneCode = RetrieveCountryPhoneCode();
+        String PhoneNumber = currentItem.getMSISDN().replace(phoneCode, "");
         if(!"".equals(PhoneNumber))
         {
             PhoneNumber = PhoneNumber.substring(0,4) + "-" + PhoneNumber.substring(4,PhoneNumber.length());

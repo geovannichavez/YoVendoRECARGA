@@ -30,6 +30,10 @@ public class SessionManager
     SharedPreferences NotificationsSettings;
     Editor NotificationsEditor;
 
+    /*  ENCRIPTACION/DECRIPTACION  */
+    String KEY = "8080808080808089"; //llave
+    String IV = "8080808080808090"; // vector de inicialización
+
 
     public static final String PREF_NAME = "yvsPref";
     private static final String IS_LOGIN = "IsLoggedIn";
@@ -364,6 +368,8 @@ public class SessionManager
     {
         boolean Valid = false;
         String SavedPww = pref.getString(KEY_PPW, "");
+        SavedPww  = DecryptPass(KEY, IV, SavedPww);
+
         if(SavedPww.equals(pPww))
         {
             Valid = true;
@@ -376,6 +382,20 @@ public class SessionManager
     {
         editor.remove(KEY_TOKEN);
         editor.apply();
+    }
+
+    public String DecryptPass(String pKey, String pIV, String pEncryptedPass)
+    {
+        String _decrypted = "";
+        try
+        {
+            _decrypted = Encrypt.decrypt(pKey, pIV, pEncryptedPass);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return _decrypted;
     }
 
 }

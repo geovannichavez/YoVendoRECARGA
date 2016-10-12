@@ -814,4 +814,5 @@ public class DepositoBancario extends AppCompatActivity
         hint.setName(getString(R.string.spinner_hint));
         return hint;
     }
+
 }

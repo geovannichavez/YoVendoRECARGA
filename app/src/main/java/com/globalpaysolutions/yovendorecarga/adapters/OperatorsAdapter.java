@@ -2,13 +2,19 @@ package com.globalpaysolutions.yovendorecarga.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.opengl.Visibility;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.NetworkImageView;
 import com.android.yovendosaldo.R;
+import com.globalpaysolutions.yovendorecarga.customs.YVScomSingleton;
 import com.globalpaysolutions.yovendorecarga.model.Operator;
 
 /**
@@ -35,7 +41,7 @@ public class OperatorsAdapter extends ArrayAdapter<Operator>
 
         final Operator currentItem = getItem(position);
 
-        if(view == null)
+        if (view == null)
         {
             LayoutInflater inflater = ((Activity) AdapterContext).getLayoutInflater();
             view = inflater.inflate(AdapResource, parent, false);
@@ -43,11 +49,33 @@ public class OperatorsAdapter extends ArrayAdapter<Operator>
 
         view.setTag(currentItem);
 
+        //Seteo del logo
+        NetworkImageView networkViewOperador = (NetworkImageView) view.findViewById(R.id.networkViewOperador);
+        ImageView logoOperator = (ImageView) view.findViewById(R.id.ivOperador);
+
+        if(currentItem.getLogoImage() != null)
+        {
+            networkViewOperador.setVisibility(View.GONE);
+            //logoOperator.setVisibility(View.VISIBLE);
+            byte[] image = currentItem.getLogoImage();
+            Bitmap bmp = BitmapFactory.decodeByteArray(image, 0, image.length);
+            logoOperator.setImageBitmap(bmp);
+        }
+        else
+        {
+            logoOperator.setVisibility(View.GONE);
+            networkViewOperador.setVisibility(View.VISIBLE);
+            ImageLoader imageLoader = YVScomSingleton.getInstance(getContext()).getImageLoader();
+            networkViewOperador.setImageUrl(currentItem.getLogoURL(), imageLoader);
+        }
 
 
-        ImageView OperatorLogo = (ImageView) view.findViewById(R.id.ivOperador);
+
+
+
+        //GridView Item (image)
+       /* ImageView OperatorLogo = (ImageView) view.findViewById(R.id.ivOperador);
         String Logo = currentItem.getOperatorName();
-
         switch (Logo)
         {
             case "Tigo":
@@ -64,10 +92,11 @@ public class OperatorsAdapter extends ArrayAdapter<Operator>
                 break;
             default: OperatorLogo.setImageResource((R.drawable.ic_launcher));
                 break;
-        }
+        }*/
 
-        //OperatorLogo.setImageResource((R.drawable.ic_launcher));
 
         return view;
     }
+
+
 }

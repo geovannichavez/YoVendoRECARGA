@@ -60,4 +60,7 @@ dependencies {
     compile 'com.google.android.gms:play-services:8.4.0'
 
     compile 'com.android.support:multidex:1.0.1'
+
+    compile files('libs/commons-codec-1.10.jar')
+    //compile files('libs/commons-codec-1.5.jar')
 }

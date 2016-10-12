@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
+import android.support.v4.content.IntentCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -123,9 +124,14 @@ public class PIN extends AppCompatActivity
                 sessionManager.setPinActive(true);
 
                 navigateHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                navigateHome.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                navigateHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 navigateHome.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                navigateHome.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 navigateHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                //Borra el stack completo de navegación:
+                navigateHome.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | IntentCompat.FLAG_ACTIVITY_CLEAR_TASK);
+
+
                 startActivity(navigateHome);
                 finish();
             }

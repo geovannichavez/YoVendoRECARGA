@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.support.annotation.IntegerRes;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -64,6 +65,7 @@ import com.globalpaysolutions.yovendorecarga.adapters.AmountSpinnerAdapter;
 import com.globalpaysolutions.yovendorecarga.adapters.OperatorsAdapter;
 import com.globalpaysolutions.yovendorecarga.customs.CustomFullScreenDialog;
 import com.globalpaysolutions.yovendorecarga.customs.Data;
+import com.globalpaysolutions.yovendorecarga.customs.DatabaseHandler;
 import com.globalpaysolutions.yovendorecarga.customs.DeviceName;
 import com.globalpaysolutions.yovendorecarga.customs.LocationTracker;
 import com.globalpaysolutions.yovendorecarga.customs.PinDialogBuilder;
@@ -81,11 +83,13 @@ import com.github.amlcurran.showcaseview.targets.Target;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,6 +139,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     List<Operator> ListaOperadores = new ArrayList<Operator>();
     List<Amount> ListaMontos = new ArrayList<Amount>();
     List<Amount> selectedOperatorAmounts = new ArrayList<>();
+    List<Operator> arrivingOperadores = new ArrayList<>();
     private static final String TAG = Home.class.getSimpleName();
     public static String Token;
     boolean OperatorSelected = false;
@@ -154,6 +159,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     String mNMO;
     boolean mFineLocationGranted;
     boolean mCoarseLocationGranted;
+    DatabaseHandler db;
 
     //Location
     LocationTracker locationTracker;
@@ -186,21 +192,25 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        //Engagement
         if (EngagementAgentUtils.isInDedicatedEngagementProcess(this))
         {
             return;
         }
+
+        //Inicialización de Activity
         setContentView(R.layout.activity_home);
-
-
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
-
+        //Creación de objetos globales
         sessionManager = new SessionManager(Home.this);
         CustomDialogCreator = new CustomFullScreenDialog(Home.this, Home.this);
+        db = new DatabaseHandler(Home.this);
 
+        //Seteo de vistas y layouts globales
         SwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         tvBalance = (TextView) findViewById(R.id.tvAvailableBalance);
         txtPhoneNumber = (EditText) findViewById(R.id.etPhoneNumber);
@@ -214,7 +224,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         InitializeValidation();
         CheckLogin();
         RetrieveSavedToken();
-        //RetrieveAmounts();
 
 
         //Signal
@@ -222,12 +231,159 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mTelephonyManager.listen(psListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 
-        /*
-        * *****************************
-        *   NAVIGATION DRAWER
-        * *****************************
-        * */
 
+
+        /*
+        ******************************
+        *
+        *   Navigation Drawer
+        *
+        ******************************
+        */
+
+        InitializeNavigationDrawer();
+
+        /*
+        ******************************
+        *
+        *   End Navigation Drawer
+        *
+        ******************************
+        */
+
+
+        /*
+        *
+        *   OPERADORES Y BAG
+        *
+        */
+
+        SetBalanceTextView();
+        //getOperators();
+        retrieveOperators();
+        //int countryID = Integer.valueOf(RetrieveCountryID());
+        //ListaOperadores = db.getUserOperators(countryID);
+        //setOperators();
+
+        //retrieveOperators();
+
+        if (isFirstTime)
+        {
+            //ExecuteShowcase();
+        }
+
+
+        /*
+        *
+        *   SWIPEREFRESH
+        *
+        */
+        SwipeRefresh.setColorSchemeResources(R.color.refresh_progress_1, R.color.refresh_progress_2, R.color.refresh_progress_3);
+        SwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
+        {
+            @Override
+            public void onRefresh()
+            {
+                GetUserBag(false);
+
+                //Refrescar montos
+                //Data.Amounts.clear();
+                RetrieveAmounts();
+            }
+        });
+
+
+        if (sessionManager.IsUserLoggedIn())
+        {
+            if(!isFirstTime)
+            {
+                SwipeRefresh.setProgressViewOffset(false, 0, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
+                SwipeRefresh.setRefreshing(true);
+            }
+            GetUserBag(false);
+            RetrieveAmounts();
+        }
+
+
+
+        /*
+        *
+        *   SCROLL VIEW
+        *   Detecta si el scroll view está a 0 en Y
+        */
+
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener()
+        {
+
+            @Override
+            public void onScrollChanged()
+            {
+                int scrollY = scrollView.getScrollY();
+                if (scrollY == 0)
+                    SwipeRefresh.setEnabled(true);
+                else
+                    SwipeRefresh.setEnabled(false);
+
+            }
+        });
+
+
+        /*
+        *
+        *   BALANCE LAYOUT
+        *
+        */
+        lnrBalance.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                NavigateHistoryActivity();
+            }
+        });
+
+
+
+
+
+
+        /*
+        *
+        *   LOCATION
+        *
+        *
+        */
+
+        if (checkPlayServices())
+        {
+            buildGoogleApiClient();
+            createLocationRequest();
+        }
+        mLocationData = new LocationData();
+
+        /*if(sessionManager.IsUserLoggedIn())
+        {
+            RetrieveAmounts();
+        }*/
+
+
+        PrintAZMEDeviceID();
+    }
+
+
+
+    /*
+    * ***************************************************************************************************
+    * ***************************************************************************************************
+    *
+    *   NAVIGATION DRAWER
+    *
+    * ***************************************************************************************************
+    * ***************************************************************************************************
+    */
+
+    public void InitializeNavigationDrawer()
+    {
         //Navigation Drawer
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationFooter = (NavigationView) findViewById(R.id.navigation_drawer_bottom);
@@ -320,7 +476,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         });
         navigationFooter.getMenu().findItem(R.id.Configuracion).setChecked(false);
 
-
         // Inicializando Drawer Layout y ActionBarToggle
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name)
@@ -341,107 +496,22 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         drawerLayout.setDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
 
-        /*
-        * *****************************
-        *   END NAVIGATION DRAWER
-        * *****************************
-        * */
-
-
-        SetBalanceTextView();
-        getOperators();
-        //getLocalAmounts();
-
-        if (isFirstTime)
-        {
-            ExecuteShowcase();
-        }
-
-
-        /*
-        *
-        *   SWIPEREFRESH
-        *
-        */
-        SwipeRefresh.setColorSchemeResources(R.color.refresh_progress_1, R.color.refresh_progress_2, R.color.refresh_progress_3);
-        SwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
-        {
-            @Override
-            public void onRefresh()
-            {
-                GetUserBag(true);
-            }
-        });
-
-
-        if (sessionManager.IsUserLoggedIn())
-        {
-            GetUserBag(false);
-        }
-
-
-
-        /*
-        *
-        *   SCROLL VIEW
-        *   Detecta si el scroll view está a 0 en Y
-        */
-
-        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener()
-        {
-
-            @Override
-            public void onScrollChanged()
-            {
-                int scrollY = scrollView.getScrollY();
-                if (scrollY == 0)
-                    SwipeRefresh.setEnabled(true);
-                else
-                    SwipeRefresh.setEnabled(false);
-
-            }
-        });
-
-
-        /*
-        *
-        *   BALANCE LAYOUT
-        *
-        */
-        lnrBalance.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                NavigateHistoryActivity();
-            }
-        });
-
-
-
-
-
-
-        /*
-        *
-        *   LOCATION
-        *
-        *
-        */
-
-        if (checkPlayServices())
-        {
-            buildGoogleApiClient();
-            createLocationRequest();
-        }
-        mLocationData = new LocationData();
-
-        if(sessionManager.IsUserLoggedIn())
-        {
-            RetrieveAmounts();
-        }
     }
 
+
+
+
+
+
+    /*
+    * ***************************************************************************************************
+    * ***************************************************************************************************
+    *
+    *   TOPUP
+    *
+    * ***************************************************************************************************
+    * ***************************************************************************************************
+    */
 
     public void RequestTopUp(View view)
     {
@@ -449,10 +519,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
 
         EnableTopupButton(false);
         Log.i("Print click", "Para saber cuantas veces se ha hecho click en el botón.");
-
-        //Esconderá el teclado al presionar el botón
-        /*InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);*/
 
         final String PhoneNumber = txtPhoneNumber.getText().toString();
 
@@ -553,7 +619,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         }
     }
 
-
     public void TopUp(String pPhoneNumber, String pAmount)
     {
         synchronized (this)
@@ -625,11 +690,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         }, -1);
     }
 
-    /*
-    * ***************************
-    *   PROCESAMIENTO DE RESPUESTAS
-    * ***************************
-    */
     //Procesa Respuesta de TopUp
     public void ProcessTopupResponse(JSONObject pResponse)
     {
@@ -761,11 +821,133 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     }
 
 
+
+
+
     /*
-    * ***************************
-    *   LLENADO DE SPINNER Y GRIDVIEW
-    * ***************************
+    * ***************************************************************************************************
+    * ***************************************************************************************************
+    *
+    *   OPERADORES Y MONTOS
+    *
+    * ***************************************************************************************************
+    * ***************************************************************************************************
     */
+
+    public void retrieveOperators()
+    {
+        YVScomSingleton.getInstance(this).addToRequestQueue(
+                new JsonObjectRequest(
+                        Request.Method.GET,
+                        StringsURL.OPERATORS,
+                        null,
+                        new Response.Listener<JSONObject>()
+                        {
+                            @Override
+                            public void onResponse(JSONObject response)
+                            {
+                                Log.d("Mensaje JSON ", response.toString());
+                                ProcessOperatorsResponse(response);
+                            }
+                        },
+                        new Response.ErrorListener()
+                        {
+                            @Override
+                            public void onErrorResponse(VolleyError error)
+                            {
+                                HandleOperatorsVolleyError(error);
+                            }
+                        }
+                )
+                {
+
+                    @Override
+                    public Map<String, String> getHeaders()
+                    {
+                        Map<String, String> headers = new HashMap<String, String>();
+                        headers.put("Token-Autorization", Token);
+                        headers.put("Content-Type", "application/json; charset=utf-8");
+                        return headers;
+                    }
+                }
+                , 1); //Parametro de número de re-intentos
+    }
+
+    public void ProcessOperatorsResponse(JSONObject pResponse)
+    {
+        try
+        {
+            JSONObject operators = pResponse.getJSONObject("operators");
+            JSONArray countryOperators = operators.getJSONArray("countryOperators");
+
+            for (int i = 0; i < countryOperators.length(); i++)
+            {
+                Operator operator = new Operator();
+
+                JSONObject jsonOperator = countryOperators.getJSONObject(i);
+                operator.setID(jsonOperator.has("operatorID") ? jsonOperator.getInt("operatorID") : 0);
+                operator.setOperatorName(jsonOperator.has("name") ? jsonOperator.getString("name") : "");
+                operator.setLogo(jsonOperator.has("operatorLogo") ? jsonOperator.getString("operatorLogo") : "");
+                operator.setLogoURL(jsonOperator.has("logoUrl") ? jsonOperator.getString("logoUrl") : "");
+                operator.setLogoVersion(jsonOperator.has("logoVersion") ? jsonOperator.getInt("logoVersion") : 0);
+                operator.setBrand(jsonOperator.has("brand") ? jsonOperator.getString("brand") : "");
+
+                ListaOperadores.add(operator);
+
+            }
+
+            setOperators();
+
+            //Setea el showcase view despues que se lleno el adapter
+            if (isFirstTime)
+            {
+                ExecuteShowcase();
+            }
+
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void HandleOperatorsVolleyError(VolleyError pError)
+    {
+        int statusCode = 0;
+        NetworkResponse networkResponse = pError.networkResponse;
+
+        if(networkResponse != null)
+        {
+            statusCode = networkResponse.statusCode;
+        }
+
+        if(pError instanceof TimeoutError || pError instanceof NoConnectionError)
+        {
+            Log.e("Montos: ","Ocurrió 'TimeoutError' o 'NoConnectionError'");
+        }
+        else if(pError instanceof ServerError)
+        {
+            if(statusCode == 502)
+            {
+                Log.e("Montos: ","Ocurrió 'ServerError', sesion expirada");
+            }
+            else
+            {
+                Log.e("Montos: ","Ocurrió un 'ServerError'.");
+            }
+        }
+        else if (pError instanceof NetworkError)
+        {
+            Log.e("Montos: ","Ocurrió un 'NetworkError'.");
+        }
+        else if(pError instanceof AuthFailureError)
+        {
+            Log.e("Montos: ","Ocurrió un 'AuthFailureError'.");
+
+        }
+    }
+
     public void getOperators()
     {
         //Setea el hint cuando no se ha seleccionado un operador
@@ -841,7 +1023,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         });
 
 
-        Operator op1 = new Operator();
+       /* Operator op1 = new Operator();
         op1.setOperatorName("Tigo");
         op1.setDescription("");
         op1.setLogo("");
@@ -867,7 +1049,103 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         op4.setDescription("");
         op4.setLogo("");
         op4.setID(4);
-        ListaOperadores.add(op4);
+        ListaOperadores.add(op4);*/
+
+        for (Operator item : ListaOperadores)
+        {
+            OpeAdapter.add(item);
+        }
+
+    }
+
+    public void setOperators()
+    {
+        //Setea el hint cuando no se ha seleccionado un operador
+        //Se añade 2 veces porque pone el último como seleccionado
+        for (int i = 0; i < 2; i++)
+        {
+            selectedOperatorAmounts.add(Data.AmountHint(Home.this));
+        }
+        AmountAdapter = new AmountSpinnerAdapter(this, R.layout.custom_amount_spinner_item, R.id.tvAmount, selectedOperatorAmounts);
+        AmountAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        SpinnerAmount = (Spinner) this.findViewById(R.id.spMontoRecarga);
+        SpinnerAmount.setAdapter(AmountAdapter);
+        SpinnerAmount.setSelection(AmountAdapter.getCount());
+
+
+        OperatorSelected = false;
+        //Seteando el adapter de Operadores
+        GridViewOperators = (GridView) findViewById(R.id.gvOperadores);
+
+        GridViewOperators.setNumColumns(ListaOperadores.size());
+
+        OpeAdapter = new OperatorsAdapter(this, R.layout.custom_operator_gridview_item);
+        GridViewOperators.setAdapter(OpeAdapter);
+
+        GridViewOperators.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+
+                OperatorSelected = true;
+                SelectedOperatorName = ((Operator) parent.getItemAtPosition(position)).getOperatorName();
+                mNMO = ((Operator) parent.getItemAtPosition(position)).getBrand();
+
+                for (int i = 0; i < GridViewOperators.getAdapter().getCount(); i++)
+                {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+                    {
+                        GridViewOperators.getChildAt(i).setBackground(getResources().getDrawable(R.drawable.custom_rounded_corner_operator));
+                    }
+                    else
+                    {
+                        GridViewOperators.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.custom_rounded_corner_operator));
+                    }
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+                {
+                    GridViewOperators.getChildAt(position).setBackground(getResources().getDrawable(R.drawable.custom_rounded_corner_selected));
+                }
+                else
+                {
+                    GridViewOperators.getChildAt(position).setBackgroundDrawable(getResources().getDrawable(R.drawable.custom_rounded_corner_selected));
+                }
+
+                getServerAmounts(mNMO);
+
+            }
+        });
+
+
+       /* Operator op1 = new Operator();
+        op1.setOperatorName("Tigo");
+        op1.setDescription("");
+        op1.setLogo("");
+        op1.setID(1);
+        ListaOperadores.add(op1);
+
+        Operator op2 = new Operator();
+        op2.setOperatorName("Digicel");
+        op2.setDescription("");
+        op2.setLogo("");
+        op2.setID(2);
+        ListaOperadores.add(op2);
+
+        Operator op3 = new Operator();
+        op3.setOperatorName("Movistar");
+        op3.setDescription("");
+        op3.setLogo("");
+        op3.setID(3);
+        ListaOperadores.add(op3);
+
+        Operator op4 = new Operator();
+        op4.setOperatorName("Claro");
+        op4.setDescription("");
+        op4.setLogo("");
+        op4.setID(4);
+        ListaOperadores.add(op4);*/
 
         for (Operator item : ListaOperadores)
         {
@@ -942,15 +1220,17 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         final GridView gridOperators = (GridView) findViewById(R.id.gvOperadores);
         if (Data.Amounts.isEmpty())
         {
+
+            Data.Amounts.clear();
             RetrievingAmounts = true;
             gridOperators.setEnabled(false);
             Log.i("Amounts", "Request para traer montos");
 
-            if (!isFirstTime)
+            /*if (!isFirstTime)
             {
                 SwipeRefresh.setProgressViewOffset(false, 0, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
                 SwipeRefresh.setRefreshing(true);
-            }
+            }*/
 
 
             Data.GetAmounts(Home.this, new Data.VolleyCallback()
@@ -961,7 +1241,8 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
                     if (result)
                     {
                         RetrievingAmounts = false;
-                        SwipeRefresh.setRefreshing(false);
+                        //SwipeRefresh.setRefreshing(false);
+                        HideSwipe();
                         gridOperators.setEnabled(true);
 
                         getLocation();
@@ -975,13 +1256,12 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
                     {
                         getLocation();
                         RetrievingAmounts = false;
-                        SwipeRefresh.setRefreshing(false);
+                        //SwipeRefresh.setRefreshing(false);
+                        HideSwipe();
                         gridOperators.setEnabled(true);
                     }
                 }
             });
-
-
         }
     }
 
@@ -989,56 +1269,28 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
 
 
     /*
-    * ***************************
-    *   METODOS DE MENU
-    * ***************************
-    */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        getMenuInflater().inflate(R.menu.menu_home, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        int id = item.getItemId();
-        if (id == R.id.action_settings)
-        {
-            ProgressDialog = new ProgressDialog(Home.this);
-            ProgressDialog.setMessage(getString(R.string.dialog_signing_out));
-            ProgressDialog.show();
-            ProgressDialog.setCancelable(false);
-            ProgressDialog.setCanceledOnTouchOutside(false);
-
-            sessionManager.LogoutUser();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
-
-    /*
-    * ***********************
-    * SWIPE LAYOUT
-    * ***********************
+    * ***************************************************************************************************
+    * ***************************************************************************************************
+    *
+    *   BOLZÓN DE USUARIO
+    *
+    * ***************************************************************************************************
+    * ***************************************************************************************************
     */
 
     public void GetUserBag(boolean isSwipe)
     {
-        if (isSwipe)
+        /*if (isSwipe)
         {
+            SwipeRefresh.setProgressViewOffset(false, 0, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
             SwipeRefresh.setRefreshing(true);
-        }
+        }*/
 
         YVScomSingleton.getInstance(Home.this).addToRequestQueue(new JsonObjectRequest(Request.Method.GET, StringsURL.USERBAG, null, new Response.Listener<JSONObject>()
         {
             @Override
             public void onResponse(JSONObject response)
             {
-                //SwipeRefresh.setRefreshing(false);
                 HideSwipe();
                 Log.d("Mensaje JSON ", response.toString());
                 ProcessBagResponse(response);
@@ -1150,9 +1402,13 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
 
 
     /*
-    * ***************************
-    *   OTROS METODOS
-    * ***************************
+    * ***************************************************************************************************
+    * ***************************************************************************************************
+    *
+    *   OTROS MÉTODOS
+    *
+    * ***************************************************************************************************
+    * ***************************************************************************************************
     */
 
     private boolean HaveNetworkConnection()
@@ -1224,12 +1480,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     {
         sessionManager = new SessionManager(Home.this);
         sessionManager.CheckLogin();
-    }
-
-    public void CheckPINSecurity()
-    {
-        sessionManager = new SessionManager(Home.this);
-        sessionManager.AskForPIN();
     }
 
     public void InitializeValidation()
@@ -1338,39 +1588,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         return ret;
     }
 
-    /*private void CreateFullScreenDialog(String pTitle, String pMsgLine1, String pMsgLine2, String pMsgLine3, String pButton, String pAction, boolean pError, boolean pFromTopup)
-    {
-        Bundle bundle = new Bundle();
-        String Title = pTitle;
-        String Line1 = pMsgLine1;
-        String Line2 = pMsgLine2;
-        String Line3 = pMsgLine3;
-        String Button = pButton;
-        String Action = pAction;
-        boolean Error = pError;
-        boolean FromTopup = pFromTopup;
-
-
-        bundle.putString("Title", Title);
-        bundle.putString("Line1", Line1);
-        bundle.putString("Line2", Line2);
-        bundle.putString("Line3", Line3);
-        bundle.putString("Button", Button);
-        bundle.putString("Action", Action);
-        bundle.putBoolean("Error", Error);
-        bundle.putBoolean("FromTopup", FromTopup);
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentCustomDialog CustomDialog = new FragmentCustomDialog();
-        CustomDialog.setArguments(bundle);
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        transaction.replace(android.R.id.content, CustomDialog, "FragmentCustomDialog").addToBackStack("tag").commit();
-
-        txtPhoneNumber.setText("");
-
-    }*/
-
+    int showcaseOperatorRuns;
     public void ExecuteShowcase()
     {
         final Target tgBalance = new ViewTarget(findViewById(R.id.rectangle));
@@ -1378,7 +1596,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         final Target tgPhone = new ViewTarget(findViewById(R.id.etPhoneNumber));
         final Target tgAmount = new ViewTarget(findViewById(R.id.spMontoRecarga));
         final Target tgButton = new ViewTarget(findViewById(R.id.btnEnvar));
-
 
         showcaseView = new ShowcaseView.Builder(Home.this).setTarget(tgBalance).setContentTitle(getString(R.string.sv_title_1)).setContentText(getString(R.string.sv_content_1)).setStyle(R.style.CustomShowcaseTheme2).setOnClickListener(new View.OnClickListener()
         {
@@ -1392,18 +1609,36 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
                         scrollView.fullScroll(View.FOCUS_DOWN);
 
                         Handler handler = new Handler();
-                        showcaseView.hideButton();
-                        showcaseView.setShowcase(new ViewTarget(GridViewOperators.getChildAt(0).findViewById(R.id.ivOperador)), true);
-                        handler.postDelayed(new Runnable()
+                        if(ListaOperadores.size() != 0)
                         {
-                            @Override
-                            public void run()
-                            {
-                                showcaseView.setShowcase(new ViewTarget(GridViewOperators.getChildAt(1).findViewById(R.id.ivOperador)), true);
+                            showcaseView.hideButton();
+                        }
+                        //showcaseView.setShowcase(new ViewTarget(GridViewOperators.getChildAt(0).findViewById(R.id.ivOperador)), true)
 
-                            }
-                        }, 1000);
-                        handler.postDelayed(new Runnable()
+                        int time = 0;
+                        showcaseOperatorRuns = GridViewOperators.getChildCount();
+
+                        for(int i = 0; i < GridViewOperators.getChildCount(); i++)
+                        {
+                            final int position = i;
+                            time = time + 1000;
+                            handler.postDelayed(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    showcaseOperatorRuns = showcaseOperatorRuns -1;
+                                    showcaseView.setShowcase(new ViewTarget(GridViewOperators.getChildAt(position).findViewById(R.id.networkViewOperador)), true);
+
+                                    if(showcaseOperatorRuns == 0)
+                                    {
+                                        showcaseView.showButton();
+                                    }
+                                }
+                            }, time);
+                        }
+
+                        /*handler.postDelayed(new Runnable()
                         {
                             @Override
                             public void run()
@@ -1429,7 +1664,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
                                 showcaseView.showButton();
 
                             }
-                        }, 3500);
+                        }, 3500);*/
 
                         showcaseView.setContentTitle(getString(R.string.sv_title_2));
                         showcaseView.setContentText(getString(R.string.sv_content_2));
@@ -1470,19 +1705,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     {
         btnTopup.setClickable(pEnabled);
         btnTopup.setEnabled(pEnabled);
-    }
-
-    public void ShowErrorDialog()
-    {
-        String Titulo = "ALGO HA SALIDO MAL...";
-        String Linea1 = getString(R.string.something_went_wrong_try_again);
-        String Button = "OK";
-        ProgressDialog.dismiss();
-        txtPhoneNumber.setText("");
-        getOperators();
-
-        IsExecuting = false;
-        EnableTopupButton(true);
     }
 
     public String RetrieveUserPin()
@@ -1532,49 +1754,74 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         SpinnerAmount.setSelection(AmountAdapter.getCount());
     }
 
+    public void activateLockScreenFromSleep(boolean pActivate)
+    {
+        if(pActivate)
+        {
+            wakeLock.acquire();
+        }
+        else
+        {
+            wakeLock.release();
+        }
+    }
 
-    /*private void getDeviceSuperInfo() {
-        Log.i(TAG, "getDeviceSuperInfo");
+    public String RetrieveCountryPhoneCode()
+    {
+        String phoneCode = "";
+        HashMap<String, String> countryPhoneCode = sessionManager.GetCountryPhoneCode();
+        phoneCode = countryPhoneCode.get(SessionManager.KEY_PHONE_CODE);
 
-        try {
+        return phoneCode;
+    }
 
-            String s = "Debug-infos:";
-            s += "\n OS Version: "      + System.getProperty("os.version")      + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
-            s += "\n OS API Level: "    + android.os.Build.VERSION.SDK_INT;
-            s += "\n Device: "          + android.os.Build.DEVICE;
-            s += "\n Model (and Product): " + android.os.Build.MODEL            + " ("+ android.os.Build.PRODUCT + ")";
+    public String RetrieveCountryID()
+    {
+        String countryID = "0";
+        HashMap<String, String> country_ID = sessionManager.GetCountryID();
+        countryID = country_ID.get(SessionManager.KEY_COUNTRY_ID);
 
-            s += "\n -----------------------"              ;
-            s += "\n Model (just model): " + android.os.Build.MODEL;
-            s += "\n BOARD: "              + android.os.Build.BOARD;
-            s += "\n FINGERPRINT: "              + Build.FINGERPRINT;
-            s += "\n HARDWAER: "              + Build.HARDWARE;
-            s += "\n ID: "              + Build.ID;
-
-            s += "\n -----------------------"              ;
-
-            s += "\n RELEASE: "         + android.os.Build.VERSION.RELEASE;
-            s += "\n BRAND: "           + android.os.Build.BRAND;
-            s += "\n DISPLAY: "         + android.os.Build.DISPLAY;
-            s += "\n CPU_ABI: "         + android.os.Build.CPU_ABI;
-            s += "\n CPU_ABI2: "        + android.os.Build.CPU_ABI2;
-            s += "\n UNKNOWN: "         + android.os.Build.UNKNOWN;
-            s += "\n HARDWARE: "        + android.os.Build.HARDWARE;
-            s +=
-            "\n Build ID: "        + android.os.Build.ID;
-            s += "\n MANUFACTURER: "    + android.os.Build.MANUFACTURER;
-            s += "\n SERIAL: "          + android.os.Build.SERIAL;
-            s += "\n USER: "            + android.os.Build.USER;
-            s += "\n HOST: "            + android.os.Build.HOST;
-
-
-            Log.i(TAG + " | Device Info > ", s);
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error getting Device INFO");
+        if(countryID.equals(""))
+        {
+            countryID = "0";
         }
 
-    }//end getDeviceSuperInfo*/
+        return countryID;
+    }
+
+    public boolean isVendorM()
+    {
+        boolean vendorM;
+        HashMap<String, Boolean> MapVendor = sessionManager.GetVendorInfo();
+        vendorM = MapVendor.get(SessionManager.KEY_VENDOR_M);
+
+        return vendorM;
+    }
+
+    public static boolean containsID(Collection<Operator> pOpe, int pID)
+    {
+        for(Operator o : pOpe)
+        {
+            if(o != null && o.getID() == pID)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void PrintAZMEDeviceID()
+    {
+        EngagementAgent.getInstance(this).getDeviceId(new EngagementAgent.Callback<String>()
+        {
+            @Override
+            public void onResult(String deviceId)
+            {
+                Log.v("YVR", "AzME device ID:" + deviceId);
+            }
+        });
+    }
+
 
     /*
     * ****************************************************************************
@@ -1609,15 +1856,18 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     }
 
 
-    public boolean isVendorM()
-    {
-        boolean vendorM;
-        HashMap<String, Boolean> MapVendor = sessionManager.GetVendorInfo();
-        vendorM = MapVendor.get(SessionManager.KEY_VENDOR_M);
 
-        return vendorM;
-    }
 
+
+    /*
+    * ***************************************************************************************************
+    * ***************************************************************************************************
+    *
+    *   ACTIVITY'S LIFECYCLE
+    *
+    * ***************************************************************************************************
+    * ***************************************************************************************************
+    */
 
     @Override
     protected void onStart()
@@ -1656,12 +1906,14 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         EngagementAgent.getInstance(this).startActivity(this, activityNameOnEngagement, null);
         isVisible = true;
 
-        // Resuming the periodic location updates
-        if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates)
+        if (mGoogleApiClient != null)
         {
-            startLocationUpdates();
+            // Resuming the periodic location updates
+            if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates)
+            {
+                startLocationUpdates();
+            }
         }
-
 
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "YVR Lock");
@@ -1672,11 +1924,58 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     {
         super.onStop();
         isVisible = false;
-        if (mGoogleApiClient.isConnected())
+
+        if (mGoogleApiClient != null)
         {
-            mGoogleApiClient.disconnect();
+            if (mGoogleApiClient.isConnected())
+            {
+                mGoogleApiClient.disconnect();
+            }
         }
     }
+
+    /*
+    * ***************************
+    *   METODOS DE MENU
+    * ***************************
+    */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        getMenuInflater().inflate(R.menu.menu_home, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        int id = item.getItemId();
+        if (id == R.id.action_settings)
+        {
+            ProgressDialog = new ProgressDialog(Home.this);
+            ProgressDialog.setMessage(getString(R.string.dialog_signing_out));
+            ProgressDialog.show();
+            ProgressDialog.setCancelable(false);
+            ProgressDialog.setCanceledOnTouchOutside(false);
+
+            sessionManager.LogoutUser();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
+
+    /*
+    * ***************************************************************************************************
+    * ***************************************************************************************************
+    *
+    *   DATOS DEL DISPOSITIVO
+    *
+    * ***************************************************************************************************
+    * ***************************************************************************************************
+    */
 
     public JSONObject collectDeviceData()
     {
@@ -1800,12 +2099,16 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         }
     }
 
+
+
     /*
+    * ***************************************************************************************************
+    * ***************************************************************************************************
     *
+    *   GEO-LOCATION
     *
-    *   LOCATION LOGIC
-    *
-    *
+    * ***************************************************************************************************
+    * ***************************************************************************************************
     */
 
     /**
@@ -1821,19 +2124,22 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         }
         else
         {
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-            if (mLastLocation != null)
+            if(mGoogleApiClient != null)
             {
-                double latitude = mLastLocation.getLatitude();
-                double longitude = mLastLocation.getLongitude();
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-                mLocationData.setLongitude(longitude);
-                mLocationData.setLatitude(latitude);
-            }
-            else
-            {
-                Log.i(TAG, "Couldn't get the location. Make sure location is enabled on the device");
+                if (mLastLocation != null)
+                {
+                    double latitude = mLastLocation.getLatitude();
+                    double longitude = mLastLocation.getLongitude();
+
+                    mLocationData.setLongitude(longitude);
+                    mLocationData.setLatitude(latitude);
+                }
+                else
+                {
+                    Log.i(TAG, "Couldn't get the location. Make sure location is enabled on the device");
+                }
             }
         }
     }
@@ -1912,7 +2218,11 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         }
         else
         {
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+            if(mGoogleApiClient != null)
+            {
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+            }
+
         }
     }
 
@@ -1921,7 +2231,10 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
      */
     protected void stopLocationUpdates()
     {
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        if(mGoogleApiClient != null)
+        {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
     }
 
     /**
@@ -1949,7 +2262,10 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     @Override
     public void onConnectionSuspended(int arg0)
     {
-        mGoogleApiClient.connect();
+        if(mGoogleApiClient != null)
+        {
+            mGoogleApiClient.connect();
+        }
     }
 
     @Override
@@ -2022,35 +2338,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         }
     }
 
-    public void activateLockScreenFromSleep(boolean pActivate)
-    {
-        if(pActivate)
-        {
-            wakeLock.acquire();
-        }
-        else
-        {
-            wakeLock.release();
-        }
-    }
 
-    public String RetrieveCountryPhoneCode()
-    {
-        String phoneCode = "";
-        HashMap<String, String> countryPhoneCode = sessionManager.GetCountryPhoneCode();
-        phoneCode = countryPhoneCode.get(SessionManager.KEY_PHONE_CODE);
-
-        return phoneCode;
-    }
-
-    public String RetrieveCountryID()
-    {
-        String countryID = "";
-        HashMap<String, String> country_ID = sessionManager.GetCountryID();
-        countryID = country_ID.get(SessionManager.KEY_COUNTRY_ID);
-
-        return countryID;
-    }
 
 }
 
