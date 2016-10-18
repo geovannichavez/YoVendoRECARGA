@@ -117,10 +117,6 @@ public class Notificaciones extends AppCompatActivity
             {
                 Notification notification = ((Notification) parent.getItemAtPosition(position));
 
-                if(position == 0)
-                {
-                    RemoveNotificationStatusBar();
-                }
 
                 Intent notifDetail = new Intent(getApplicationContext(), DetalleNotificacion.class);
                 notifDetail.putExtra("trackingID", notification.getTrackingID());
@@ -654,11 +650,4 @@ public class Notificaciones extends AppCompatActivity
         return haveConnectedWifi || haveConnectedMobile;
     }
 
-    public void RemoveNotificationStatusBar()
-    {
-        //int NOTIFICATION_ID = 237;
-        NotificationManager nMgr = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        //nMgr.cancel(NOTIFICATION_ID);
-        nMgr.cancelAll();
-    }
 }

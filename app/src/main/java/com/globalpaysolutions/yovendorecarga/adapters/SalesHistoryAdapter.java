@@ -16,6 +16,8 @@ import com.globalpaysolutions.yovendorecarga.customs.SessionManager;
 import com.globalpaysolutions.yovendorecarga.model.PaymentItem;
 import com.globalpaysolutions.yovendorecarga.model.Sale;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -133,9 +135,8 @@ public class SalesHistoryAdapter extends ArrayAdapter<Sale>
 
         //Número de Teléfono
 
-
-        String phoneCode = RetrieveCountryPhoneCode();
-        String PhoneNumber = currentItem.getMSISDN().replace(phoneCode, "");
+        String PhoneNumber = currentItem.getMSISDN();
+        PhoneNumber = PhoneNumber.substring(3);
         if(!"".equals(PhoneNumber))
         {
             PhoneNumber = PhoneNumber.substring(0,4) + "-" + PhoneNumber.substring(4,PhoneNumber.length());

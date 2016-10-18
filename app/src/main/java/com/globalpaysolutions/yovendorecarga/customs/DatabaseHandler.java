@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.globalpaysolutions.yovendorecarga.model.LocalNotification;
 import com.globalpaysolutions.yovendorecarga.model.Operator;
 
 import java.util.ArrayList;
@@ -23,8 +24,10 @@ public class DatabaseHandler extends SQLiteOpenHelper
     // Database Name
     private static final String DATABASE_NAME = "YoVendoRecarga";
 
-    // Contacts table name
+    // Operators table name
     private static final String TABLE_OPERATORS = "Operators";
+    // Notifications table name
+    private static final String NOTIFICATIONS_TABLE = "Notifications";
 
     // Operators Table Columns names
     private static final String KEY_ID = "id";
@@ -38,6 +41,13 @@ public class DatabaseHandler extends SQLiteOpenHelper
     private static final String KEY_COUNTRY_ID = "country_id";
     private static final String KEY_LOGO_IMAGE = "logo_image";
 
+    //Notifications table Columns names
+    private static final String KEY_NOTIF_ID = "notif_id";
+    private static final String KEY_AZME_ID = "azme_notif_id";
+    private static final String KEY_TITLE = "notif_title";
+    private static final String KEY_MESSAGE = "notif_message";
+    private static final String KEY_SEEN = "notif_seen";
+
     public DatabaseHandler(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -47,6 +57,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     @Override
     public void onCreate(SQLiteDatabase db)
     {
+        //OPERADORES
         String CREATE_OPERATORS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_OPERATORS + "("
                 + KEY_ID + " INTEGER, " + KEY_OPERATOR_NAME + " TEXT,"
                 + KEY_BRAND + " TEXT," + KEY_LOGO + " TEXT," + KEY_MNC + " TEXT,"
@@ -54,6 +65,14 @@ public class DatabaseHandler extends SQLiteOpenHelper
                 + KEY_COUNTRY_ID + " INTEGER," + KEY_LOGO_IMAGE + " BLOB" + ")";
 
         db.execSQL(CREATE_OPERATORS_TABLE);
+
+        //NOTIFICACIONES
+        String CREATE_NOTIFICATIONS_TABLE = "CREATE TABLE IF NOT EXISTS " + NOTIFICATIONS_TABLE + "("
+                + KEY_NOTIF_ID + " INTEGER, " + KEY_AZME_ID + " INTEGER, " + KEY_TITLE + " TEXT, "
+                + KEY_MESSAGE + " TEXT" + ")";
+        db.execSQL(CREATE_NOTIFICATIONS_TABLE);
+
+
     }
 
     // Upgrading database
@@ -62,11 +81,13 @@ public class DatabaseHandler extends SQLiteOpenHelper
     {
         // Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_OPERATORS);
+        db.execSQL("DROP TABLE IF EXISTS " + NOTIFICATIONS_TABLE);
 
         // Create tables again
         onCreate(db);
     }
 
+    //region OPERADORES
     // Adding new contact
     public void addOperator(Operator operator)
     {
@@ -206,4 +227,167 @@ public class DatabaseHandler extends SQLiteOpenHelper
                 new String[] { String.valueOf(pCountryID) });
         db.close();
     }
+    //endregion
+
+
+
+    //region NOTIFICATIONS
+    public void addNotification(LocalNotification notification)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_NOTIF_ID, notification.getNotificationID());
+        values.put(KEY_AZME_ID, notification.getAzmeNotificationID());
+        values.put(KEY_TITLE, notification.getNotificationTitle());
+        values.put(KEY_MESSAGE, notification.getNotificationMessage());
+
+        // Inserting Row
+        db.insert(NOTIFICATIONS_TABLE, null, values);
+        db.close(); // Closing database connection
+    }
+
+    public LocalNotification getNotification(int id)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(NOTIFICATIONS_TABLE, new String[] { KEY_NOTIF_ID,
+                        KEY_AZME_ID, KEY_TITLE, KEY_MESSAGE }, KEY_NOTIF_ID + "=?",
+                new String[] { String.valueOf(id) }, null, null, null, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        LocalNotification notification = new LocalNotification();
+        notification.setNotificationID(cursor.getInt(0));
+        notification.setAzmeNotificationID(cursor.getInt(1));
+        notification.setNotificationTitle(cursor.getString(2));
+        notification.setNotificationMessage(cursor.getString(3));
+
+        // return contact
+        return notification;
+    }
+
+    public LocalNotification getNotificationByAzmeID(int pAzmID)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(NOTIFICATIONS_TABLE, new String[] { KEY_NOTIF_ID,
+                        KEY_AZME_ID, KEY_TITLE, KEY_MESSAGE }, KEY_AZME_ID + "=?",
+                new String[] { String.valueOf(pAzmID) }, null, null, null, null);
+
+        LocalNotification notification = new LocalNotification();
+
+        if(cursor.moveToFirst())
+        {
+            notification.setNotificationID(cursor.getInt(0));
+            notification.setAzmeNotificationID(cursor.getInt(1));
+            notification.setNotificationTitle(cursor.getString(2));
+            notification.setNotificationMessage(cursor.getString(3));
+        }
+        cursor.close();
+
+        return notification;
+    }
+
+    public LocalNotification getNotificationByTitle(String pTitle)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(NOTIFICATIONS_TABLE, new String[] { KEY_NOTIF_ID,
+                        KEY_AZME_ID, KEY_TITLE, KEY_MESSAGE }, KEY_TITLE + "=?",
+                new String[] { pTitle }, null, null, null, null);
+
+        LocalNotification notification = new LocalNotification();
+        if (cursor.moveToFirst())
+        {
+
+            notification.setNotificationID(cursor.getInt(0));
+            notification.setAzmeNotificationID(cursor.getInt(1));
+            notification.setNotificationTitle(cursor.getString(2));
+            notification.setNotificationMessage(cursor.getString(3));
+        }
+        cursor.close();
+
+
+
+        //String selectQuery = "SELECT  * FROM " + NOTIFICATIONS_TABLE + " WHERE " + KEY_TITLE + "=?";
+
+        //Cursor cursor = db.rawQuery(selectQuery,  new String[] {pTitle});
+        // you can change it to
+        // db.rawQuery("SELECT * FROM "+table+" WHERE KEY_KEY LIKE ?", new String[] {key+"%"});
+        // if you want to get everything starting with that key value
+
+        // looping through all rows and adding to list
+        //if (cursor.moveToFirst()) {
+        //    do {
+        //        Log.d("searchKeyString","searching");
+        //
+        //        rtn.append(",").append(cursor.getString(2));
+        //    } while (cursor.moveToNext());
+        //
+        //cursor.close();
+        //Log.d("searchKeyString","finish search");
+
+
+        //if (cursor != null)
+        //    cursor.moveToFirst();
+        //
+        //LocalNotification notification = new LocalNotification();
+        //notification.setNotificationID(cursor.getInt(0));
+        //notification.setAzmeNotificationID(cursor.getInt(1));
+        //notification.setNotificationTitle(cursor.getString(2));
+        //notification.setNotificationMessage(cursor.getString(3));
+
+        // return contact
+        return notification;
+    }
+
+    public List<LocalNotification> getNotifications()
+    {
+        List<LocalNotification> notificationsList = new ArrayList<LocalNotification>();
+
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + NOTIFICATIONS_TABLE + " LIMIT 25 ";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst())
+        {
+            do
+            {
+                LocalNotification notif = new LocalNotification();
+                notif.setNotificationID(Integer.parseInt(cursor.getString(0)));
+                notif.setAzmeNotificationID(Integer.parseInt(cursor.getString(1)));
+                notif.setNotificationTitle(cursor.getString(2));
+                notif.setNotificationMessage(cursor.getString(3));
+
+                // Adding contact to list
+                notificationsList.add(notif);
+
+            } while (cursor.moveToNext());
+        }
+
+        // return contact list
+        return notificationsList;
+    }
+
+    public void deleteNotification(LocalNotification notification)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(NOTIFICATIONS_TABLE, KEY_AZME_ID + " = ?",
+                new String[] { String.valueOf(notification.getAzmeNotificationID()) });
+        db.close();
+    }
+
+    public void deleteAllNotifications()
+    {
+        SQLiteDatabase db= this.getWritableDatabase();
+        db.delete(NOTIFICATIONS_TABLE, null, null);
+
+    }
+    //endregion
+
 }
