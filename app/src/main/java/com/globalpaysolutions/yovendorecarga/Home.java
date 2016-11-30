@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.support.annotation.IntegerRes;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -71,7 +70,6 @@ import com.globalpaysolutions.yovendorecarga.customs.LocationTracker;
 import com.globalpaysolutions.yovendorecarga.customs.PinDialogBuilder;
 import com.globalpaysolutions.yovendorecarga.customs.SessionManager;
 import com.globalpaysolutions.yovendorecarga.customs.StringsURL;
-import com.globalpaysolutions.yovendorecarga.customs.TopUpSingleton;
 import com.globalpaysolutions.yovendorecarga.customs.Validation;
 import com.globalpaysolutions.yovendorecarga.customs.YVScomSingleton;
 import com.globalpaysolutions.yovendorecarga.customs.YvsPhoneStateListener;
@@ -87,6 +85,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.SocketTimeoutException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -95,6 +94,9 @@ import java.util.List;
 import java.util.Map;
 
 //For Push Notifications
+import com.globalpaysolutions.yovendorecarga.model.TopupModel;
+import com.globalpaysolutions.yovendorecarga.model.TopupResult;
+import com.globalpaysolutions.yovendorecarga.rest.ApiClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -111,6 +113,13 @@ import com.microsoft.azure.engagement.EngagementAgentUtils;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.http.Body;
+import retrofit2.http.Header;
+import retrofit2.http.POST;
+import retrofit2.http.Url;
 
 
 public class Home extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener
@@ -631,83 +640,90 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         //Locks the screen while sending request
         activateLockScreenFromSleep(true);
 
-
+        //Setting up TopupData
         String countryCode = RetrieveCountryPhoneCode();
         String CountryID = RetrieveCountryID();
+        String TopupData = countryCode + pPhoneNumber + "/" + pAmount + "/";
 
+        //Making request to server
+        TopupModel model = new TopupModel(SelectedOperatorName, CountryID);
+        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        Call<TopupResult> call = apiService.getTopupResult(TopupData, Token, model);
 
-        JSONObject jTopUp = new JSONObject();
-        try
-        {
-            jTopUp.put("Operador", SelectedOperatorName);
-            jTopUp.put("IdCountry", CountryID);
-        } catch (JSONException ex)
-        {
-            ex.printStackTrace();
-        }
-
-
-        TopUpSingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(
-                Request.Method.POST,
-                StringsURL.TOPUP + countryCode + pPhoneNumber + "/" + pAmount + "/" + " ", // Aditional blank space to volley takes also the final slash
-                //StringsURL.TEST_TIMEOUT,
-                jTopUp, new Response.Listener<JSONObject>()
-        {
+        //Handle response
+        call.enqueue(new Callback<TopupResult>() {
             @Override
-            public void onResponse(JSONObject response)
+            public void onResponse(Call<TopupResult> call, retrofit2.Response<TopupResult> response)
             {
-                //Unlocks the screen on response
-                activateLockScreenFromSleep(false);
-
-                //Procesar la respuesta del servidor
-                Log.d("Mensaje JSON ", response.toString());
-
-                //Esconde el Progress Dialog
+                if(response.isSuccessful())
+                {
+                    TopupResult topupResult = response.body();
+                    activateLockScreenFromSleep(false);
+                    ProgressDialog.dismiss();
+                    ProcessTopupResponse(topupResult);
+                }
+                else
+                {
+                    int codeResponse = response.code();
+                    ProcessRetrofitError(codeResponse);
+                }
+            }
+            @Override
+            public void onFailure(Call<TopupResult> call, Throwable t)
+            {
                 ProgressDialog.dismiss();
-                ProcessTopupResponse(response);
-            }
-        }, new Response.ErrorListener()
-        {
-            @Override
-            public void onErrorResponse(VolleyError error)
-            {
+                if(t instanceof SocketTimeoutException)
+                {
+                    //Toast.makeText(Home.this, "Tiempo agotado", Toast.LENGTH_LONG).show();
+                    String Titulo = getString(R.string.check_history_title);
+                    String Linea1 = getString(R.string.check_history_advice_ln1);
+                    String Linea2 = getString(R.string.check_history_advice_ln2);
+                    String Button = "OK";
+                    txtPhoneNumber.setText("");
+                    IsExecuting = false;
+                    ResetControls();
+
+                    EnableTopupButton(true);
+                    CustomDialogCreator.CreateFullScreenDialog(Titulo, Linea1 + " " + Linea2, null, null, Button, "NEWACTION", true, true);
+                }
+                else
+                {
+                    String Titulo = "ALGO HA SALIDO MAL...";
+                    String Linea1 = getString(R.string.something_went_wrong_try_again);
+                    String Button = "OK";
+                    ResetControls();
+
+                    IsExecuting = false;
+                    EnableTopupButton(true);
+                    CustomDialogCreator.CreateFullScreenDialog(Titulo, Linea1, null, null, Button, "NEWACTION", true, true);
+                }
+
                 //Unlocks the screen on response
                 activateLockScreenFromSleep(false);
+            }
 
-                ProcessTopupVolleyError(error);
-            }
-        })
-        {
-            //Se añade el header para enviar el Token
-            @Override
-            public Map<String, String> getHeaders()
-            {
-                Map<String, String> headers = new HashMap<String, String>();
-                headers.put("Token-Autorization", Token);
-                headers.put("Content-Type", "application/json; charset=utf-8");
-                return headers;
-            }
-        }, -1);
+        });
+
+
     }
 
     //Procesa Respuesta de TopUp
-    public void ProcessTopupResponse(JSONObject pResponse)
+    public void ProcessTopupResponse(TopupResult pResponse)
     {
         //Restablece el scroll al tope despues de enviar recarga.
         scrollView.fullScroll(View.FOCUS_UP);
-        final JSONObject topupResponse = pResponse;
+
         String PhoneUsed = txtPhoneNumber.getText().toString();
         String Operator = "";
         try
         {
-            String Message = topupResponse.getString("message").toString();
-            String Balance = topupResponse.getString("AvailableAmount").toString();
-            Operator = topupResponse.has("mno") ? topupResponse.getString("mno") : "";
+            String Message = pResponse.getMessage();
+            String Balance = pResponse.getAvailableAmount();
 
             sessionManager.SaveAvailableBalance(Balance);
             SetBalanceTextView();
             Log.d("Resultado: ", Message);
-        } catch (JSONException e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -722,103 +738,49 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
 
     }
 
-    //Procesa Respuesta de TopUp con Error
-    public void ProcessTopupVolleyError(VolleyError pError)
+    public void ProcessRetrofitError(int error)
     {
         scrollView.fullScroll(View.FOCUS_UP);
-        int statusCode = 0;
-        NetworkResponse networkResponse = pError.networkResponse;
 
-        if (networkResponse != null)
+        String Titulo;
+        String Linea1;
+        String Linea2;
+        String Button;
+        ProgressDialog.dismiss();
+
+        switch (error)
         {
-            statusCode = networkResponse.statusCode;
-        }
-
-        if (pError instanceof TimeoutError || pError instanceof NoConnectionError)
-        {
-            ProgressDialog.dismiss();
-            String Titulo = getString(R.string.check_history_title);
-            String Linea1 = getString(R.string.check_history_advice_ln1);
-            String Linea2 = getString(R.string.check_history_advice_ln2);
-            String Button = "OK";
-            txtPhoneNumber.setText("");
-            IsExecuting = false;
-            ResetControls();
-
-            EnableTopupButton(true);
-            CustomDialogCreator.CreateFullScreenDialog(Titulo, Linea1 + " " + Linea2, null, null, Button, "NEWACTION", true, true);
-        }
-        else if (pError instanceof ServerError)
-        {
-            ProgressDialog.dismiss();
-
-            //Token Inválido
-            if (statusCode == 502)
-            {
-                String Titulo = getString(R.string.expired_session);
-                String Linea1 = getString(R.string.dialog_error_topup_content);
-                String Button = "OK";
+            case 502:
+                Titulo = getString(R.string.expired_session);
+                Linea1 = getString(R.string.dialog_error_topup_content);
+                Button = "OK";
                 txtPhoneNumber.setText("");
-
                 IsExecuting = false;
                 EnableTopupButton(true);
                 CustomDialogCreator.CreateFullScreenDialog(Titulo, Linea1, null, null, Button, "LOGOUT", true, true);
-            }
-            //Insuficiente Saldo
-            else if (statusCode == 503)
-            {
-                String Titulo = getString(R.string.insufficent_balance_title);
-                String Linea1 = getString(R.string.insufficent_balance_ln1);
-                String Linea2 = getString(R.string.insufficent_balance_ln2);
-                String Button = "OK";
+                break;
+            case 503:
+                Titulo = getString(R.string.insufficent_balance_title);
+                Linea1 = getString(R.string.insufficent_balance_ln1);
+                Linea2 = getString(R.string.insufficent_balance_ln2);
+                Button = "OK";
                 ResetControls();
-
                 IsExecuting = false;
                 EnableTopupButton(true);
                 CustomDialogCreator.CreateFullScreenDialog(Titulo, Linea1 + " " + Linea2, null, null, Button, "NAVIGATEHOME", true, true);
-            }
-            //Error General
-            else
-            {
-                String Titulo = "ALGO HA SALIDO MAL...";
-                String Linea1 = getString(R.string.something_went_wrong_try_again);
-                String Button = "OK";
-                ProgressDialog.dismiss();
+                break;
+            default:
+                Titulo = "ALGO HA SALIDO MAL...";
+                Linea1 = getString(R.string.something_went_wrong_try_again);
+                Button = "OK";
                 ResetControls();
-
                 IsExecuting = false;
                 EnableTopupButton(true);
                 CustomDialogCreator.CreateFullScreenDialog(Titulo, Linea1, null, null, Button, "NEWACTION", true, true);
-            }
-        }
-        else if (pError instanceof NetworkError)
-        {
-            ProgressDialog.dismiss();
-            String Titulo = getString(R.string.internet_connecttion_title);
-            String Linea1 = getString(R.string.internet_connecttion_msg);
-            String Button = "OK";
-            txtPhoneNumber.setText("");
-
-            IsExecuting = false;
-            EnableTopupButton(true);
-            CustomDialogCreator.CreateFullScreenDialog(Titulo, Linea1, null, null, Button, "NEWACTION", true, true);
-
-        }
-        else if (pError instanceof AuthFailureError)
-        {
-            ProgressDialog.dismiss();
-
-            String Titulo = "ALGO HA SALIDO MAL...";
-            String Linea1 = getString(R.string.something_went_wrong_try_again);
-            String Button = "OK";
-            ProgressDialog.dismiss();
-            ResetControls();
-
-            IsExecuting = false;
-            EnableTopupButton(true);
-            CustomDialogCreator.CreateFullScreenDialog(Titulo, Linea1, null, null, Button, "NEWACTION", true, true);
+                break;
         }
     }
+
 
 
 
@@ -1022,35 +984,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
             }
         });
 
-
-       /* Operator op1 = new Operator();
-        op1.setOperatorName("Tigo");
-        op1.setDescription("");
-        op1.setLogo("");
-        op1.setID(1);
-        ListaOperadores.add(op1);
-
-        Operator op2 = new Operator();
-        op2.setOperatorName("Digicel");
-        op2.setDescription("");
-        op2.setLogo("");
-        op2.setID(2);
-        ListaOperadores.add(op2);
-
-        Operator op3 = new Operator();
-        op3.setOperatorName("Movistar");
-        op3.setDescription("");
-        op3.setLogo("");
-        op3.setID(3);
-        ListaOperadores.add(op3);
-
-        Operator op4 = new Operator();
-        op4.setOperatorName("Claro");
-        op4.setDescription("");
-        op4.setLogo("");
-        op4.setID(4);
-        ListaOperadores.add(op4);*/
-
         for (Operator item : ListaOperadores)
         {
             OpeAdapter.add(item);
@@ -1118,34 +1051,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
             }
         });
 
-
-       /* Operator op1 = new Operator();
-        op1.setOperatorName("Tigo");
-        op1.setDescription("");
-        op1.setLogo("");
-        op1.setID(1);
-        ListaOperadores.add(op1);
-
-        Operator op2 = new Operator();
-        op2.setOperatorName("Digicel");
-        op2.setDescription("");
-        op2.setLogo("");
-        op2.setID(2);
-        ListaOperadores.add(op2);
-
-        Operator op3 = new Operator();
-        op3.setOperatorName("Movistar");
-        op3.setDescription("");
-        op3.setLogo("");
-        op3.setID(3);
-        ListaOperadores.add(op3);
-
-        Operator op4 = new Operator();
-        op4.setOperatorName("Claro");
-        op4.setDescription("");
-        op4.setLogo("");
-        op4.setID(4);
-        ListaOperadores.add(op4);*/
 
         for (Operator item : ListaOperadores)
         {
@@ -2338,7 +2243,12 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         }
     }
 
+    public interface ApiInterface
+    {
+        @POST
+        Call<TopupResult> getTopupResult(@Url String topupUrl, @Header("Token-autorization") String tokenAuthorization, @Body TopupModel topupModel);
 
+    }
 
 }
 

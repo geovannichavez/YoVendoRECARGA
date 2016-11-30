@@ -121,7 +121,7 @@ public class PinDialogBuilder extends AlertDialog
 
 
         //EditText donde se va a insertar el PIN
-        etPin = (EditText) v.findViewById(R.id.etEnterPin);
+        etPin = (EditText) v.f1234indViewById(R.id.etEnterPin);
         etPin.setTransformationMethod(new PasswordTransformationMethod());
         etPin.setTypeface(Typeface.DEFAULT);
         PinTextCounter();
