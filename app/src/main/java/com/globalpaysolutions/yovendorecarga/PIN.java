@@ -49,6 +49,7 @@ public class PIN extends AppCompatActivity
     //Variables globales
     String PinSecurityCode;
     boolean FirstTimeConfiguration;
+    boolean NewEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -90,6 +91,13 @@ public class PIN extends AppCompatActivity
             tvContentPin.setText(getString(R.string.content_insert_pin));
             FirstTimeConfiguration = true;
         }
+        else if(IntentExtra.equals("SET_NEW_EMAIL_PIN"))
+        {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            tvContentPin.setText(getString(R.string.content_insert_pin));
+            FirstTimeConfiguration = true;
+            NewEmail = true;
+        }
         else
         {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -105,8 +113,10 @@ public class PIN extends AppCompatActivity
         {
             if (sessionManager.IsSecurityPinActive())
             {
-                //AskPINDialog();
-                AskPasswordDialog();
+                if(!NewEmail)
+                {
+                    AskPasswordDialog();
+                }
             }
         }
     }

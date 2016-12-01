@@ -91,6 +91,8 @@ public class Login extends AppCompatActivity
     public static String iso3Code;
     public static String PhoneCode;
     public String PublicIPAddress;
+    public String lastEmailSignedin; //Para validar nuevo PIN
+    public boolean lastRememberEmail;
     SessionManager sessionManager;
     Validation validator;
     TelephonyManager telephonyManager;
@@ -133,7 +135,16 @@ public class Login extends AppCompatActivity
         {
             String Email = RetrieveUserEmail();
             etRegMail.setText(Email);
+        }
 
+        try
+        {
+            lastEmailSignedin = RetrieveUserEmail();
+            lastRememberEmail = sessionManager.MustRememeberEmail();
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
         }
     }
 
@@ -343,6 +354,13 @@ public class Login extends AppCompatActivity
                     startActivity(pinIntent);
                     finish();
                 }
+                else if(!lastEmailSignedin.equals(RetrieveUserEmail()) || !lastRememberEmail ||  !sessionManager.MustRememeberEmail())
+                {
+                    Intent pinIntent = new Intent(this, PIN.class);
+                    pinIntent.putExtra("PIN_CONF", "SET_NEW_EMAIL_PIN");
+                    startActivity(pinIntent);
+                    finish();
+                }
                 else
                 {
                     //Intent para abrir la siguiente Activity
@@ -359,6 +377,13 @@ public class Login extends AppCompatActivity
             e.printStackTrace();
         }
 
+
+    }
+
+
+    public void lastEmailSignedin()
+    {
+        String email = RetrieveUserEmail();
 
     }
 
