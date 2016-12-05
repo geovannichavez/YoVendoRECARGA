@@ -910,86 +910,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
         }
     }
 
-    public void getOperators()
-    {
-        //Setea el hint cuando no se ha seleccionado un operador
-        //Se añade 2 veces porque pone el último como seleccionado
-        for (int i = 0; i < 2; i++)
-        {
-            selectedOperatorAmounts.add(Data.AmountHint(Home.this));
-        }
-        AmountAdapter = new AmountSpinnerAdapter(this, R.layout.custom_amount_spinner_item, R.id.tvAmount, selectedOperatorAmounts);
-        AmountAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        SpinnerAmount = (Spinner) this.findViewById(R.id.spMontoRecarga);
-        SpinnerAmount.setAdapter(AmountAdapter);
-        SpinnerAmount.setSelection(AmountAdapter.getCount());
-
-
-        OperatorSelected = false;
-        //Seteando el adapter de Operadores
-        GridViewOperators = (GridView) findViewById(R.id.gvOperadores);
-        OpeAdapter = new OperatorsAdapter(this, R.layout.custom_operator_gridview_item);
-        GridViewOperators.setAdapter(OpeAdapter);
-
-        GridViewOperators.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
-
-                OperatorSelected = true;
-                SelectedOperatorName = ((Operator) parent.getItemAtPosition(position)).getOperatorName();
-                for (int i = 0; i < GridViewOperators.getAdapter().getCount(); i++)
-                {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                    {
-                        GridViewOperators.getChildAt(i).setBackground(getResources().getDrawable(R.drawable.custom_rounded_corner_operator));
-                    }
-                    else
-                    {
-                        GridViewOperators.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.custom_rounded_corner_operator));
-                    }
-                }
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                {
-                    GridViewOperators.getChildAt(position).setBackground(getResources().getDrawable(R.drawable.custom_rounded_corner_selected));
-                }
-                else
-                {
-                    GridViewOperators.getChildAt(position).setBackgroundDrawable(getResources().getDrawable(R.drawable.custom_rounded_corner_selected));
-                }
-
-                switch (SelectedOperatorName)
-                {
-                    case "Tigo":
-                        mNMO = "Tigo El Salvador";
-                        break;
-                    case "Claro":
-                        mNMO = "Claro El Salvador";
-                        break;
-                    case "Movistar":
-                        mNMO = "Movistar El Salvador";
-                        break;
-                    case "Digicel":
-                        mNMO = "Digicel El Salvador";
-                        break;
-                    default:
-                        mNMO = "";
-                        break;
-                }
-                //mNMO = SelectedOperatorName;
-                getServerAmounts(mNMO);
-
-            }
-        });
-
-        for (Operator item : ListaOperadores)
-        {
-            OpeAdapter.add(item);
-        }
-
-    }
 
     public void setOperators()
     {
@@ -1543,34 +1463,6 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
                             }, time);
                         }
 
-                        /*handler.postDelayed(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                showcaseView.setShowcase(new ViewTarget(GridViewOperators.getChildAt(2).findViewById(R.id.ivOperador)), true);
-
-                            }
-                        }, 2000);
-                        handler.postDelayed(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                showcaseView.setShowcase(new ViewTarget(GridViewOperators.getChildAt(3).findViewById(R.id.ivOperador)), true);
-
-                            }
-                        }, 3000);
-                        handler.postDelayed(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                showcaseView.showButton();
-
-                            }
-                        }, 3500);*/
-
                         showcaseView.setContentTitle(getString(R.string.sv_title_2));
                         showcaseView.setContentText(getString(R.string.sv_content_2));
                         showcaseView.forceTextPosition(ShowcaseView.BELOW_SHOWCASE);
@@ -2024,8 +1916,10 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
 
         if ( Build.VERSION.SDK_INT >= 23 &&
                 ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            //return;
+            Log.i(TAG, "Location has been denied on device by user.");
         }
         else
         {
@@ -2118,8 +2012,12 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
                 ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         {
-
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 3);
+            if(!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) &&
+                    !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION))
+            {
+                //Log.i(TAG, "Location has been denied on device by user.");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 3);
+            }
         }
         else
         {
@@ -2178,7 +2076,7 @@ public class Home extends AppCompatActivity implements ConnectionCallbacks, OnCo
     {
         // Assign the new location
         mLastLocation = location;
-        Log.i(TAG, "Location DID changed");
+        Log.i(TAG, "Location DID change");
 
     }
 

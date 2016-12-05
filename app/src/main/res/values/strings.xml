@@ -109,6 +109,7 @@
     <string name="not_setted">Sin establecer...</string>
     <string name="dialog_logging_in">Iniciando sesión...</string>
     <string name="phone_number_edittext_hint"><font size="16">NÚMERO CELULAR</font></string>
+    <string name="allow_permission_phone_state_dialog">Debe permitir el acceso al estado del teléfono para asociar su cuenta al dispositivo.</string>
 
     <!--Navigation Drawer Items-->
     <string name="drawer_home_item">Inicio</string>

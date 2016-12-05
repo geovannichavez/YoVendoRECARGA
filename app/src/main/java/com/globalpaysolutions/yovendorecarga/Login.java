@@ -79,6 +79,7 @@ public class Login extends AppCompatActivity
     android.app.ProgressDialog ProgressDialog;
 
     //Activity Global Variables
+    final private int REQUEST_READ_PHONE_STATE = 2;
     private static final String TAG = Home.class.getSimpleName();
     public static String Token;
     public static String Balance;
@@ -347,27 +348,27 @@ public class Login extends AppCompatActivity
             }
             else
             {*/
-                if(RetrieveUserPin().isEmpty())
-                {
-                    Intent pinIntent = new Intent(this, PIN.class);
-                    pinIntent.putExtra("PIN_CONF", "SET_FIRST_TIME");
-                    startActivity(pinIntent);
-                    finish();
-                }
-                else if(!lastEmailSignedin.equals(RetrieveUserEmail()) || !lastRememberEmail ||  !sessionManager.MustRememeberEmail())
-                {
-                    Intent pinIntent = new Intent(this, PIN.class);
-                    pinIntent.putExtra("PIN_CONF", "SET_NEW_EMAIL_PIN");
-                    startActivity(pinIntent);
-                    finish();
-                }
-                else
-                {
-                    //Intent para abrir la siguiente Activity
-                    Intent intent = new Intent(this, Home.class);
-                    startActivity(intent);
-                    finish();
-                }
+            if(RetrieveUserPin().isEmpty())
+            {
+                Intent pinIntent = new Intent(this, PIN.class);
+                pinIntent.putExtra("PIN_CONF", "SET_FIRST_TIME");
+                startActivity(pinIntent);
+                finish();
+            }
+            else if(!lastEmailSignedin.equals(RetrieveUserEmail()) || !lastRememberEmail ||  !sessionManager.MustRememeberEmail())
+            {
+                Intent pinIntent = new Intent(this, PIN.class);
+                pinIntent.putExtra("PIN_CONF", "SET_NEW_EMAIL_PIN");
+                startActivity(pinIntent);
+                finish();
+            }
+            else
+            {
+                //Intent para abrir la siguiente Activity
+                Intent intent = new Intent(this, Home.class);
+                startActivity(intent);
+                finish();
+            }
             //}
 
 
@@ -793,11 +794,10 @@ public class Login extends AppCompatActivity
 
     public String getDeviceID()
     {
-        final int REQUEST_READ_PHONE_STATE = 2;
         final String tmDevice;
         final String tmSerial;
         final String androidId;
-        String DeviceID = "";
+        String _deviceID = "";
         UUID deviceUuid = null;
 
         try
@@ -806,7 +806,28 @@ public class Login extends AppCompatActivity
 
             if (permissionCheck != PackageManager.PERMISSION_GRANTED)
             {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+                if(Build.VERSION.SDK_INT >= 23)
+                {
+                    if (!shouldShowRequestPermissionRationale(Manifest.permission.READ_PHONE_STATE))
+                    {
+                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Login.this);
+                        alertDialog.setTitle("PERMISOS");
+                        alertDialog.setMessage(getString(R.string.allow_permission_phone_state_dialog));
+                        alertDialog.setPositiveButton("ACEPTAR", new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                ActivityCompat.requestPermissions(Login.this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+                            }
+                        });
+                        alertDialog.show();
+                    }
+                }
+                else
+                {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+                }
+
             }
             else
             {
@@ -814,14 +835,15 @@ public class Login extends AppCompatActivity
                 tmSerial = "" + telephonyManager.getSimSerialNumber();
                 androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
                 deviceUuid = new UUID(androidId.hashCode(), ((long) tmDevice.hashCode() << 32) | tmSerial.hashCode());
-                DeviceID = deviceUuid.toString().toUpperCase();
+                _deviceID = deviceUuid.toString().toUpperCase();
             }
         } catch (Exception ex)
         {
             ex.printStackTrace();
         }
 
-        return DeviceID;
+        Log.i(TAG, "Device id: " + _deviceID);
+        return _deviceID;
     }
 
     public class RetrievePublicIPAddress extends AsyncTask<String, Void, String>
@@ -952,4 +974,38 @@ public class Login extends AppCompatActivity
         return _encrypted;
     }
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    {
+        switch (requestCode)
+        {
+            case REQUEST_READ_PHONE_STATE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    DeviceID = getDeviceID();
+                    Log.i(TAG, "Device id: " + DeviceID);
+                }
+                else
+                {
+                    if(Build.VERSION.SDK_INT >= 23)
+                    {
+                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Login.this);
+                        alertDialog.setTitle("PERMISOS");
+                        alertDialog.setMessage(getString(R.string.allow_permission_phone_state_dialog));
+                        alertDialog.setPositiveButton("ACEPTAR", new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                ActivityCompat.requestPermissions(Login.this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+                            }
+                        });
+                        alertDialog.show();
+                    }
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
 }
